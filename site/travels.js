@@ -43,8 +43,9 @@
   function draw() {
     const w = container.clientWidth, h = container.clientHeight;
     svg.attr("viewBox", `0 0 ${w} ${h}`).attr("preserveAspectRatio", "xMidYMid slice");
-    // full-bleed rectangular Mercator: span the whole width, crop the poles vertically
-    const proj = d3.geoMercator().scale(w / (2 * Math.PI)).translate([w / 2, h * 0.62]);
+    // full-bleed rectangular Mercator; scale slightly past full-width so the ±180° antimeridian
+    // edges (and their stray vertical seam) crop off-screen
+    const proj = d3.geoMercator().scale(w / (2 * Math.PI) * 1.08).translate([w / 2, h * 0.62]);
     const path = d3.geoPath(proj);
     const sel = svg.selectAll("path").data(geo.features);
     sel.join("path")
