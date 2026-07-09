@@ -3,6 +3,7 @@
   const VISITS = window.TRIPS || {};
 
   const geo = window.WORLD_GEOJSON;
+  const feats = geo.features.filter(f => !f.properties || f.properties.name !== "Antarctica");
   const container = document.getElementById("map");
   const panel = document.getElementById("panel");
   const pbody = panel.querySelector(".pbody");
@@ -65,12 +66,14 @@
 
   function draw() {
     const w = container.clientWidth, h = container.clientHeight;
-    svg.attr("viewBox", `0 0 ${w} ${h}`).attr("preserveAspectRatio", "xMidYMid slice");
-    // full-bleed rectangular Mercator; scale slightly past full-width so the ±180° antimeridian
-    // edges (and their stray vertical seam) crop off-screen
-    const proj = d3.geoMercator().scale(w / (2 * Math.PI) * 1.08).translate([w / 2, h * 0.62]);
+    svg.attr("viewBox", `0 0 ${w} ${h}`).attr("preserveAspectRatio", "xMidYMid meet");
+    // Fit the inhabited latitude band (~ -56°..82°, so Finland and Argentina both show) to the
+    // view. Overshoot the horizontal extent by `m` so the ±180° antimeridian seam crops off-screen.
+    const bbox = { type: "Polygon", coordinates: [[[-180,-56],[180,-56],[180,82],[-180,82],[-180,-56]]] };
+    const m = w * 0.04;
+    const proj = d3.geoMercator().fitExtent([[-m, 0], [w + m, h]], bbox);
     const path = d3.geoPath(proj);
-    const sel = svg.selectAll("path").data(geo.features);
+    const sel = svg.selectAll("path").data(feats);
     sel.join("path")
       .attr("d", path)
       .attr("class", d => "country" + (VISITS[d.properties.name] ? " visited" : ""))
