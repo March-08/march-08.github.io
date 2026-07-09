@@ -6,10 +6,10 @@ body { overflow-x: hidden; }                 /* contain the full-width map break
 /* full-viewport-width map, sitting below the standard navbar + title */
 #map {
   position: relative; left: 50%; margin-left: -50vw; width: 100vw;
-  height: 82vh; margin-top: 1rem; background: rgb(249,249,249);   /* ocean = site background */
+  height: 82vh; margin-top: 1rem; background: transparent;   /* blends into the page like a PNG */
 }
 #map svg { width: 100%; height: 100%; display: block; }
-.country { fill: #ffffff; stroke: #cfcbc0; stroke-width: .5px; }          /* land */
+.country { fill: transparent; stroke: #c9c5ba; stroke-width: .5px; }       /* land: outline only, no fill */
 .country.visited { fill: #0099FF; stroke: #2f8fd8; cursor: pointer; transition: fill .15s; }
 .country.visited:hover { fill: #1f7cc4; }
 .country.active { fill: #12659f; }
