@@ -1,24 +1,6 @@
 (function () {
-  // simple labelled placeholder image (data-URI) so the demo carousel has distinct slides
-  const ph = (label, bg) => "data:image/svg+xml," + encodeURIComponent(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='430'><rect width='640' height='430' fill='${bg}'/>` +
-    `<text x='320' y='228' font-family='Georgia' font-size='42' fill='#ffffff' text-anchor='middle'>${label}</text></svg>`);
-
-  // --- DUMMY DATA (replace with real trips) — keyed by exact GeoJSON country name ---
-  const VISITS = {
-    "Italy": { year: "Home", photos: ["images/photo.jpeg"],
-      text: "Where it all starts. Rome, the coast, and endless espresso. Dummy text — swap in a real note about home and travels across Italy." },
-    "Netherlands": { year: "2024", photos: ["images/avatar.png", "images/photo.jpeg"],
-      text: "Amsterdam canals and a conference or two. Placeholder text about the trip — the food, the bikes, the rain." },
-    "Japan": { year: "2023", photos: [ph("Tokyo", "#2f8fd8"), ph("Kyoto", "#12659f"), ph("Osaka", "#4aa5e6")],
-      text: "Tokyo neon and Kyoto temples. Dummy travel note: ramen counters, bullet trains, and getting cheerfully lost in Shinjuku. (Three demo photos — use the arrows.)" },
-    "United States of America": { year: "2022", photos: ["images/avatar.png"],
-      text: "From the Bay Area to the East Coast. Placeholder text — replace with a story from the trip." },
-    "France": { year: "2023", photos: ["images/photo.jpeg"],
-      text: "Paris and the south. Dummy note about museums, markets, and a very long walk along the Seine." },
-    "Iceland": { year: "2021", photos: ["images/avatar.png"],
-      text: "Waterfalls, black-sand beaches, and the northern lights. Placeholder travel text goes here." }
-  };
+  // Trip content lives in travels-data.js (window.TRIPS) — edit that file to add trips.
+  const VISITS = window.TRIPS || {};
 
   const geo = window.WORLD_GEOJSON;
   const container = document.getElementById("map");
