@@ -10,29 +10,27 @@ body.travels {
 }
 .sans { font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif; }
 
-/* full-screen, full-bleed map */
-#map { position: fixed; inset: 0; background: #e6e3da; }
+/* top navbar (matches the rest of the site) */
+.sitenav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 15; height: 3.4rem;
+  display: flex; align-items: center; padding: 0 1.7rem; background: #f3f3f0;
+  border-bottom: 1px solid #ddd9cf;
+}
+.sitenav a {
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-size: .8rem; letter-spacing: .15em; text-transform: uppercase;
+  color: #0099FF; text-decoration: none; margin-right: 1.9rem;
+}
+.sitenav a:hover { color: #1f7cc4; }
+
+/* full-bleed map, offset below the navbar so they don't overlap */
+#map { position: fixed; top: 3.4rem; left: 0; right: 0; bottom: 0; background: #e6e3da; }
 #map svg { width: 100%; height: 100%; display: block; }
 .country { fill: #ffffff; stroke: #cfcbc0; stroke-width: .5px; }          /* land */
 .country.visited { fill: #0099FF; stroke: #2f8fd8; cursor: pointer; transition: fill .15s; }
 .country.visited:hover { fill: #1f7cc4; }
 .country.active { fill: #12659f; }
 
-/* top nav overlay */
-.tnav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
-  display: flex; align-items: baseline; gap: 1.5rem; padding: 1.1rem 1.7rem;
-}
-.tnav .brand {
-  font-family: "et-book-display-italic", Georgia, serif; font-style: italic;
-  font-size: 1.5rem; color: #1b1a17; text-decoration: none; margin-right: auto;
-}
-.tnav a.navlink {
-  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
-  font-size: .78rem; letter-spacing: .15em; text-transform: uppercase;
-  color: #0099FF; text-decoration: none;
-}
-.tnav a.navlink:hover { color: #1f7cc4; }
 
 .hint {
   position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 5;
@@ -66,6 +64,6 @@ body.travels {
 #panel p { font-size: 1.15rem; line-height: 1.55; margin: 0 0 1rem; }
 
 @media (max-width: 640px) {
-  .tnav { gap: .9rem; padding: .8rem 1rem; }
-  .tnav .brand { font-size: 1.2rem; }
+  .sitenav { gap: .6rem; padding: 0 .9rem; }
+  .sitenav a { margin-right: 1.1rem; font-size: .72rem; letter-spacing: .1em; }
 }
