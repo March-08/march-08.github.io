@@ -5,16 +5,16 @@
    Each entry is:   "Country Name": { year, photos, text }
 
    • Country Name  — must EXACTLY match the map's country name.
-                     The full list of valid names is in  tools/country-names.txt
-                     (e.g. "Italy", "Japan", "United States of America").
-                     Any country you add here is automatically highlighted +
-                     becomes clickable on the map.
-   • year          — any short label shown under the title ("2023", "Summer 2022"…).
-   • photos        — an array of image paths. Put your images in
-                     site/images/travels/  and reference them like
-                     "images/travels/japan-1.jpg".
-                     0 photos → no image; 1 → single image; 2+ → arrows + counter.
-   • text          — your write-up (plain text; basic HTML is allowed).
+                     Full list of valid names:  tools/country-names.txt
+                     Any country listed here is highlighted + clickable on the map.
+   • year          — short label under the title ("2023", "Summer 2022", "Home"…). Optional.
+   • photos        — array of image paths. Put images in  site/images/travels/  and
+                     reference them like "images/travels/japan-1.jpg".
+                     0 → no image · 1 → single image · 2+ → arrows + counter (carousel).
+   • text          — your write-up (plain text; basic HTML allowed).
+
+   NOTE: most countries below are placeholders — add your own photos + text.
+         Italy (single photo) and Japan (3-photo carousel) are kept as examples.
    ============================================================================ */
 (function () {
   // demo-only helper that draws coloured placeholder slides — delete once you use real photos
@@ -22,43 +22,41 @@
     `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='430'><rect width='640' height='430' fill='${bg}'/>` +
     `<text x='320' y='228' font-family='Georgia' font-size='42' fill='#ffffff' text-anchor='middle'>${label}</text></svg>`);
 
+  const soon = "Notes and photos coming soon.";
+
   window.TRIPS = {
 
+    // --- examples (replace with real content) ---
     "Italy": {
       year: "Home",
       photos: ["images/photo.jpeg"],
-      text: "Where it all starts. Rome, the coast, and endless espresso. Replace this with a real note about home."
+      text: "Where it all starts. Example single-photo entry — replace with a real note."
     },
-
     "Japan": {
       year: "2023",
       photos: [ph("Tokyo", "#2f8fd8"), ph("Kyoto", "#12659f"), ph("Osaka", "#4aa5e6")],
-      text: "Tokyo neon and Kyoto temples. This entry has three demo photos — use the arrows to scroll them."
+      text: "Example multi-photo entry — use the arrows to scroll. Replace the placeholder slides with real photos."
     },
 
-    "Netherlands": {
-      year: "2024",
-      photos: ["images/avatar.png", "images/photo.jpeg"],
-      text: "Amsterdam canals and a conference or two. Placeholder text — the food, the bikes, the rain."
-    },
-
-    "United States of America": {
-      year: "2022",
-      photos: ["images/avatar.png"],
-      text: "From the Bay Area to the East Coast. Placeholder text — replace with a story from the trip."
-    },
-
-    "France": {
-      year: "2023",
-      photos: ["images/photo.jpeg"],
-      text: "Paris and the south. Dummy note about museums, markets, and a long walk along the Seine."
-    },
-
-    "Iceland": {
-      year: "2021",
-      photos: ["images/avatar.png"],
-      text: "Waterfalls, black-sand beaches, and the northern lights. Placeholder travel text goes here."
-    }
+    // --- your countries (add photos + text later) ---
+    "Argentina":                { year: "", photos: [], text: soon },
+    "Hungary":                  { year: "", photos: [], text: soon },
+    "United Kingdom":           { year: "", photos: [], text: soon },
+    "Spain":                    { year: "", photos: [], text: soon },
+    "France":                   { year: "", photos: [], text: soon },
+    "Albania":                  { year: "", photos: [], text: soon },
+    "Cyprus":                   { year: "", photos: [], text: soon },
+    "Namibia":                  { year: "", photos: [], text: soon },
+    "United States of America": { year: "", photos: [], text: soon },
+    "Egypt":                    { year: "", photos: [], text: soon },
+    "Turkey":                   { year: "", photos: [], text: soon },
+    "Vietnam":                  { year: "", photos: [], text: soon },
+    "Thailand":                 { year: "", photos: [], text: soon },
+    "Switzerland":              { year: "", photos: [], text: soon },
+    "Finland":                  { year: "", photos: [], text: soon },
+    "Germany":                  { year: "", photos: [], text: soon },
+    "Portugal":                 { year: "", photos: [], text: soon },
+    "China":                    { year: "", photos: [], text: soon }
 
   };
 })();
