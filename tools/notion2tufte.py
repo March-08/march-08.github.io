@@ -185,9 +185,11 @@ while i<N:
         i+=1; continue
     em=re.match(r'<embed src="([^"]+)">(.*?)</embed>', s, re.S)
     if em:
-        flush(); cap=inline(em.group(2).strip())
-        out.append(f'<figure>\n  <div class="embed"><iframe src="{em.group(1)}" loading="lazy"></iframe></div>'
-                   f'\n  <figcaption>{cap} · <a href="{em.group(1)}">open ↗</a></figcaption>\n</figure>')
+        flush(); cap=inline(em.group(2).strip()); esrc=em.group(1)
+        # normalize Google Slides / Docs share links to their embeddable form
+        esrc=re.sub(r'(docs\.google\.com/presentation/d/[\w-]+)/(?:edit|pub|view)[^"]*', r'\1/embed?start=false&loop=false', esrc)
+        out.append(f'<figure>\n  <div class="embed"><iframe src="{esrc}" loading="lazy" allowfullscreen></iframe></div>'
+                   f'\n  <figcaption>{cap} · <a href="{esrc}">open ↗</a></figcaption>\n</figure>')
         i+=1; continue
     if s.startswith('<unknown'): i+=1; continue
     if s.startswith('!['):
