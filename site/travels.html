@@ -1,34 +1,36 @@
 <!doctype html>
 <html lang="en">
 <head>
+<title>Travels — Marcello Politi</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Travels — Marcello Politi</title>
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
 <link rel="stylesheet" href="travels.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
 <link rel="icon" href="images/avatar.png">
 </head>
-<body class="travels">
-  <header class="sitenav">
-    <div class="inner">
+<body class="layout-post">
+  <header>
+    <nav class="group">
       <a href="index.html">Home</a>
       <a href="#">About me</a>
       <a href="notebooks.html">Notebooks</a>
       <a href="lectures.html">Lectures</a>
       <a href="travels.html">Travels</a>
-    </div>
+    </nav>
   </header>
-
-  <div id="map"></div>
-
-  <div class="hint sans">Click a highlighted country to see the trip</div>
-
+  <article>
+    <h1>Travels</h1>
+    <p class="subtitle">Places I have been — click a highlighted country to see the trip.</p>
+    <div id="map"></div>
+  </article>
   <aside id="panel">
     <button class="close" aria-label="Close">×</button>
     <div class="pbody"></div>
   </aside>
-
-  <script src="vendor/d3.min.js"></script>
-  <script src="vendor/world-geo.js"></script>
-  <script src="travels.js"></script>
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/world-geo.js"></script>
+<script src="travels.js"></script>
 </body>
 </html>
