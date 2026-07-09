@@ -105,7 +105,7 @@ home=f'''<!doctype html>
       <a href="index.html">Home</a>
       <a href="#">About me</a>
       <a href="notebooks.html">Notebooks</a>
-      <a href="#">Lectures</a>
+      <a href="lectures.html">Lectures</a>
     </nav>
     <div>
       <p><a class="namelink" href="index.html" rel="me">Marcello Politi</a></p>

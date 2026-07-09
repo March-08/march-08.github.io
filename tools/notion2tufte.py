@@ -333,7 +333,7 @@ NAV='''  <header>
       <a href="index.html">Home</a>
       <a href="#">About me</a>
       <a href="notebooks.html">Notebooks</a>
-      <a href="#">Lectures</a>
+      <a href="lectures.html">Lectures</a>
     </nav>
   </header>'''
 page=f'''<!doctype html>

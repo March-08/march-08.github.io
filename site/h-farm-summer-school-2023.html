@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>H-Farm Summer School 2023 — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="notebooks.html">Notebooks</a>
+      <a href="lectures.html">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>H-Farm Summer School 2023</h1>
+    
+    <p class="postdate">2023 · Flutter, AI, LLM</p>
+<div class="callout-note cw-red"><span class="cw-icon">💡</span><span class="cw-body">I removed my Open API key. If you want to continue using the app you developed, you have to generate your own API on the OpenAI website.</span></div>
+<nav class="toc"><span class="toc-title">Contents</span><ul><li class="toc-h2"><a href="#sec-1">Day 1/2 - Getting Started with Machine Learning &amp; Flutter</a></li><li class="toc-h3"><a href="#sec-2">Marcello Politi**, who am I ?</a></li><li class="toc-h3"><a href="#sec-3">Presentations</a></li><li class="toc-h3"><a href="#sec-4">Introduction</a></li><li class="toc-h3"><a href="#sec-5">Basics of programming with dart</a></li><li class="toc-h3"><a href="#sec-6">What is Flutter?</a></li><li class="toc-h3"><a href="#sec-7">Flutter is a framework</a></li><li class="toc-h3"><a href="#sec-8">Write code for both Android and iOS</a></li><li class="toc-h3"><a href="#sec-9">Flutter is not a programming language</a></li><li class="toc-h3"><a href="#sec-10">Flutter for the web</a></li><li class="toc-h3"><a href="#sec-11">Running our First Flutter App</a></li><li class="toc-h2"><a href="#sec-12">Day 3 - App client server architecture</a></li><li class="toc-h3"><a href="#sec-13">Learn HTTP requests</a></li><li class="toc-h3"><a href="#sec-14">Introduction: What is an API?</a></li><li class="toc-h3"><a href="#sec-15">Basics of HTTP</a></li><li class="toc-h3"><a href="#sec-16">Making our First API Request</a></li><li class="toc-h3"><a href="#sec-17">Visualizing an API</a></li><li class="toc-h3"><a href="#sec-18">Key Takeaways</a></li><li class="toc-h3"><a href="#sec-19">Flutter App with http request</a></li><li class="toc-h2"><a href="#sec-20">Day 4/5 - App powered by ChatGPT</a></li><li class="toc-h3"><a href="#sec-21">How to Pitch Your Idea</a></li><li class="toc-h2"><a href="#sec-22">Day 6 - Embed the ML model into your App</a></li><li class="toc-h3"><a href="#sec-23">Yes/No in Sign Language</a></li><li class="toc-h3"><a href="#sec-24">Cats vs Dogs - Teachable Machine</a></li><li class="toc-h3"><a href="#sec-25">Embedding the model into flutter</a></li><li class="toc-h2"><a href="#sec-26">Day 7 - Python Development for Machine Learning pt1</a></li><li class="toc-h3"><a href="#sec-27">Python Exercises</a></li><li class="toc-h3"><a href="#sec-28">Iris Dataset</a></li><li class="toc-h2"><a href="#sec-29">Day 8 - Python Development for Machine Learning pt2</a></li></ul></nav>
+<h2 id="sec-1"><strong>Day 1/2 - Getting Started with Machine Learning &amp; Flutter</strong></h2>
+<h3 id="sec-2">Marcello Politi**, who am I ?</h3>
+<h3 id="sec-3">Presentations</h3>
+<p>Present yourself, and tell me what do you expect from this course</p>
+<h3 id="sec-4">Introduction</h3>
+<ul>
+  <li><strong>What is an algorithm?</strong> In computer programming terms, an algorithm is a set of well-defined instructions to solve a particular problem. It takes a set of input(s) and produces the desired output. For example, An algorithm to add two numbers:</li>
+  <li>Take two number inputs</li>
+  <li>Add numbers using the + operator</li>
+  <li>Display the result</li>
+  <li><strong>What is AI?</strong></li>
+</ul>
+<figure>
+  <img class="med" src="images/h-farm-summer-school-2023/img-01.png" alt="">
+</figure>
+<p>AI, or Artificial Intelligence, refers to the simulation of human intelligence in machines. It's about creating systems that can perform tasks that, when done by humans, typically require human-like intelligence.</p>
+<p>These tasks can range from understanding language to recognizing patterns or making decisions.</p>
+<figure>
+  <img class="med" src="images/h-farm-summer-school-2023/img-02.png" alt="">
+</figure>
+<p>Here's a more detailed breakdown:</p>
+<ol>
+  <li><strong>Mimicking Cognitive Functions</strong>: AI aims to replicate or simulate human-like abilities such as learning, reasoning, problem-solving, perception, and language understanding.</li>
+  <li><strong>Machine Learning</strong>: At the heart of many AI systems is machine learning (ML). ML allows machines to learn from data. Instead of being explicitly programmed to perform a task, a machine learning model uses algorithms and statistical models to identify patterns in data and make decisions based on it.</li>
+  <li><strong>Neural Networks</strong>: These are inspired by the human brain's structure and function. Neural networks are interconnected layers of algorithms, termed neurons, that feed data into each other, and can be trained to carry out specific tasks by modifying the importance attributed to input data as it passes between the layers.</li>
+  <li><strong>Types of AI</strong>:</li>
+  <li><strong>Narrow or Weak AI</strong>: Designed and trained for a specific task. Virtual personal assistants, like Apple's Siri or Amazon's Alexa, are forms of narrow AI.</li>
+  <li><strong>General or Strong AI</strong>: This would have all the characteristics of human intelligence, including the abilities to understand, reason, learn from past experiences, and make decisions. It remains a theoretical concept and doesn't yet exist. (<a href="https://arxiv.org/pdf/2303.12712.pdf">https://arxiv.org/pdf/2303.12712.pdf</a>)![](https://prod-files-secure.s3.us-west-2.amazonaws.com/6ade33c7-273d-4339-af90-45fa8fe845e9/61a42de0-65e7-4af9-bf39-e3dbe08ef08b/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&amp;X-Amz-Credential=ASIAZI2LB466YOPPE52G%2F20260709%2Fus-west-2%2Fs3%2Faws4_request&amp;X-Amz-Date=20260709T123630Z&amp;X-Amz-Expires=300&amp;X-Amz-Security-Token=IQoJb3JpZ2luX2VjENT%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJHMEUCIQCaUn5sBhkcN9ETd5rvIQ%2F1%2BaGOPxmtH0Elxw0vxU6wgAIgU09BwhtRep4z0f38TPL8XQhe2D1zRjU2MET6yC7kAYAqiAQInP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw2Mzc0MjMxODM4MDUiDJh0SblZQ1BzThmfZCrcA7ZBP9jp5mkkewoeij9XWidVTK77ZN2xqWVv%2FIWnUZ1y5XozWGsZrzsd6LEgr9n27lxjazLGVUIzJTbte%2BkV%2BdnBMEFrOdby9CP9qTyB6wvERa%2BN%2FXuyIcX9CAM2SFacykm4gQpzAJhjnEb6bHqXphnlDjWuFNs21wCXWsfMgDmfPi76ijV5iZp%2FU%2B1b1fEQOdElqDh2VyJwk25pQNLUWPJFl1kGk15GsvgD6BueYhIn8KbXCG18VHgX4Ti1%2F%2FPafd0Sk4K0TXzRBtyv71NSJJuXhSMIEu9Ng8BP8n1U8CPA49MeTVE%2Buq4QmIaFIgmsJOhdut7McD7dkHgdMN0vspf45sYXHjwNrxmVUXmufzqpAHB0t1sw%2F1RM%2B20mc5eIi2Z4X9SJbFVRUbcu%2FBy1QBPvTxO4jXz65u5vixKaLCa4pU8Qv1mJpvqhsokBWwUj5nhtTp8Reg0IaBmZz9IuUPOLf4oM25SANZ2LHtz9zIcXiGNoRmyWcBSGbhzgN0%2BkO2arBK4YZEEbUU7ueXftUFC%2BYX6PgaNHSdpscXEc6H0JUQSGuvwDk2S5UKiIVqTagPu21WzwcsqcXcBEKwhIBgejruQl1P1TXtP769f6X13ykRgH48U4Is09e%2FBRMPyIvtIGOqUBj2FwOqhm4t5wPRoj7pXaTLz2sKGN9m5g9qzA3MzF8%2FsMUSTFdqPqLd7CQaKOKQ7vyU4YiZTlfN2pr9RFSvvRvJAeG%2FwEkF9N8khYhKVAfWPFhu6yQRLedIRTWls8YpU0o0iuMiu9oz0OXdB8Wizyl3NuQw8TL4UwOwuCVAUwdf9qydwbiAptujDfokQGsFh%2BJ8u8j4sNYE5qlZCeS5R4yQqnskSt&amp;X-Amz-Signature=300aef55e52b0514d65be1c9c350d68be08e1010bd90bf97158119bbc50908cf&amp;X-Amz-SignedHeaders=host&amp;x-amz-checksum-mode=ENABLED&amp;x-id=GetObject)![](https://prod-files-secure.s3.us-west-2.amazonaws.com/6ade33c7-273d-4339-af90-45fa8fe845e9/cbbe509f-752d-4122-b0cf-0c6ee3e1e95a/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&amp;X-Amz-Credential=ASIAZI2LB466YOPPE52G%2F20260709%2Fus-west-2%2Fs3%2Faws4_request&amp;X-Amz-Date=20260709T123630Z&amp;X-Amz-Expires=300&amp;X-Amz-Security-Token=IQoJb3JpZ2luX2VjENT%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJHMEUCIQCaUn5sBhkcN9ETd5rvIQ%2F1%2BaGOPxmtH0Elxw0vxU6wgAIgU09BwhtRep4z0f38TPL8XQhe2D1zRjU2MET6yC7kAYAqiAQInP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw2Mzc0MjMxODM4MDUiDJh0SblZQ1BzThmfZCrcA7ZBP9jp5mkkewoeij9XWidVTK77ZN2xqWVv%2FIWnUZ1y5XozWGsZrzsd6LEgr9n27lxjazLGVUIzJTbte%2BkV%2BdnBMEFrOdby9CP9qTyB6wvERa%2BN%2FXuyIcX9CAM2SFacykm4gQpzAJhjnEb6bHqXphnlDjWuFNs21wCXWsfMgDmfPi76ijV5iZp%2FU%2B1b1fEQOdElqDh2VyJwk25pQNLUWPJFl1kGk15GsvgD6BueYhIn8KbXCG18VHgX4Ti1%2F%2FPafd0Sk4K0TXzRBtyv71NSJJuXhSMIEu9Ng8BP8n1U8CPA49MeTVE%2Buq4QmIaFIgmsJOhdut7McD7dkHgdMN0vspf45sYXHjwNrxmVUXmufzqpAHB0t1sw%2F1RM%2B20mc5eIi2Z4X9SJbFVRUbcu%2FBy1QBPvTxO4jXz65u5vixKaLCa4pU8Qv1mJpvqhsokBWwUj5nhtTp8Reg0IaBmZz9IuUPOLf4oM25SANZ2LHtz9zIcXiGNoRmyWcBSGbhzgN0%2BkO2arBK4YZEEbUU7ueXftUFC%2BYX6PgaNHSdpscXEc6H0JUQSGuvwDk2S5UKiIVqTagPu21WzwcsqcXcBEKwhIBgejruQl1P1TXtP769f6X13ykRgH48U4Is09e%2FBRMPyIvtIGOqUBj2FwOqhm4t5wPRoj7pXaTLz2sKGN9m5g9qzA3MzF8%2FsMUSTFdqPqLd7CQaKOKQ7vyU4YiZTlfN2pr9RFSvvRvJAeG%2FwEkF9N8khYhKVAfWPFhu6yQRLedIRTWls8YpU0o0iuMiu9oz0OXdB8Wizyl3NuQw8TL4UwOwuCVAUwdf9qydwbiAptujDfokQGsFh%2BJ8u8j4sNYE5qlZCeS5R4yQqnskSt&amp;X-Amz-Signature=fe2aa01581430f12956c2c91082f87f730ed580ec7e25f79d0149614948d23ef&amp;X-Amz-SignedHeaders=host&amp;x-amz-checksum-mode=ENABLED&amp;x-id=GetObject)</li>
+  <li><strong>Applications</strong>: Today, AI is used in a plethora of applications including speech recognition, image recognition, medical diagnosis, stock trading, autonomous vehicles, and video games, among many others.</li>
+  <li><strong>Challenges</strong>: While AI can be powerful, it comes with challenges like bias in decision-making, concerns over privacy, job displacements, and ethical considerations in AI's decision-making processes.</li>
+  <li><strong>Hype in Tech</strong></li>
+</ol>
+<figure>
+  <img class="wide" src="images/h-farm-summer-school-2023/img-03.png" alt="">
+
+  <figcaption><strong>AI Products Examples</strong></figcaption>
+</figure>
+<ul>
+  <li><a href="https://infiniteconversation.com/">https://infiniteconversation.com/</a></li>
+  <li><a href="https://tome.app/">https://tome.app/</a></li>
+  <li>chatGPT: <a href="https://chat.openai.com/">https://chat.openai.com/</a></li>
+  <li>bard: <a href="https://bard.google.com/">https://bard.google.com/</a></li>
+  <li>Midjourney</li>
+  <li>Dalle2</li>
+  <li>segment Anything: <a href="https://segment-anything.com/">https://segment-anything.com/</a></li>
+  <li>Brian: <a href="https://www.brianknows.org/">https://www.brianknows.org/</a></li>
+  <li>QuickDraw: <a href="https://quickdraw.withgoogle.com/">https://quickdraw.withgoogle.com/</a></li>
+  <li>AI duet: <a href="https://experiments.withgoogle.com/ai/ai-duet/view/">https://experiments.withgoogle.com/ai/ai-duet/view/</a></li>
+  <li>Image 2 Image: <a href="https://affinelayer.com/pixsrv/">https://affinelayer.com/pixsrv/</a></li>
+  <li>AI drum machine: <a href="https://experiments.withgoogle.com/ai/drum-machine/view/">https://experiments.withgoogle.com/ai/drum-machine/view/</a></li>
+</ul>
+<h3 id="sec-5">Basics of programming with dart</h3>
+<p>Dart editor online: <a href="https://dartpad.dev/">https://dartpad.dev/</a></p>
+<p>Compiler that supports io: <a href="https://www.tutorialspoint.com/execute_dart_online.php">https://www.tutorialspoint.com/execute_dart_online.php</a></p>
+<a class="linkcard" href="https://app.notion.com/p/184e53d87d4d45b2a1e985b6a78e4880"><img class="lc-icon" src="images/favicons/app.notion.com.png" alt=""><span class="lc-body"><span class="lc-title">Exercises →</span><span class="lc-domain">app.notion.com</span></span></a>
+<h3 id="sec-6">What is Flutter?</h3>
+<p>Flutter is an open-source UI software development toolkit created by Google. It allows developers to create natively compiled applications for mobile, web, and desktop from a single codebase. Here's a more detailed breakdown:</p>
+<ol>
+  <li><strong>Cross-Platform</strong>: One of Flutter's standout features is its ability to write code once and run it on multiple platforms. This includes Android, iOS, web, and even desktop. This cross-platform nature can save developers a significant amount of time and effort.</li>
+  <li><strong>Dart Language</strong>: Flutter uses the Dart programming language, also developed by Google. Dart is object-oriented and offers strong support for modern development features.</li>
+  <li><strong>Widget-Based</strong>: Flutter uses a widget-based architecture. Everything in Flutter, including alignment, padding, and layout, is a widget. This makes it very modular and reusable.</li>
+  <li><strong>Hot Reload</strong>: One of Flutter's most loved features is the "hot reload." It allows developers to instantly view the result of the latest changes to the code. This speeds up the development cycle and enhances productivity.</li>
+  <li><strong>Customizable</strong>: Flutter provides a vast range of customizable widgets to create complex UIs. Moreover, because of its layered architecture, it offers immense flexibility in adjusting every aspect of the interface.</li>
+  <li><strong>Performance</strong>: Since Flutter apps are compiled to native machine code, they offer high performance. This means smoother animations and transitions compared to some other cross-platform solutions.</li>
+  <li><strong>Community and Packages</strong>: Flutter has a growing community that contributes to its rich set of packages. This means that a lot of functionality you might want to implement probably already exists as a package, saving you development time.</li>
+</ol>
+<p>In essence, Flutter is a powerful and efficient tool for creating beautiful, natively compiled applications across various platforms using a single codebase. It's quickly gained popularity due to its ease of use, performance advantages, and vibrant community support.</p>
+<h3 id="sec-7">Flutter is a framework</h3>
+<figure>
+  <img class="wide" src="images/h-farm-summer-school-2023/img-04.png" alt="">
+</figure>
+<h3 id="sec-8">Write code for both Android and iOS</h3>
+<figure>
+  <img class="med" src="images/h-farm-summer-school-2023/img-05.png" alt="">
+</figure>
+<h3 id="sec-9">Flutter is not a programming language</h3>
+<figure>
+  <img class="wide" src="images/h-farm-summer-school-2023/img-06.png" alt="">
+</figure>
+<ul>
+  <li><strong>App Developed with Flutter</strong>: <a href="https://flutter.dev/showcase">https://flutter.dev/showcase</a></li>
+</ul>
+<h3 id="sec-10">Flutter for the web</h3>
+<p>Build websites:  <a href="https://flutter.dev/multi-platform/web">https://flutter.dev/multi-platform/web</a></p>
+<figure>
+  <img class="wide" src="images/h-farm-summer-school-2023/img-07.png" alt="">
+</figure>
+<h3 id="sec-11">Running our First Flutter App</h3>
+<p>Flutter online editor: <a href="https://flutlab.io/">https://flutlab.io/</a></p>
+<figure>
+  <img class="portrait" src="images/h-farm-summer-school-2023/img-08.png" alt="">
+</figure>
+<figure>
+  <img class="portrait" src="images/h-farm-summer-school-2023/img-09.png" alt="">
+
+  <figcaption><a href="https://app.notion.com/p/ba1ef7407d0f48fab54c564b23a7eb5f">Dragonball App →</a></figcaption>
+</figure>
+<a class="linkcard" href="https://app.notion.com/p/c5713c6e75f74deea12078c4000f7ca5"><img class="lc-icon" src="images/favicons/app.notion.com.png" alt=""><span class="lc-body"><span class="lc-title">Columns and Rows →</span><span class="lc-domain">app.notion.com</span></span></a>
+<a class="linkcard" href="https://app.notion.com/p/23e3116a11444a0eab4704aa570f6196"><img class="lc-icon" src="images/favicons/app.notion.com.png" alt=""><span class="lc-body"><span class="lc-title">Solution Flutter #1 →</span><span class="lc-domain">app.notion.com</span></span></a>
+<a class="linkcard" href="https://app.notion.com/p/e9075e406a8d49d581a2ec0070b7a37c"><img class="lc-icon" src="images/favicons/app.notion.com.png" alt=""><span class="lc-body"><span class="lc-title">Containers and basic widgets →</span><span class="lc-domain">app.notion.com</span></span></a>
+<a class="linkcard" href="https://app.notion.com/p/0ba8e4b768804cd59290244eb5db9ae5"><img class="lc-icon" src="images/favicons/app.notion.com.png" alt=""><span class="lc-body"><span class="lc-title">Implement Flutter Widgets →</span><span class="lc-domain">app.notion.com</span></span></a>
+<h2 id="sec-12"><strong>Day 3 - App client server architecture</strong></h2>
+<h3 id="sec-13">Learn HTTP requests</h3>
+<figure>
+  <img class="wide" src="images/h-farm-summer-school-2023/img-10.jpg" alt="">
+</figure>
+<h3 id="sec-14">Introduction: What is an API?</h3>
+<p><strong>Analogy</strong>: Imagine you're at a restaurant. You want to order food. Instead of going to the kitchen yourself, you give your order to a waiter. The waiter goes to the kitchen and brings back your food.</p>
+<p>In this analogy:</p>
+<ul>
+  <li>You are the <strong>user</strong>.</li>
+  <li>The kitchen is the <strong>server</strong> (where all the data is stored).</li>
+  <li>The waiter is the <strong>API</strong>. It takes your request, understands what you want, gets it from the server, and brings it back to you.</li>
+</ul>
+<h3 id="sec-15">Basics of HTTP</h3>
+<p><strong>1. What is HTTP?</strong></p>
+<ul>
+  <li><strong>Definition</strong>: HTTP stands for HyperText Transfer Protocol. It's like a set of rules that computers follow to exchange information over the internet.</li>
+  <li><strong>Analogy</strong>: Think of HTTP like the language that computers use to talk to each other, just like how we use English or Spanish to communicate.</li>
+</ul>
+<p><strong>2. HTTP Methods</strong></p>
+<ul>
+  <li><strong>GET</strong>: Asks the server for data.</li>
+  <li>Like asking "Can I see the dessert menu?"</li>
+  <li><strong>POST</strong>: Sends data to the server.</li>
+  <li>Like saying "I'll have the chocolate cake."</li>
+  <li><strong>PUT/PATCH</strong>: Updates data on the server.</li>
+  <li>Like changing your order to "I'll have the chocolate cake with extra sprinkles."</li>
+  <li><strong>DELETE</strong>: Removes data from the server.</li>
+  <li>Like canceling your order.</li>
+</ul>
+<h3 id="sec-16">Making our First API Request</h3>
+<p><strong>Activity</strong>: Use a website like <a href="https://jsonplaceholder.typicode.com/">JSONPlaceholder</a> or <a href="https://catfact.ninja/">Cat Facts</a> to make a simple GET request.</p>
+<ol>
+  <li>Visit the website.</li>
+  <li>Click on a button or link to fetch data.</li>
+  <li>See the data displayed.</li>
+</ol>
+<p><strong>Discussion</strong>: When we clicked the button, our computer asked the website's server for some data (like asking for the dessert menu). The server then sent back the data, which was displayed on our screen.</p>
+<h3 id="sec-17">Visualizing an API</h3>
+<p><strong>Activity</strong>: Use a tool like <a href="https://www.postman.com/">Postman</a> or <a href="https://hoppscotch.io/">Hoppscotch</a> to demonstrate API requests visually.</p>
+<ul>
+  <li>Show them a GET request and its response.</li>
+  <li>If comfortable, show a POST request by creating new data.</li>
+</ul>
+<h3 id="sec-18">Key Takeaways</h3>
+<ol>
+  <li>An <strong>API</strong> is like a waiter that helps us talk to a server (the kitchen).</li>
+  <li><strong>HTTP</strong> is the language computers use to communicate over the internet.</li>
+  <li>We can <strong>ask</strong> for data (GET), <strong>send</strong> new data (POST), <strong>update</strong> existing data (PUT/PATCH), or <strong>remove</strong> data (DELETE).</li>
+</ol>
+<h3 id="sec-19">Flutter App with http request</h3>
+<figure>
+  <img class="portrait" src="images/h-farm-summer-school-2023/img-11.png" alt="">
+</figure>
+<figure>
+  <img class="portrait" src="images/h-farm-summer-school-2023/img-12.png" alt="">
+
+  <figcaption><a href="file://%7B%22source%22%3A%22https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Ff4f46d56-9010-455f-b6a1-105d0dd66ed3%2FUntitled.qt%22%2C%22permissionRecord%22%3A%7B%22table%22%3A%22block%22%2C%22id%22%3A%22a68c67e5-f6d5-4735-b629-2fa4fcfa98b7%22%2C%22spaceId%22%3A%226ade33c7-273d-4339-af90-45fa8fe845e9%22%7D%7D">▶ Video</a></figcaption>
+</figure>
+<a class="linkcard" href="https://app.notion.com/p/c22f1440b9904f7a85195dfae15a5231"><img class="lc-icon" src="images/favicons/app.notion.com.png" alt=""><span class="lc-body"><span class="lc-title">Cat Facts in class →</span><span class="lc-domain">app.notion.com</span></span></a>
+<a class="linkcard" href="https://app.notion.com/p/3ffd1776d63a4ac88be2356a40d8da96"><img class="lc-icon" src="images/favicons/app.notion.com.png" alt=""><span class="lc-body"><span class="lc-title">Solution Flutter #2 →</span><span class="lc-domain">app.notion.com</span></span></a>
+<p>Now Improve the UI of this app!</p>
+<p>Try and create other apps using other free APIs! → <a href="https://apipheny.io/free-api/">https://apipheny.io/free-api/</a></p>
+<h2 id="sec-20"><strong>Day 4/5 - App powered by ChatGPT</strong></h2>
+<p>In order to use OpenAI API you need to register to their website and get an API key.</p>
+<p>Once you have the API the app development will be similar to what we have already done during the cat app, but now you should use a POST HTTP request, because you have to send the API key to the OpenAI server, so they know that you have paid!</p>
+<figure>
+  <img class="portrait" src="images/h-farm-summer-school-2023/img-13.png" alt="">
+
+  <figcaption><a href="https://app.notion.com/p/691dafbb34fc4edbbebbc0e3f2551a2d">Solution Flutter #3 →</a></figcaption>
+</figure>
+<p>Now Improve the UI of this app! Try to add a text animation to make this app look cool!</p>
+<h3 id="sec-21">How to Pitch Your Idea</h3>
+<ul>
+  <li><strong>Problem</strong>: describe the problem your are facing, and tell why that is a problem.</li>
+  <li><strong>Solution</strong>: describe how you are solving the problem. Focus on telling how your solution solves the problem and not on how cool is your solution</li>
+  <li><strong>Market</strong>: How much money you can make ideally with that? product cost x estimated people using it</li>
+  <li><strong>Traction</strong>: Show over time an increasing number of users</li>
+  <li><strong>Team</strong>: Why is your team the best team available</li>
+</ul>
+<h2 id="sec-22"><strong>Day 6 - </strong>Embed the ML model into your App</h2>
+<p>In the previous AI powered App we used an client-server architecture, so the ML part was running in the server.</p>
+<p>Let’s try now to embed the ML algorithm into the application.</p>
+<p>We are going to train the model using Teachable Machine: <a href="https://teachablemachine.withgoogle.com/">https://teachablemachine.withgoogle.com/</a></p>
+<p>Familiarize with Teachable Machine, what else can you teach?</p>
+<h3 id="sec-23">Yes/No in Sign Language</h3>
+<figure>
+  <img class="wide" src="images/h-farm-summer-school-2023/img-14.png" alt="">
+</figure>
+<h3 id="sec-24">Cats vs Dogs - Teachable Machine</h3>
+<figure>
+  <div class="videowrap" data-yt="tWwCK95X6go">
+    <img src="images/h-farm-summer-school-2023/video-15.jpg" alt="">
+    <span class="pbtn"></span>
+  </div>
+</figure>
+<p>What is Kaggle?</p>
+<ol>
+  <li>Register to Kaggle!</li>
+  <li>Download and unzip images from kaggle: <a href="https://www.kaggle.com/competitions/dogs-vs-cats/data?select=train.zip">https://www.kaggle.com/competitions/dogs-vs-cats/data?select=train.zip</a></li>
+  <li>Then drag and drop images in teachable machine to train the Network. 1k images per class should be enough (but you should wait around 10 minute)</li>
+  <li>Then export the model in Tensorflow Lite.</li>
+  <li>Unzip the downloaded zip</li>
+  <li>Create an asset directory in your flutter project</li>
+  <li>Upload the labels.txt and model_unqdrant.tflite</li>
+</ol>
+<figure>
+  <img class="wide" src="images/h-farm-summer-school-2023/img-16.png" alt="">
+</figure>
+<p>Surprise me with your <strong>AI app</strong> now!</p>
+<h3 id="sec-25">Embedding the model into flutter</h3>
+<figure>
+  <img class="portrait" src="images/h-farm-summer-school-2023/img-17.png" alt="">
+
+  <figcaption><a href="https://app.notion.com/p/8f30a197047145d390993ab2b0adbddf">Solution Flutter #4 →</a></figcaption>
+</figure>
+<h2 id="sec-26"><strong>Day 7 - Python Development for Machine Learning pt1</strong></h2>
+<p><strong>What is Google Colab?</strong><br>Google Colab is an online platform offered by Google that provides a collaborative and interactive environment for writing, running, and sharing code in Python. It is built on top of Jupyter Notebooks, which are a powerful tool for creating and sharing documents that contain live code, equations, visualizations, and narrative text.</p>
+<p><strong>Features and Benefits:</strong></p>
+<ol>
+  <li><strong>Cloud-based Computing:</strong> Google Colab offers a cloud-based infrastructure, allowing users to run their Python code and machine learning models on Google's powerful servers without the need for high-end hardware.</li>
+  <li><strong>Free GPU and TPU Support:</strong> Colab provides access to free GPU (Graphics Processing Unit) and TPU (Tensor Processing Unit) resources. These accelerators significantly speed up training times for machine learning models.</li>
+  <li><strong>Interactive Notebooks:</strong> Users can create interactive notebooks that combine code, text, images, and visualizations. This aids in presenting complex concepts effectively.</li>
+  <li><strong>Integrated Libraries:</strong> Colab comes pre-installed with many popular libraries such as TensorFlow, Keras, Matplotlib, and Pandas. This allows users to start working on machine learning projects without the hassle of installation.</li>
+  <li><strong>Easy Sharing and Collaboration:</strong> Notebooks created in Colab can be easily shared with others, promoting collaborative work. Colleagues or students can view and edit the same notebook simultaneously.</li>
+  <li><strong>Google Drive Integration:</strong> Colab seamlessly integrates with Google Drive, enabling users to save, access, and share notebooks directly from their Google Drive storage.</li>
+  <li><strong>Code Snippet Execution:</strong> Colab allows the execution of code snippets without running the entire notebook. This is particularly useful for debugging and experimentation.</li>
+</ol>
+<h3 id="sec-27">Python Exercises</h3>
+<p>Now try to implement a Logistic Regression!<br></p>
+<h3 id="sec-28">Iris Dataset</h3>
+<p>The next goal is to develop an AI app that can detect different type of flowers. We can use the same code as before, but we need to use another Machine Learning model.</p>
+<p>But this time we are going to train one from scratch using Python!Pyt</p>
+<figure>
+  <img class="portrait" src="images/h-farm-summer-school-2023/img-18.jpg" alt="">
+</figure>
+<p><strong>What is TensorFlow?</strong><br>TensorFlow is an open-source machine learning framework developed by Google Brain. It enables the creation and deployment of machine learning models across a variety of tasks and industries. TensorFlow is known for its flexibility, scalability, and ability to handle both research and production-level applications.</p>
+<p><strong>Features and Capabilities:</strong></p>
+<ol>
+  <li><strong>Symbolic Math Library:</strong> At its core, TensorFlow is a symbolic math library that operates on tensors—multi-dimensional arrays—enabling efficient computation and manipulation of data.</li>
+  <li><strong>Deep Learning:</strong> TensorFlow offers a comprehensive suite of tools for building and training deep neural networks, making it a powerhouse for tasks like image recognition, natural language processing, and more.</li>
+  <li><strong>High-level APIs:</strong> TensorFlow provides high-level APIs such as Keras, which simplifies the process of building, training, and evaluating neural networks. Keras allows for rapid model prototyping without compromising flexibility.</li>
+  <li><strong>GPU and TPU Acceleration:</strong> TensorFlow seamlessly integrates with GPUs (Graphics Processing Units) and TPUs (Tensor Processing Units), accelerating training times and enabling the execution of computationally intensive tasks.</li>
+  <li><strong>Auto Differentiation:</strong> TensorFlow's automatic differentiation capabilities facilitate gradient-based optimization methods, making it easier to train models effectively.</li>
+  <li><strong>Flexibility:</strong> TensorFlow's architecture allows users to create custom operations and network architectures, making it adaptable to diverse machine learning and AI scenarios.</li>
+  <li><strong>TensorBoard:</strong> TensorFlow includes TensorBoard, a visualization tool that aids in monitoring and debugging models during training. It provides insights into metrics, loss functions, and network architectures.</li>
+</ol>
+<h2 id="sec-29">Day 8 - <strong>Python Development for Machine Learning pt2</strong></h2>
+<p><a href="https://colab.research.google.com/drive/1PiveG7EJv_eHbRIWsxsM19asHnSyCXoU#scrollTo=jH4DFCLRaU24">https://colab.research.google.com/drive/1PiveG7EJv_eHbRIWsxsM19asHnSyCXoU#scrollTo=jH4DFCLRaU2</a>4</p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>
