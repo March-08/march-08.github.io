@@ -70,6 +70,19 @@ figcaption {
   font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
   font-size: 1rem; color: #8a8a8a; margin-top: .5rem; text-align: center;
 }
+/* simple callouts (info / warning notes with an icon) */
+.callout-note {
+  width: 55%; box-sizing: border-box; display: flex; gap: .7rem; align-items: flex-start;
+  margin: 1.3rem 0; padding: .7rem .95rem; border: 1px solid #e4e4de; border-radius: 5px;
+  font-size: 1.2rem; line-height: 1.45;
+}
+.callout-note .cw-icon { flex: 0 0 auto; }
+.callout-note .cw-body { min-width: 0; }
+.callout-note.cw-red   { background: #fbecec; border-color: #eecccc; }
+.callout-note.cw-green { background: #eaf5ec; border-color: #cde5d3; }
+.callout-note.cw-blue  { background: #eaf1f8; border-color: #cfe0ef; }
+.callout-note.cw-gray  { background: #f4f1ea; }
+
 /* display-math blocks */
 .mathblock {
   width: 55%; text-align: center; margin: 1.5rem 0;
@@ -213,5 +226,5 @@ blockquote footer, blockquote cite {
 .postdate { font-size: 1.1rem; color: #7a7a7a; margin-top: 0; }
 
 @media screen and (max-width: 760px) {
-  .note, .deepdive, figure, .postlist, .more-note, pre, .mathblock, .tablewrap, .toc, .linkcard { width: auto; }
+  .note, .deepdive, figure, .postlist, .more-note, pre, .mathblock, .tablewrap, .toc, .linkcard, .callout-note { width: auto; }
 }

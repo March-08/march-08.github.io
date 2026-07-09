@@ -15,7 +15,7 @@
     <nav class="group">
       <a href="index.html">Home</a>
       <a href="#">About me</a>
-      <a href="#">Notebooks</a>
+      <a href="notebooks.html">Notebooks</a>
       <a href="#">Lectures</a>
     </nav>
   </header>
@@ -304,26 +304,32 @@
 <p><strong>Validation step</strong></p>
 <p>Combine the scripts —&gt; unlocking &lt;&gt; locking</p>
 <p>Script Execution (Step-by-Step, follow the image on the right)</p>
-<p>1. <strong>Push</strong> <code>&lt;signature&gt;</code>:</p>
-<ul>
+<ol>
+  <li><strong>Push</strong> <code>&lt;signature&gt;</code>:</li>
   <li>Stack = <code>[signature]</code></li>
-  <li>The signature (e.g., <code>3044022047ac</code>...) is placed on the stack. 2. <strong>Push</strong> <code>&lt;public key&gt;</code>:</li>
+  <li>The signature (e.g., <code>3044022047ac</code>...) is placed on the stack.</li>
+  <li><strong>Push</strong> <code>&lt;public key&gt;</code>:</li>
   <li>Stack = <code>[signature, public key]</code></li>
-  <li>The public key (e.g., <code>04x9</code>...) is added on top. 3. <strong>OP_DUP</strong>:</li>
+  <li>The public key (e.g., <code>04x9</code>...) is added on top.</li>
+  <li><strong>OP_DUP</strong>:</li>
   <li>Duplicates the top stack item (public key).</li>
-  <li>Stack = <code>[signature, public key, public key]</code> 4. <strong>OP_HASH160</strong>:</li>
+  <li>Stack = <code>[signature, public key, public key]</code></li>
+  <li><strong>OP_HASH160</strong>:</li>
   <li>Hashes the top public key (using SHA-256 followed by RIPEMD-160).</li>
-  <li>Stack = <code>[signature, public key, hash of public key]</code> 5. Push <code>7f9b1a7fb68d60c536c2fd8b8a8f3f3e8c9d2e3f</code>:</li>
+  <li>Stack = <code>[signature, public key, hash of public key]</code></li>
+  <li>Push <code>7f9b1a7fb68d60c536c2fd8b8a8f3f3e8c9d2e3f</code>:</li>
   <li>The expected public key hash is pushed.</li>
-  <li>Stack = <code>[signature, public key, hash of public key, 7f9b1a7fb68d60c536c2fd8b8a8f3f3e8c9d2e3f]</code> 6. <strong>OP_EQUALVERIFY</strong>:</li>
+  <li>Stack = <code>[signature, public key, hash of public key, 7f9b1a7fb68d60c536c2fd8b8a8f3f3e8c9d2e3f]</code></li>
+  <li><strong>OP_EQUALVERIFY</strong>:</li>
   <li>Compares the top two items (hash of public key and expected hash).</li>
   <li>If they match, removes them and continues; if not, fails the script.</li>
-  <li>Stack = <code>[signature, public key] </code>(if successful) 7. <strong>OP_CHECKSIG</strong>:</li>
+  <li>Stack = <code>[signature, public key] </code>(if successful)</li>
+  <li><strong>OP_CHECKSIG</strong>:</li>
   <li>Takes the signature and public key from the stack.</li>
   <li>Verifies the signature against the public key using <code>ECDSA</code>.</li>
   <li>Pushes <code>1</code> (true) if valid, <code>0</code> (false) if invalid.</li>
   <li>Stack = <code>[1] </code>(if successful)</li>
-</ul>
+</ol>
 <figure>
   <img class="med" src="images/blockchain-the-most-misunderstood-technology/img-17.png" alt="">
 </figure>
@@ -470,13 +476,15 @@
 <p>The blockchain is a global public ledger (list) of transactions. But how can everyone in the network agree on the same universal truth, without relying on a central authority such as a bank ❓</p>
 <p>The main innovation that this technology brings is the <strong><em>emergent consensus.</strong></em></p>
 <p>Consensus is an emergent artefact of the asynchronous interaction of thousands of independent nodes, all following simple rules:</p>
-<p>1. Independent verification of each transaction by full nodes</p>
-<p>1. before forwarding transactions to its neighbors, every node verifies the transaction against a long checlist of criteria (e.g syntax must be correct), to ensure only valid transactions are propagated through the network</p>
-<p>2. Independent aggregation of those transactions into new blocks by mining nodes</p>
-<p>1. Miners build c<em>andidate blocks </em>with unconfirmed transactions. If a node is collecting transactions for block #315 (after block #314), but receives a mined block #315 from another node, it stops and starts mining block #316.</p>
-<p>3. Independent verification of the new blocks by every node and assembly into a chain</p>
-<p>1. After validating a tx, a node will add it to the <em>memory pool</em> or <em>transaction pool</em> until it gets mined.</p>
-<p>4. Independent selection, by every node, of the chain with most cumulative computation (longest one)</p>
+<ol>
+  <li>Independent verification of each transaction by full nodes</li>
+  <li>before forwarding transactions to its neighbors, every node verifies the transaction against a long checlist of criteria (e.g syntax must be correct), to ensure only valid transactions are propagated through the network</li>
+  <li>Independent aggregation of those transactions into new blocks by mining nodes</li>
+  <li>Miners build c<em>andidate blocks </em>with unconfirmed transactions. If a node is collecting transactions for block #315 (after block #314), but receives a mined block #315 from another node, it stops and starts mining block #316.</li>
+  <li>Independent verification of the new blocks by every node and assembly into a chain</li>
+  <li>After validating a tx, a node will add it to the <em>memory pool</em> or <em>transaction pool</em> until it gets mined.</li>
+  <li>Independent selection, by every node, of the chain with most cumulative computation (longest one)</li>
+</ol>
 <h2 id="sec-28">Proof of Work</h2>
 <p>The process of mining consist of hashing a block header repeatedly, changing one parameter, until the result matches a specific target.</p>
 <p>Since the result of a hash function cannot be predicted, the only way to do so is try try over and over again.</p>

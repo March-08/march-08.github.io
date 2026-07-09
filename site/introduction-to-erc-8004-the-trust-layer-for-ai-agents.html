@@ -15,7 +15,7 @@
     <nav class="group">
       <a href="index.html">Home</a>
       <a href="#">About me</a>
-      <a href="#">Notebooks</a>
+      <a href="notebooks.html">Notebooks</a>
       <a href="#">Lectures</a>
     </nav>
   </header>
@@ -48,9 +48,11 @@
 <h2><strong>What is ERC-8004?</strong></h2>
 <p><a href="https://eips.ethereum.org/EIPS/eip-8004"><strong>ERC-8004</strong></a>, officially titled "Trustless Agents", is an Ethereum standard that creates a public discovery and trust layer for autonomous AI agents. It was proposed in August 2025 by a cross-industry team including contributors from MetaMask, the Ethereum Foundation, Google, and Coinbase.</p>
 <p>At its core, ERC-8004 extends existing agent communication protocols (like A2A and MCP) with three lightweight on-chain registries:</p>
-<p>1. <strong>Identity registry:</strong> Gives every agent a portable, verifiable identity</p>
-<p>2. <strong>Reputation registry:</strong> Records feedback from clients who have worked with an agent</p>
-<p>3. <strong>Validation registry:</strong> Enables third-party verification of an agent's work</p>
+<ol>
+  <li><strong>Identity registry:</strong> Gives every agent a portable, verifiable identity</li>
+  <li><strong>Reputation registry:</strong> Records feedback from clients who have worked with an agent</li>
+  <li><strong>Validation registry:</strong> Enables third-party verification of an agent's work</li>
+</ol>
 <p>ERC-8004 deliberately keeps things minimal. It doesn't try to solve everything, it provides just enough on-chain infrastructure for trust, while leaving application-specific logic off-chain. This design philosophy means:</p>
 <ul>
   <li>The standard is lightweight and inexpensive to use</li>
@@ -100,10 +102,12 @@
 <p>Reputation is collateral for AI agents. Agents with transparent track records can command higher prices and access more opportunities. The Reputation Registry makes this reputation portable, it follows the agent regardless of which platform or application it uses.</p>
 <p>The Reputation Registry creates an on-chain audit trail of client feedback. When you hire an agent to perform a task, you can leave a rating that becomes part of the agent's permanent record.</p>
 <p><strong>How it works:</strong></p>
-<p>1. When an agent accepts a task, it signs a <strong><code>feedbackAuth</code></strong> authorizing the client to leave feedback</p>
-<p>2. After the task, the client submits feedback: a score (0-100), optional tags, and a link to detailed off-chain data</p>
-<p>3. The feedback is recorded on-chain and linked to the agent's identity</p>
-<p>4. Anyone can query an agent's reputation history</p>
+<ol>
+  <li>When an agent accepts a task, it signs a <strong><code>feedbackAuth</code></strong> authorizing the client to leave feedback</li>
+  <li>After the task, the client submits feedback: a score (0-100), optional tags, and a link to detailed off-chain data</li>
+  <li>The feedback is recorded on-chain and linked to the agent's identity</li>
+  <li>Anyone can query an agent's reputation history</li>
+</ol>
 <p><strong>Key design decisions:</strong></p>
 <ul>
   <li><strong>Pre-authorization prevents spam</strong>: Only clients the agent has actually worked with can leave feedback</li>
@@ -115,9 +119,11 @@
 <p>Different tasks require different levels of assurance. Ordering pizza? Reputation feedback is probably enough. Managing a DeFi portfolio or diagnosing medical conditions? You want cryptographic or economic guarantees. The Validation Registry provides a unified interface for all these trust models.</p>
 <p>For high-stakes tasks, reputation alone isn't enough. The Validation Registry enables independent third-party verification of an agent's work.</p>
 <p><strong>How it works:</strong></p>
-<p>1. An agent requests validation by specifying a validator contract and providing a hash of the task data</p>
-<p>2. The validator performs the check (using various methods)</p>
-<p>3. The validator records a response (0-100) on-chain</p>
+<ol>
+  <li>An agent requests validation by specifying a validator contract and providing a hash of the task data</li>
+  <li>The validator performs the check (using various methods)</li>
+  <li>The validator records a response (0-100) on-chain</li>
+</ol>
 <p><strong>Validation methods:</strong></p>
 <p>ERC-8004 supports multiple validation approaches:</p>
 <ul>
@@ -128,10 +134,12 @@
 </ul>
 <h3>How the 3 registries work together</h3>
 <p>Here's how the registries combine in practice:</p>
-<p>1. A client searches the <strong>Identity registry</strong> to discover agents with the right capabilities</p>
-<p>2. The client checks the <strong>Reputation registry</strong> to filter for agents with strong track records</p>
-<p>3. For the chosen agent, the client may check the <strong>Validation registry</strong> to see if the agent's work has been independently verified</p>
-<p>4. After completing the task, the client adds feedback to the <strong>Reputation registry</strong>, building the agent's reputation over time</p>
+<ol>
+  <li>A client searches the <strong>Identity registry</strong> to discover agents with the right capabilities</li>
+  <li>The client checks the <strong>Reputation registry</strong> to filter for agents with strong track records</li>
+  <li>For the chosen agent, the client may check the <strong>Validation registry</strong> to see if the agent's work has been independently verified</li>
+  <li>After completing the task, the client adds feedback to the <strong>Reputation registry</strong>, building the agent's reputation over time</li>
+</ol>
 <p>This creates a virtuous cycle: good agents build reputation, attract more clients, and can afford validation, which further increases trust.</p>
 <h2><strong>ERC-8004 use cases</strong></h2>
 <p>So what can you actually build with this? Here's where the ERC-8004 standard is gaining traction and possible use cases:</p>

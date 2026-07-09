@@ -15,7 +15,7 @@
     <nav class="group">
       <a href="index.html">Home</a>
       <a href="#">About me</a>
-      <a href="#">Notebooks</a>
+      <a href="notebooks.html">Notebooks</a>
       <a href="#">Lectures</a>
     </nav>
   </header>
@@ -81,9 +81,11 @@
 <h2><strong>Padding ️⃣</strong></h2>
 <p>You should note that according to the padding mode we use we give more or less emphasis to some of the input cells. In the previous case, the cell <em>x[0]</em> was considered only once when we computed the output <em>y[0]</em>. Instead, the <em>x[2]</em> cell was considered in both the computation of <em>y[1]</em> and <em>y[2]</em>, so it had more importance. We can also handle this importance for cells at the boundaries of the vector by using padding.</p>
 <p>There are 3 different types of padding:</p>
-<p>1. <strong>Full mode</strong>: padding parameter <em>p</em> is set to <em>p = m-1</em>, where <em>m</em> is the kernel size. This padding causes the output to be larger than the input and is therefore rarely used.</p>
-<p>2. <strong>Same mode</strong>: is used to make sure that the output has the same size as the input. For example, in Computer Vision the output image will be the same size as the input image and is therefore often the most commonly used.</p>
-<p>3. <strong>Valid mode</strong>: when p =0, so we do not use padding.</p>
+<ol>
+  <li><strong>Full mode</strong>: padding parameter <em>p</em> is set to <em>p = m-1</em>, where <em>m</em> is the kernel size. This padding causes the output to be larger than the input and is therefore rarely used.</li>
+  <li><strong>Same mode</strong>: is used to make sure that the output has the same size as the input. For example, in Computer Vision the output image will be the same size as the input image and is therefore often the most commonly used.</li>
+  <li><strong>Valid mode</strong>: when p =0, so we do not use padding.</li>
+</ol>
 <p><strong>How to determine the convolution output size?</strong></p>
 <p>Many people often get confused about the input and output sizes of the various layers of a CNN, and fight against mismatch errors! Actually figuring out how much will be the output size from a convolutional layer is quite simple.</p>
 <p>Suppose we have an input <em>x,</em> a kernel <em>w</em> and want to compute the convolution <em>y = x</em>w*.</p>

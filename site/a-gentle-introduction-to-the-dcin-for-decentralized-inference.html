@@ -15,7 +15,7 @@
     <nav class="group">
       <a href="index.html">Home</a>
       <a href="#">About me</a>
-      <a href="#">Notebooks</a>
+      <a href="notebooks.html">Notebooks</a>
       <a href="#">Lectures</a>
     </nav>
   </header>
@@ -78,17 +78,23 @@
   <figcaption><a href="https://arxiv.org/abs/2405.03360">Source ↗</a></figcaption>
 </figure>
 <h2><strong>Layer Sharding key concepts</strong></h2>
-<p>1. <strong>Model partitioning</strong> — the model is divided into segments (the subgraphs), each consisting of one or more layers. These segments will be distributed among the devices.</p>
-<p>2. <strong>Sequential execution</strong> — the inference proceeds sequentially through the various layers, and each intermediate result is passed from device to device.</p>
+<ol>
+  <li><strong>Model partitioning</strong> — the model is divided into segments (the subgraphs), each consisting of one or more layers. These segments will be distributed among the devices.</li>
+  <li><strong>Sequential execution</strong> — the inference proceeds sequentially through the various layers, and each intermediate result is passed from device to device.</li>
+</ol>
 <p>When implementing Layer Sharding in a horizontal (sequential) splitting manner, within a network of devices with different computational powers, there are two main challenges that need to be addressed (more on that later):</p>
-<p>1. <strong>Layer Assignment</strong> — we need to find the best way to assign one or more layers to each device. For example, layers that need a higher memory consumption might be distributed to multiple devices that have less available memory.</p>
-<p>2. <strong>Effective Communication</strong> — the devices of the network need to communicate efficiently and in a fast way. Also, messages must not be lost during communication, otherwise the whole inference process collapses.</p>
+<ol>
+  <li><strong>Layer Assignment</strong> — we need to find the best way to assign one or more layers to each device. For example, layers that need a higher memory consumption might be distributed to multiple devices that have less available memory.</li>
+  <li><strong>Effective Communication</strong> — the devices of the network need to communicate efficiently and in a fast way. Also, messages must not be lost during communication, otherwise the whole inference process collapses.</li>
+</ol>
 <h2><strong>DCI Network Challenges</strong></h2>
 <p>Developing such a network poses multiple challenges:</p>
-<p>1. <strong>Distribution Selection</strong> — How can an optimized configuration be chosen? This includes determining where to partition the network and allocate tasks across devices. The search space for possible configurations may be too large to test exhaustively, requiring algorithms to guide selection. The challenge is how to model this optimization problem.</p>
-<p>2. <strong>Devices</strong> — How many devices are available, and are they identical or do they differ in features? Is performance modelling (in terms of latency and energy) available, or is profiling required to inform decisions?</p>
-<p>3. <strong>Metrics and Constraints</strong> — What are the primary metrics (e.g., speed, energy) to optimize? If multiple metrics exist, are there priorities among them? Are there any hard constraints that need to be considered?</p>
-<p>4. <strong>Adaptability</strong> — Should the system adapt to dynamic changes (e.g., bandwidth fluctuations, changes in the number of devices) or should it be configured once at compile-time, remaining static afterwards?</p>
+<ol>
+  <li><strong>Distribution Selection</strong> — How can an optimized configuration be chosen? This includes determining where to partition the network and allocate tasks across devices. The search space for possible configurations may be too large to test exhaustively, requiring algorithms to guide selection. The challenge is how to model this optimization problem.</li>
+  <li><strong>Devices</strong> — How many devices are available, and are they identical or do they differ in features? Is performance modelling (in terms of latency and energy) available, or is profiling required to inform decisions?</li>
+  <li><strong>Metrics and Constraints</strong> — What are the primary metrics (e.g., speed, energy) to optimize? If multiple metrics exist, are there priorities among them? Are there any hard constraints that need to be considered?</li>
+  <li><strong>Adaptability</strong> — Should the system adapt to dynamic changes (e.g., bandwidth fluctuations, changes in the number of devices) or should it be configured once at compile-time, remaining static afterwards?</li>
+</ol>
 <p>In a <strong>static runtime system</strong>, the distribution algorithm is executed only once during the compilation phase of a DNN. After this, the network is partitioned and assigned to different devices, which are then used for actual operations. Since the distribution is determined at compile-time, more complex algorithms can be employed for optimal task allocation, as they are not constrained by real-time performance. This allows for thorough analysis and longer algorithmic execution without affecting the system’s runtime performance.</p>
 <p>In an <strong>adaptive runtime system</strong>, the network topology changes dynamically to optimize some metrics. The most common variable that is monitored is usually the bandwidth between devices of the network. In this way, it is possible to change device allocations to optimize latency and load balancing.</p>
 <p>Research related to distributed computation mainly focused on the optimization of three aspects of such networks which are:</p>
@@ -101,8 +107,10 @@
 <p>We’ll see in the next paragraphs how we want to tackle these challenges.</p>
 <h2><strong>Architecture</strong></h2>
 <p>The DCI Network nodes solve two main purposes inside the network:</p>
-<p>1. <strong>Inference</strong> — to calculate the inference of the model.</p>
-<p>2. <strong>Validation</strong> — to validate the result of the other nodes for reward generation.</p>
+<ol>
+  <li><strong>Inference</strong> — to calculate the inference of the model.</li>
+  <li><strong>Validation</strong> — to validate the result of the other nodes for reward generation.</li>
+</ol>
 <p>The DCI Network is a <strong>P2P network</strong>. The topology of the network is constructed via a graph; each node of the graph contains its ID and the description of the device itself (memory, chip, etc.). The discovery of peers happens through this graph.</p>
 <p>A node, to become part of this network needs to hold the private key or seed phrase of a wallet that has <strong>staked a fixed amount of tokens.</strong></p>
 <h2><strong>Inference</strong></h2>
@@ -131,8 +139,10 @@
 <p>The Ring Memory-Weighted partitioning strategy is a <strong>static</strong> strategy: this means that the partitioning takes into consideration only the resources of the network, and gets updated only when a node joins/leaves the network.</p>
 <p>Our solution, instead, is <strong>dynamic</strong> because it changes every time based on the model that gets requested: this is because the partitioning is not only done solely on the resources of the network, but we also calculate the computational needs of each model layer and optimally assigning the most computation-intensive layers to the best-performing devices in the network.</p>
 <p>In order for this to work we need to perform:</p>
-<p>1. <strong>Device Profiling</strong> — when a device joins the network, it retrieves its CPU/GPU capabilities and memory capacity and shares it with the other nodes</p>
-<p>2. <strong>Model Profiling</strong> — the open-source models usable in the DCI Network have each of their layers profiled, so we know what resources are needed to optimize the computation on that given layer.</p>
+<ol>
+  <li><strong>Device Profiling</strong> — when a device joins the network, it retrieves its CPU/GPU capabilities and memory capacity and shares it with the other nodes</li>
+  <li><strong>Model Profiling</strong> — the open-source models usable in the DCI Network have each of their layers profiled, so we know what resources are needed to optimize the computation on that given layer.</li>
+</ol>
 <p>Given a set of layers (with their associated computational complexities and memory requirements) and a set of devices (our network) with their processing powers, we need to solve <strong>an optimization problem</strong> where the goal is to balance the computational load and memory usage across all devices.</p>
 <p>Solving this problem means:</p>
 <ul>
@@ -224,8 +234,10 @@ M = 10</code></pre>
 <h2><strong>Chord DHT and Bandwidth-Weighted Proximity</strong></h2>
 <p><strong>Chord</strong> arranges nodes into a logical ring based on their hashed identifiers (<strong>node IDs</strong>). Each node maintains a <strong>finger table</strong> with pointers to nodes at increasing distances in the ring, which allows efficient lookups with <strong>O(log N)</strong> complexity. A node also knows its immediate <strong>successor</strong> (the next node in the ring) and its <strong>predecessor</strong> (the previous node), ensuring that data can be routed through the ring efficiently.</p>
 <p>The “default” implementation of Chord uses the ID distance to calculate successors and predecessors. We need to modify such routing logic to account for both <strong>proximity</strong> (latency and bandwidth-based) and ID distance.</p>
-<p>1. <strong>Augmenting the finger table with proximity information: </strong>Each node maintains this finger table that stores nodes at specific intervals in the ID space. Instead of purely using distance in the ID space, we augment the finger table with latency and bandwidth information for each finger (neighbouring node). We use previously stated strategies to constantly update the proximity data.</p>
-<p>2. <strong>Proximity-Based Finger Selection: </strong>During the routing process, Chord typically forwards messages to the node closest to the target in the ID space. In our case, we use the previously cited proximity score to prioritize nodes that are both close in terms of ID space and network proximity.</p>
+<ol>
+  <li><strong>Augmenting the finger table with proximity information: </strong>Each node maintains this finger table that stores nodes at specific intervals in the ID space. Instead of purely using distance in the ID space, we augment the finger table with latency and bandwidth information for each finger (neighbouring node). We use previously stated strategies to constantly update the proximity data.</li>
+  <li><strong>Proximity-Based Finger Selection: </strong>During the routing process, Chord typically forwards messages to the node closest to the target in the ID space. In our case, we use the previously cited proximity score to prioritize nodes that are both close in terms of ID space and network proximity.</li>
+</ol>
 <p>Chord is <strong>fault-tolerant</strong> and handles node joins departures, and failures by adjusting the finger tables and successors pointers. With proximity awareness:</p>
 <ul>
   <li>When a <strong>node joins</strong>, we measure its proximity to its neighbours and update the finger tables of existing nodes accordingly.</li>
@@ -236,9 +248,11 @@ M = 10</code></pre>
 <p><strong>Selective Participation</strong> is a strategy where nodes in a distributed network self-select or are assigned specific types of inference tasks based on their computational resources, particularly in terms of <strong>Teraflops</strong> (<strong>TFLOPS</strong>).</p>
 <p>A Teraflop refers to a processor’s capability to calculate one trillion floating-point operations per second. This means that when a device has “8 TFLOPS”, we actually mean that its processor setup can handle 8 trillion floating-point operations per second on average. Unlike gigahertz (GHz) — that measures a processor’s clock speed, a TFLOP is a direct mathematical measurement of a computer’s performance.</p>
 <p>Nodes can be categorized into different tiers based on their computational capacity; each category corresponds to the complexity and size of the AI models that nodes are capable of processing. An example of such categorization (TBD) could be:</p>
-<p>1. <strong>Category A (high-performance nodes): </strong>Range: 20+ TFLO. Suitable for large, resource-intensive model layers. Typical hardware: high-end GPUs, specialized AI hardware</p>
-<p>2. <strong>Category B (moderate-performance nodes): </strong>Range: 5–20 TFLOPS. Suitable for medium-complexity models. Typical hardware: mid-range GPUs, CPUs with AI accelerators (Apple Chips)</p>
-<p>3. <strong>Category C (low-performance nodes): </strong>Range: &lt;5 TFLOPS. Suitable for lightweight models. Typical hardware: standard CPUs, mobile devices or edge devices with limited compute capacity</p>
+<ol>
+  <li><strong>Category A (high-performance nodes): </strong>Range: 20+ TFLO. Suitable for large, resource-intensive model layers. Typical hardware: high-end GPUs, specialized AI hardware</li>
+  <li><strong>Category B (moderate-performance nodes): </strong>Range: 5–20 TFLOPS. Suitable for medium-complexity models. Typical hardware: mid-range GPUs, CPUs with AI accelerators (Apple Chips)</li>
+  <li><strong>Category C (low-performance nodes): </strong>Range: &lt;5 TFLOPS. Suitable for lightweight models. Typical hardware: standard CPUs, mobile devices or edge devices with limited compute capacity</li>
+</ol>
 <p>By categorizing nodes in such a way, the network ensures that nodes with sufficient computational resources handle the more demanding AI models, while less powerful nodes focus on lightweight models. This also creates an opportunity for people participating in the network using a mobile device (like their smartphone) by allowing these less-performing devices to participate in the inference of smaller models.</p>
 <h2><strong>Final considerations</strong></h2>
 <p>By utilizing a <strong>truly decentralized inference network</strong>, we enable AI tasks to be executed across a network of nodes, where computation is distributed dynamically and efficiently, while also maintaining a high level of security and rewarding users for sharing their computation.</p>
@@ -265,13 +279,15 @@ M = 10</code></pre>
 <p><a href="https://x.com/Marcello_AI"><em>Marcello Politi</em></a><em>, </em><a href="https://twitter.com/orbuloeth"><em>Paolo Rollo</em></a>, <a href="https://twitter.com/Frankc_eth"><em>Francesco Cirulli</em></a><em>, </em><a href="https://twitter.com/matteoikari"><em>Matteo D’andreta</em></a><em>, </em><a href="https://twitter.com/jondar_eth"><em>Federico Giancotti</em></a></p>
 <h2><strong>Resources</strong></h2>
 <p><em>Our work comes from studying different projects, papers and protocols of amazing AI and web3 researchers and developers, from whom we took inspiration. We would like to thank these authors, and the people working behind this project.</em></p>
-<p>1. Nagel, Markus, Marios Fournarakis, Rana Ali Amjad, Yelysei Bondarenko, Mart Van Baalen, and Tijmen Blankevoort. “<a href="https://arxiv.org/abs/2106.08295">A white paper on neural network quantization.</a>” arXiv preprint arXiv:2106.08295 (2021).</p>
-<p>2. Xu, Xiaohan, Ming Li, Chongyang Tao, Tao Shen, Reynold Cheng, Jinyang Li, Can Xu, Dacheng Tao, and Tianyi Zhou. “<a href="https://arxiv.org/abs/2402.13116">A survey on knowledge distillation of large language models.</a>” <em>arXiv preprint arXiv:2402.13116</em> (2024).</p>
-<p>3. Cheng, Hongrong, Miao Zhang, and Javen Qinfeng Shi. “<a href="https://arxiv.org/abs/2308.06767">A survey on deep neural network pruning: Taxonomy, comparison, analysis, and recommendations.</a>” <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em> (2024).</p>
-<p>4. Conway, So, Yu and Wongi. “<a href="https://arxiv.org/html/2401.17555v1">opML: Optimistic Machine Learning on Blockchain</a>” <em>arXiv preprint arXiv:2401.17555v1 (2024)</em>.</p>
-<p>5. Ganescu, Bianca-Mihaela, and Jonathan Passerat-Palmbach. “<a href="https://arxiv.org/abs/2402.06414">Trust the process: Zero-knowledge machine learning to enhance trust in generative ai interactions.</a>” <em>arXiv preprint arXiv:2402.06414</em> (2024).</p>
-<p>6. Stoica, Morris, Liben-Nowell, Karger, Kaashoek, Dabek and Balakrishman. “<a href="https://pdos.csail.mit.edu/papers/ton:chord/paper-ton.pdf">Chord: A Scalable Peer-to-peer Lookup Protocol for Internet Applications</a>”.</p>
-<p>7. The team behind <a href="https://x.com/exolabs">Exo Labs</a>, that kickstarted our work and for their contribution to democratizing access to AI, truly.</p>
+<ol>
+  <li>Nagel, Markus, Marios Fournarakis, Rana Ali Amjad, Yelysei Bondarenko, Mart Van Baalen, and Tijmen Blankevoort. “<a href="https://arxiv.org/abs/2106.08295">A white paper on neural network quantization.</a>” arXiv preprint arXiv:2106.08295 (2021).</li>
+  <li>Xu, Xiaohan, Ming Li, Chongyang Tao, Tao Shen, Reynold Cheng, Jinyang Li, Can Xu, Dacheng Tao, and Tianyi Zhou. “<a href="https://arxiv.org/abs/2402.13116">A survey on knowledge distillation of large language models.</a>” <em>arXiv preprint arXiv:2402.13116</em> (2024).</li>
+  <li>Cheng, Hongrong, Miao Zhang, and Javen Qinfeng Shi. “<a href="https://arxiv.org/abs/2308.06767">A survey on deep neural network pruning: Taxonomy, comparison, analysis, and recommendations.</a>” <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em> (2024).</li>
+  <li>Conway, So, Yu and Wongi. “<a href="https://arxiv.org/html/2401.17555v1">opML: Optimistic Machine Learning on Blockchain</a>” <em>arXiv preprint arXiv:2401.17555v1 (2024)</em>.</li>
+  <li>Ganescu, Bianca-Mihaela, and Jonathan Passerat-Palmbach. “<a href="https://arxiv.org/abs/2402.06414">Trust the process: Zero-knowledge machine learning to enhance trust in generative ai interactions.</a>” <em>arXiv preprint arXiv:2402.06414</em> (2024).</li>
+  <li>Stoica, Morris, Liben-Nowell, Karger, Kaashoek, Dabek and Balakrishman. “<a href="https://pdos.csail.mit.edu/papers/ton:chord/paper-ton.pdf">Chord: A Scalable Peer-to-peer Lookup Protocol for Internet Applications</a>”.</li>
+  <li>The team behind <a href="https://x.com/exolabs">Exo Labs</a>, that kickstarted our work and for their contribution to democratizing access to AI, truly.</li>
+</ol>
 <p>This article has been published on <a href="https://medium.com/data-science/a-gentle-introduction-to-the-dcin-for-decentralized-inference-f42f41367a95">Towards Data Science</a></p>
   </article>
 <script src="highlight.min.js"></script>

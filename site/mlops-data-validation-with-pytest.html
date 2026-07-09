@@ -15,7 +15,7 @@
     <nav class="group">
       <a href="index.html">Home</a>
       <a href="#">About me</a>
-      <a href="#">Notebooks</a>
+      <a href="notebooks.html">Notebooks</a>
       <a href="#">Lectures</a>
     </nav>
   </header>
@@ -44,9 +44,11 @@
 <p><a href="https://www.researchgate.net/publication/368300449_ETL_Extract_Transform_Load_Best_Practices">In this article</a>, you can read about some of the ETL best practices.</p>
 <h2><strong>What can go wrong?</strong></h2>
 <p>Now that we know how data are collected, let’s deal with understanding how and why a data scientist needs to deal with data validation. There are several things that can go wrong in our dataset.</p>
-<p>1. The world around us is dynamic and changing, so the <strong>distribution of data </strong>also<strong> changes</strong>. Think of a model that makes predictions about the price of some t-shirts. XXL sizes were predicted with a very low price because no one was buying them. But we know that as generations go by, people get taller and taller, so in the future, it may be necessary to re-train the model that will have to give greater importance to large sizes.</p>
-<p>2. Changes were made in the source data that were not reported to us. The team in charge of the ETL pipeline changed the data regarding the movie rating system, going from a system ranging from one to five stars to one that goes up to ten stars.</p>
-<p>3. A bug in the data ingestion, during the ETL. Maybe there was a metric change and we went from data expressed in cm to data expressed in km.</p>
+<ol>
+  <li>The world around us is dynamic and changing, so the <strong>distribution of data </strong>also<strong> changes</strong>. Think of a model that makes predictions about the price of some t-shirts. XXL sizes were predicted with a very low price because no one was buying them. But we know that as generations go by, people get taller and taller, so in the future, it may be necessary to re-train the model that will have to give greater importance to large sizes.</li>
+  <li>Changes were made in the source data that were not reported to us. The team in charge of the ETL pipeline changed the data regarding the movie rating system, going from a system ranging from one to five stars to one that goes up to ten stars.</li>
+  <li>A bug in the data ingestion, during the ETL. Maybe there was a metric change and we went from data expressed in cm to data expressed in km.</li>
+</ol>
 <p>Data validation can be done before or after data segregation (splitting data into train and test). It is not clear where it is best to do it there are pros and cons for both approaches.</p>
 <h2><strong>Intro to PyTest</strong></h2>
 <p><a href="https://docs.pytest.org/en/8.2.x/">PyTest</a> is a Python library that is widely used to run different kinds of tests. Usually, we create a folder called <em>tests</em> in our codebase and within it, we collect all the files for the several tests we want to run. Each file will be named as <em>test_xx.py</em>. So we can have for example <em>tets_data.py</em> or<em> test_model.py</em></p>

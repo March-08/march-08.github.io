@@ -15,7 +15,7 @@
     <nav class="group">
       <a href="index.html">Home</a>
       <a href="#">About me</a>
-      <a href="#">Notebooks</a>
+      <a href="notebooks.html">Notebooks</a>
       <a href="#">Lectures</a>
     </nav>
   </header>
@@ -264,13 +264,12 @@ contract Faucet {
 </ul>
 <p>Note that there is no “from” field, since the originator EOA can be recovered from the digital signature.,</p>
 <p>Why each transaction needs a nonce and what is it? From the yellow paper:</p>
-<div class="deepdive">
-  <span class="callout-label">Deep dive</span>
-  <p>nonce: A scalar value equal to the number of transactions sent from this address or, in the case of accounts with associated code, the number of contract-creations made by this accout.</p>
-</div>
+<div class="callout-note cw-gray"><span class="cw-icon">💡</span><span class="cw-body">nonce: A scalar value equal to the number of transactions sent from this address or, in the case of accounts with associated code, the number of contract-creations made by this accout.</span></div>
 <p>Some scenarios example when a nonce is needed:</p>
-<p>1. You send 2 transactions. You just realised after sending the transactions, that you don’t have enough ether for both, so you would like the protocol to reject the second one because obviously you prioritise the first one. But the network doesn’t know which one is the first or second one because the transactions come in a “random” order to the nodes. Here a nonce solves the situation.</p>
-<p>2. Imagine you send a transaction of 10 eth to buy your knew playstation-5. What if some node replays the transaction by resending it multiple times to the network? He could do this and you will spend 10 eth over and over again. But if in the transaction there is a nonce we know that a particular transaction has already been included in the chain, and new transactions will need new nonces which will affect the transaction hash.</p>
+<ol>
+  <li>You send 2 transactions. You just realised after sending the transactions, that you don’t have enough ether for both, so you would like the protocol to reject the second one because obviously you prioritise the first one. But the network doesn’t know which one is the first or second one because the transactions come in a “random” order to the nodes. Here a nonce solves the situation.</li>
+  <li>Imagine you send a transaction of 10 eth to buy your knew playstation-5. What if some node replays the transaction by resending it multiple times to the network? He could do this and you will spend 10 eth over and over again. But if in the transaction there is a nonce we know that a particular transaction has already been included in the chain, and new transactions will need new nonces which will affect the transaction hash.</li>
+</ol>
 <p>The Ethereum network processes transactions sequentially, meaning that if you send a tx with nonce 0 and then a tx with nonce 2, the second transaction will not be included in any block but it will wait in a <strong><em>mempool</strong></em> until a tx with nonce 1 is received.</p>
 <p>The gas price is the price that the transaction originator is willing to pay for a gas unit. Different kind of transaction require a different amount of gas unit (e. g a simple EOA to EOA tx requires 21k units). Gas price can change based on the state of the network, so it can be only estimated averaging the gar price of the latest blocks.</p>
 <p>The gas limit instead,  is the maximum number of gas units a transaction originator is willing to buy in order to complete the transaction. When you send a tx to run a smart contract, maybe this smart contract has an internal loop which requires a lot of gas, and you set a limit to not exceed.</p>
@@ -454,14 +453,16 @@ contract Faucet is mortal {
 <p>This GitHub issue was the number #20 that’s why we today talk about ERC-20 → <a href="https://ethereum.org/developers/docs/standards/tokens/erc-20/">ERC-20 Token Standard | ethereum.org</a></p>
 <p>ERC-20 is a standard that defines the interface to implement <em>fungible tokens.</em></p>
 <p>The interface consists in several functions and event signatures (or prototypes) that developer should implement. These are:</p>
-<p>1. <em>totalSupplay: </em>returns total units of token that exist</p>
-<p>2. *balanceOf:** *returns balance of an address</p>
-<p>3. <em>transfer: </em>transfer x tokens to address</p>
-<p>4. <em>transferFrom: </em>transfer x tokens from a given account to another (to be used with approve)</p>
-<p>5. <em>approve: </em>authorizes an addrsess to execute several transfers up to a certain amount</p>
-<p>6. <em>allowance: </em>returns the remaining amount that the spender is approved to withdraw from the owner</p>
-<p>7. *Transfer** (event): *event triggered upon successful transfer</p>
-<p>8. *Approval** (event): *event triggered upon successful approve</p>
+<ol>
+  <li><em>totalSupplay: </em>returns total units of token that exist</li>
+  <li>*balanceOf:** *returns balance of an address</li>
+  <li><em>transfer: </em>transfer x tokens to address</li>
+  <li><em>transferFrom: </em>transfer x tokens from a given account to another (to be used with approve)</li>
+  <li><em>approve: </em>authorizes an addrsess to execute several transfers up to a certain amount</li>
+  <li><em>allowance: </em>returns the remaining amount that the spender is approved to withdraw from the owner</li>
+  <li>*Transfer** (event): *event triggered upon successful transfer</li>
+  <li>*Approval** (event): *event triggered upon successful approve</li>
+</ol>
 <p>How does the ERC20 intefrace is defined in solidity?</p>
 <pre><code class="language-solidity">// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
@@ -681,9 +682,11 @@ interface IERC721 {
 </ul>
 <p>Once data is in a smart contract it can be retrieved by others.</p>
 <p>There are mainly 3 types of oracles:</p>
-<p>1. <strong><em>immediate-read: </strong></em>when the data is needed for an immediate decision: “is this person over 18 yo?”. The lookup is done when the info is needed and never again. This type of oracle store data once in its contract storage. A university might set up an oracle for the certificates of academic achievement of past students.</p>
-<p>2. <strong><em>publish-subscribe: </strong></em>oracle that provide broadcast services for data that is expected to change. When the oracle is updated with new information it flags signals to those who are considered “subscribed”. Interested parties should listen for updates. Examples are: price feeds, weather info, social statistic, traffic data etc.</p>
-<p>3. <strong><em>request-response: </strong></em>this is where the data space is too huge to be stored in a smart contract, and users only need a small part of it. Such systems have off-chain infrastructure. In this pattern usually an EOA transact with a decentralised application, resulting in an interaction with a function defined in the oracle smart contract. This function initiates the request to the oracle, with the associated arguments detailing the data requested. Once the tx has been validated, the oracle request can be observed as an EVM event emitted by the oracle contract, or as a state change; the arguments can be retreived and used to perform the actual query of the off-chain data source.  Finally, the resulting data is signed by the oracle owner, attesting to the validity of the data at a given time, and delivered in a transaction to the decentralised application that made the request.</p>
+<ol>
+  <li><strong><em>immediate-read: </strong></em>when the data is needed for an immediate decision: “is this person over 18 yo?”. The lookup is done when the info is needed and never again. This type of oracle store data once in its contract storage. A university might set up an oracle for the certificates of academic achievement of past students.</li>
+  <li><strong><em>publish-subscribe: </strong></em>oracle that provide broadcast services for data that is expected to change. When the oracle is updated with new information it flags signals to those who are considered “subscribed”. Interested parties should listen for updates. Examples are: price feeds, weather info, social statistic, traffic data etc.</li>
+  <li><strong><em>request-response: </strong></em>this is where the data space is too huge to be stored in a smart contract, and users only need a small part of it. Such systems have off-chain infrastructure. In this pattern usually an EOA transact with a decentralised application, resulting in an interaction with a function defined in the oracle smart contract. This function initiates the request to the oracle, with the associated arguments detailing the data requested. Once the tx has been validated, the oracle request can be observed as an EVM event emitted by the oracle contract, or as a state change; the arguments can be retreived and used to perform the actual query of the off-chain data source.  Finally, the resulting data is signed by the oracle owner, attesting to the validity of the data at a given time, and delivered in a transaction to the decentralised application that made the request.</li>
+</ol>
 <p>How we can trust off-chain methods? There is the possibility that data as been tampered with in transit.</p>
 <p>Two common approaches to validate data integrity are: <strong><em>authenticity proofs</strong></em> and <strong><em>trusted execution environments (TEE)</strong></em></p>
 <p>Authenticity proofs, are cryptographic guarantees that data has not been tampered with, By verifying the authenticity proof on-chain, smart contracts are able to verify the integrity of the data before operating upon it.</p>

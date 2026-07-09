@@ -93,10 +93,13 @@ def yt_id(u):
 content=re.sub(r'\n?\t*</?columns?>', '\n', content)
 lines=content.split('\n')
 out=[]; imgn=0; snid=0; subtitle=None; lead=False; i=0; N=len(lines)
-listbuf=[]; quotebuf=[]
+listbuf=[]; quotebuf=[]; listord=False
 def flush_list():
-    global listbuf
-    if listbuf: out.append('<ul>\n'+'\n'.join(f'  <li>{inline(x)}</li>' for x in listbuf)+'\n</ul>'); listbuf=[]
+    global listbuf, listord
+    if listbuf:
+        tag='ol' if listord else 'ul'
+        out.append(f'<{tag}>\n'+'\n'.join(f'  <li>{inline(x)}</li>' for x in listbuf)+f'\n</{tag}>')
+        listbuf=[]; listord=False
 def flush_quote():
     global quotebuf
     if not quotebuf: return
@@ -218,8 +221,15 @@ while i<N:
             i+=1
         buf=[b.strip() for b in buf if b.strip() and b.strip()!='<empty-block/>']
         flush()
+        icon=cm.group(1)
+        titled=bool(buf) and buf[0].startswith('**') and buf[0].endswith('**')
         if 'yellow' in color:
             out.append('<div class="note">\n'+'\n'.join(f'<p>{inline(b.strip("*"))}</p>' for b in buf)+'\n</div>')
+        elif not titled:
+            # simple callout (icon + tinted background), e.g. info/warning notes
+            cls='cw-red' if 'red' in color else ('cw-green' if 'green' in color else ('cw-blue' if 'blue' in color else 'cw-gray'))
+            body='<br>'.join(inline(b) for b in buf)
+            out.append(f'<div class="callout-note {cls}"><span class="cw-icon">{html.escape(icon)}</span><span class="cw-body">{body}</span></div>')
         else:
             c=['<div class="deepdive">','  <span class="callout-label">Deep dive</span>']; first=True; cul=[]
             def cflush():
@@ -260,13 +270,19 @@ while i<N:
         while j<N and lines[j][:1]=='\t' and lines[j].strip():   # absorb tab-indented lines into the quote
             quotebuf.append(lines[j].strip()); j+=1
         i=j; continue
-    if re.match(r'^[-*] ', s):
-        flush_quote(); item=s[2:]; j=i+1
-        while j<N and lines[j][:1] in ('\t',' ') and lines[j].strip() and not re.match(r'^[-*>#]', lines[j].strip()):
-            item+=' '+lines[j].strip(); j+=1                       # absorb tab-indented continuation into the bullet
+    _om=re.match(r'^\d+[.)]\s+(.*)', s)
+    if re.match(r'^[-*] ', s) or _om:
+        flush_quote()
+        if not listbuf: listord=bool(_om)                          # list type set by its first item
+        item=_om.group(1) if _om else s[2:]; j=i+1
+        while j<N and lines[j][:1] in ('\t',' ') and lines[j].strip() and not (re.match(r'^[-*>#]', lines[j].strip()) or re.match(r'^\d+[.)]\s', lines[j].strip())):
+            item+=' '+lines[j].strip(); j+=1                       # absorb tab-indented continuation into the item
         item=re.sub(r'\s+([,.;:!?])', r'\1', item)
         listbuf.append(item); i=j; continue
     if re.fullmatch(r'-{2,}', s): i+=1; continue
+    _pg=re.match(r'^<page url="([^"]+)">(.*?)</page>\s*$', s)
+    if _pg:
+        flush(); out.append(f'<p><a href="{_pg.group(1)}">{inline(_pg.group(2).strip())} →</a></p>'); i+=1; continue
     pm2=re.match(r'^\((.+)\)[.,;:]?\s*$', s)
     if pm2 and 6 < len(s) < 400:
         flush(); snid+=1; inner=inline(pm2.group(1).strip())
@@ -316,7 +332,7 @@ NAV='''  <header>
     <nav class="group">
       <a href="index.html">Home</a>
       <a href="#">About me</a>
-      <a href="#">Notebooks</a>
+      <a href="notebooks.html">Notebooks</a>
       <a href="#">Lectures</a>
     </nav>
   </header>'''

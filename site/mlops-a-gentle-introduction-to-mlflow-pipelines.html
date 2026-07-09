@@ -15,7 +15,7 @@
     <nav class="group">
       <a href="index.html">Home</a>
       <a href="#">About me</a>
-      <a href="#">Notebooks</a>
+      <a href="notebooks.html">Notebooks</a>
       <a href="#">Lectures</a>
     </nav>
   </header>
@@ -47,15 +47,15 @@
 <p>Install Mlflow</p>
 <h2><strong>Define an MLflow project</strong></h2>
 <p>An MLflow project consists of 3 main parts, which are:</p>
-<p>1. <strong>Code</strong></p>
-<p>: The code we write to solve the task we are working on</p>
-<p>2. <strong>Environment</strong></p>
+<ol>
+  <li><strong>Code</strong>: The code we write to solve the task we are working on</li>
+  <li><strong>Environment</strong></li>
+</ol>
 <p><strong>:</strong></p>
 <p>We need to define the environment. What dependencies does my code need to run?</p>
-<p>3. <strong>MLflow Project definition</strong></p>
-<p>: each MLflow project has a file called MLproject that defines</p>
-<p>what is to be run</p>
-<p>when, and how the user has to interact with the project.</p>
+<ol>
+  <li><strong>MLflow Project definition</strong>: each MLflow project has a file called MLproject that defines what is to be run when, and how the user has to interact with the project.</li>
+</ol>
 <p>The code for each pipeline component I will write in this article will be in Python for simplicity. But as mentioned earlier remember that this is not a must.</p>
 <p>How do we manage the environments? To define a reproducible and isolated development environment we can use various tools. The main ones are docker and conda. In this example, I will use conda, because it allows me to specify dependencies quickly and easily, while docker has a somewhat more difficult learning curve. If you need to download conda, I recommend the lighter version called <a href="https://docs.anaconda.com/free/miniconda/miniconda-install">miniconda</a>.</p>
 <p>We can create a conda.yml file to define our development environment and later create a virtual environment.</p>

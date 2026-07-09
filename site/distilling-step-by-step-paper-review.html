@@ -15,7 +15,7 @@
     <nav class="group">
       <a href="index.html">Home</a>
       <a href="#">About me</a>
-      <a href="#">Notebooks</a>
+      <a href="notebooks.html">Notebooks</a>
       <a href="#">Lectures</a>
     </nav>
   </header>
@@ -39,8 +39,10 @@
 </figure>
 <p><strong>What are the standard approaches?</strong></p>
 <p>There are two approaches that are used to adapt an LLM to a company-specific use case :</p>
-<p>1. <strong>Standard fine-tuning</strong>: The fine-tuning method involves introducing additional layers on top of a pre-trained model, which is trained using a supervised dataset. But it requires loads of computing and GPU RAM.</p>
-<p>2. <strong>Task Distillation</strong>: Large LLMs offer zero-shot capabilities. Task Distillation involves generating pseudo-labels with the large models and training the task-specific smaller model. In this case, the extracted rationales from the larger LM can be used as additional supervision for the smaller model. The disadvantage is that it lacks performance, generalizability, and emergent properties. Moreover, the method is compute-intensive since it requires that the LLM be deployed even at test/inference time.</p>
+<ol>
+  <li><strong>Standard fine-tuning</strong>: The fine-tuning method involves introducing additional layers on top of a pre-trained model, which is trained using a supervised dataset. But it requires loads of computing and GPU RAM.</li>
+  <li><strong>Task Distillation</strong>: Large LLMs offer zero-shot capabilities. Task Distillation involves generating pseudo-labels with the large models and training the task-specific smaller model. In this case, the extracted rationales from the larger LM can be used as additional supervision for the smaller model. The disadvantage is that it lacks performance, generalizability, and emergent properties. Moreover, the method is compute-intensive since it requires that the LLM be deployed even at test/inference time.</li>
+</ol>
 <p>In the distilling step-by-step paper, the authors reframe the problem of rationale generation as a multi-task problem with by using <strong>the LLM-generated rationales only at train time.</strong></p>
 <figure>
   <img class="wide" src="images/distilling-step-by-step-paper-review/img-03.png" alt="">
@@ -93,16 +95,20 @@
   <figcaption>SVAMP dataset (src: <a href="https://huggingface.co/datasets/ChilleD/SVAMP/viewer/ChilleD--SVAMP/train?row=0">https://huggingface.co/datasets/ChilleD/SVAMP/viewer/ChilleD--SVAMP/train?row=0</a>)</figcaption>
 </figure>
 <p>The distilling step-by-step method is compared against 2 approaches namely the standard fine-tuning and standard task-distillation. The authors compare varying sizes of T5 models: 220M T5-Base, 770M T5-Large, and 1B T5-XXL. The results are also compared against two baseline methods :</p>
-<p>1. <strong>Few shot CoT</strong>: Chain-of-thought prompting is <strong>an approach to improve the reasoning ability of large language models in arithmetic, commonsense, and symbolic reasoning tasks</strong>. The main idea is to include a chain of thought, a series of intermediate natural language reasoning steps, in the few-shot prompting process.</p>
-<p>2. <strong>PINTO Tuning</strong>: In this approach, a frozen medium-scale language model is prompted to generate rationales, on which a smaller LM is fine-tuned using the generated rationales, to function as a reasoning module. At inference time, this medium-scale LM generates a rationale which is used by the smaller LM to make a prediction.</p>
+<ol>
+  <li><strong>Few shot CoT</strong>: Chain-of-thought prompting is <strong>an approach to improve the reasoning ability of large language models in arithmetic, commonsense, and symbolic reasoning tasks</strong>. The main idea is to include a chain of thought, a series of intermediate natural language reasoning steps, in the few-shot prompting process.</li>
+  <li><strong>PINTO Tuning</strong>: In this approach, a frozen medium-scale language model is prompted to generate rationales, on which a smaller LM is fine-tuned using the generated rationales, to function as a reasoning module. At inference time, this medium-scale LM generates a rationale which is used by the smaller LM to make a prediction.</li>
+</ol>
 <p>The <strong>trained student model outperforms LLMs that are 2000x larger, on 4 different NLP benchmark </strong>datasets and tasks such as natural language inference, commonsense question answering, and arithmetic math word problems by using far fewer labeled and unlabeled training examples!</p>
 <p>To know about the experiments and results in greater detail, please read the paper here: <a href="https://arxiv.org/pdf/2305.02301.pdf">https://arxiv.org/pdf/2305.02301.pdf</a></p>
 <h2><strong>Other Methods</strong></h2>
 <p>There is great interest in methods to reduce the resources required to run new Machine Learning models, which are becoming increasingly large, such as LLMs. In the literature, there are several techniques for model compression. The most important ones are:</p>
-<p>1. <strong>Quantization</strong>: decreasing the precision of the weights to improve efficiency</p>
-<p>2. <strong>Pruning</strong>: involves reducing the number of weights by removing connections between channels, filters, and neurons.</p>
-<p>3. <strong>Knowledge distillation</strong>: how this technique works is that the trained model is called the “teacher” and the smaller model is called the “student”. The student is taught to minimize the loss function by training on ground truths and labeled truths in the network by the teacher.</p>
-<p>4. <strong>Low-rank tensor decomposition</strong>: a lot of repetitive, similar, and redundant outcomes can occur between different layers while training. This technique involves reducing the number of repetitive outputs by approximating the numerous layers, thus reducing the memory footprint of the network, resulting in highly efficient systems.</p>
+<ol>
+  <li><strong>Quantization</strong>: decreasing the precision of the weights to improve efficiency</li>
+  <li><strong>Pruning</strong>: involves reducing the number of weights by removing connections between channels, filters, and neurons.</li>
+  <li><strong>Knowledge distillation</strong>: how this technique works is that the trained model is called the “teacher” and the smaller model is called the “student”. The student is taught to minimize the loss function by training on ground truths and labeled truths in the network by the teacher.</li>
+  <li><strong>Low-rank tensor decomposition</strong>: a lot of repetitive, similar, and redundant outcomes can occur between different layers while training. This technique involves reducing the number of repetitive outputs by approximating the numerous layers, thus reducing the memory footprint of the network, resulting in highly efficient systems.</li>
+</ol>
 <h2><strong>Final Thoughts</strong></h2>
 <p>That’s all for now! If you liked this article, you might be interested in learning more about how to reduce the resources required to run new Machine Learning models. Techniques such as quantization, pruning, and low-rank tensor decomposition can help improve efficiency and reduce the memory footprint of large models. If you want to implement knowledge distillation, you can check out libraries like the following.</p>
 <a class="linkcard" href="https://github.com/SforAiDl/KD_Lib?source=post_page-----8bf1dcbbb500---------------------------------------"><img class="lc-icon" src="images/favicons/github.com.png" alt=""><span class="lc-body"><span class="lc-title">GitHub - SforAiDl/KD_Lib: A Pytorch Knowledge Distillation library for benchmarking and extending…A Pytorch Knowledge Distillation library for benchmarking and extending works in the domains of Knowledge Distillation…github.com</span><span class="lc-domain">github.com</span></span></a>

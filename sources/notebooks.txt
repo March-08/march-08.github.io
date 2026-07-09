@@ -1,0 +1,44 @@
+<properties>
+{"Name":"Notebooks"}
+</properties>
+<content>
+*A collection of my hands-on Colab notebooks, from ML fundamentals to LLMs and agents.*
+<callout icon="⛔" color="red_bg">
+	You can not access my notebooks if you don't have permission. You can email me at: mpoliti08@gmail.com
+</callout>
+<callout icon="✅" color="green_bg">
+	The first NLP notebook (and few others) can be accessed by anyone. So you can still check my work! 😉
+</callout>
+## General
+1. [Permutation Tests](https://colab.research.google.com/drive/1_c1HL3hC3vgTdna7Py1UT2LyVbVstNiV)
+## Machine Learning
+1. [learn-from-data](https://colab.research.google.com/drive/1OwUXiM9AvC9t36LQ8tFnWmwlGMStC-OI?usp=sharing)
+2. [numpy-tutorial](https://colab.research.google.com/drive/1mMw8Rv8mbP6NNqs0IL-gsqctZE-r1WCy)
+3. [linear-regression-and-gradient-descent](https://colab.research.google.com/drive/1yO_1fT477wcNtdaa3gym2eSq-B1pKaM3#scrollTo=GJLU361pYh3p)
+4. [multi-linear-regression](https://colab.research.google.com/drive/1G_pkDQZ08lmBuzgnkucm707Zxh5jHxpw)
+5. [titanic-problem](https://colab.research.google.com/drive/1WeAbskEu27dlPT3M_ZmozXDao832V8a_)
+6. [ensemble-learning](https://colab.research.google.com/drive/1atCHlyMew44DDnY9Wpd7v0OrchG0RgR4)
+7. [mlp-from-scratch](https://colab.research.google.com/drive/1sZhAXdFRn0K-0hMPDwQgFySX9utaI2kL)
+### Computer Vision
+1. [dogs-vs-cats-tensorflow](https://colab.research.google.com/drive/14tsmB0jTuzdH0-KecjuGm_Ug4x29z14T)
+### Basic NLP
+1. [Deep Learning Theory and PyTorch Introduction](https://colab.research.google.com/drive/1JqguSHJ5ZVQoJ3s3hUgabNkb6h4sMhNw#scrollTo=N_fSAUpAZj9E) ✅
+2. [Building a Custom MLP from Scratch](https://colab.research.google.com/drive/1sZhAXdFRn0K-0hMPDwQgFySX9utaI2kL?usp=sharing)
+3. [Non-contextual embeddings: Word2Vec, Skip-Gram, GloVe](https://colab.research.google.com/drive/1PZ2osI3L7Kx-CEjr0nejCRQ-Y2vS4TWF?usp=sharing)
+4. [NLP with spaCy](https://colab.research.google.com/drive/1w3hAWKt7MhgxLjqvrYyRJmT5q7m2WlF2?usp=sharing)
+### Advanced NLP
+1. [Building a Transformer Architecture](https://colab.research.google.com/drive/1IAitN6_j1YRn_-gE4kFQnte4Dx_-rS-_?usp=sharing)
+2. [Intro to the Transformers Library by HuggingFace](https://colab.research.google.com/drive/1jykaIy_tLS8U8XR1PWJKvo8Ox6c8GqKS?usp=sharing)
+3. [Adaptive and Fine-tuning BERT](https://colab.research.google.com/drive/17X-CdzJP1Brk-Ez-FuEC9wMEbVAzw5b8?usp=sharing)
+4. [Fine tuning BERT with PyTorch](https://colab.research.google.com/drive/1qE6caur04oVPF-zrvrGtOPVxz68-JV7J?usp=sharing)
+5. [CLIP: a Multimodal Model](https://colab.research.google.com/drive/1gxZIX6nyVpUJHZffa4N4PkLRJRMeSbMx?usp=sharing)
+6. [Train BERT and convert to ONNX](https://colab.research.google.com/drive/1A6EOE9kjM0NzHNkW5wnsgm3FO5hT9OQx#scrollTo=FRwQEK8rSLJQ)
+### Generative AI
+1. [generative-adversarial-networks-with-pytorch](https://colab.research.google.com/drive/1Bq0Ax-43pSVTvIPAzzdfoy2YQT52XEbu)
+2. [develop-applications-powered-by-LLM-with-LangChain](https://colab.research.google.com/drive/1EKIaumOqoPuuRnDbkqRcvrSbB6juNTkH#scrollTo=ORyQ4aM-KOXV)
+3. [Simple implementation of self-attention](https://colab.research.google.com/drive/1STEMUuBeCg2N408TLDHYYZuGzufqJprr#scrollTo=qd7Eb43Fr26g)
+## Agents
+1. [Simple agent in pure python](https://colab.research.google.com/drive/1q7LFpJpdPnG2i8-7RWyz9DUY4xSbywDE#scrollTo=hVXbmLDcX4wF)
+2. [Email Agent with Networkx](https://colab.research.google.com/drive/14ptAJUTzay5eOwRrVVSUjaRRUWnfsmXE#scrollTo=29HeYii-xgkx)
+3. [Email agent with LangGraph](https://colab.research.google.com/drive/1zW3XagdFpaC_kGMUZbkq95_TUjA3V_Lp#scrollTo=3Xg6WtngBBRN)
+</content>
