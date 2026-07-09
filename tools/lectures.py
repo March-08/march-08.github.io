@@ -32,6 +32,7 @@ page = f'''<!doctype html>
       <a href="#">About me</a>
       <a href="notebooks.html">Notebooks</a>
       <a href="lectures.html">Lectures</a>
+      <a href="travels.html">Travels</a>
     </nav>
   </header>
   <article>
