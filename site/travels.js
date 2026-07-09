@@ -66,12 +66,12 @@
 
   function draw() {
     const w = container.clientWidth, h = container.clientHeight;
-    svg.attr("viewBox", `0 0 ${w} ${h}`).attr("preserveAspectRatio", "xMidYMid meet");
-    // Fit the inhabited latitude band (~ -56°..82°, so Finland and Argentina both show) to the
-    // view. Overshoot the horizontal extent by `m` so the ±180° antimeridian seam crops off-screen.
-    const bbox = { type: "Polygon", coordinates: [[[-180,-56],[180,-56],[180,82],[-180,82],[-180,-56]]] };
-    const m = w * 0.04;
-    const proj = d3.geoMercator().fitExtent([[-m, 0], [w + m, h]], bbox);
+    svg.attr("viewBox", `0 0 ${w} ${h}`).attr("preserveAspectRatio", "xMidYMid slice");
+    // Big full-bleed Mercator (fills the width; slight overscale crops the ±180° seam), and the
+    // vertical position is pinned so the bottom edge sits near lat -58 → Argentina is always in view.
+    const s = w / (2 * Math.PI) * 1.04;
+    const ty = h - s * 1.25;                     // bottom edge ≈ lat -58°
+    const proj = d3.geoMercator().scale(s).translate([w / 2, ty]);
     const path = d3.geoPath(proj);
     const sel = svg.selectAll("path").data(feats);
     sel.join("path")
