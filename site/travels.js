@@ -69,7 +69,7 @@
     svg.attr("viewBox", `0 0 ${w} ${h}`).attr("preserveAspectRatio", "xMidYMid slice");
     // Big full-bleed Mercator (fills the width; slight overscale crops the ±180° seam), and the
     // vertical position is pinned so the bottom edge sits near lat -58 → Argentina is always in view.
-    const s = w / (2 * Math.PI) * 1.04;
+    const s = w / (2 * Math.PI) * 0.94;
     const ty = h - s * 1.25;                     // bottom edge ≈ lat -58°
     const proj = d3.geoMercator().scale(s).translate([w / 2, ty]);
     const path = d3.geoPath(proj);
@@ -78,6 +78,8 @@
       .attr("d", path)
       .attr("class", d => "country" + (VISITS[d.properties.name] ? " visited" : ""))
       .on("click", function (e, d) { if (VISITS[d.properties.name]) openPanel(d.properties.name, this); });
+    // raise visited countries above their neighbours so nothing overlaps their click target
+    svg.selectAll(".visited").raise();
   }
 
   draw();
