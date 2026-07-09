@@ -1,12 +1,17 @@
 (function () {
+  // simple labelled placeholder image (data-URI) so the demo carousel has distinct slides
+  const ph = (label, bg) => "data:image/svg+xml," + encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='430'><rect width='640' height='430' fill='${bg}'/>` +
+    `<text x='320' y='228' font-family='Georgia' font-size='42' fill='#ffffff' text-anchor='middle'>${label}</text></svg>`);
+
   // --- DUMMY DATA (replace with real trips) — keyed by exact GeoJSON country name ---
   const VISITS = {
     "Italy": { year: "Home", photos: ["images/photo.jpeg"],
       text: "Where it all starts. Rome, the coast, and endless espresso. Dummy text — swap in a real note about home and travels across Italy." },
     "Netherlands": { year: "2024", photos: ["images/avatar.png", "images/photo.jpeg"],
       text: "Amsterdam canals and a conference or two. Placeholder text about the trip — the food, the bikes, the rain." },
-    "Japan": { year: "2023", photos: ["images/photo.jpeg"],
-      text: "Tokyo neon and Kyoto temples. Dummy travel note: ramen counters, bullet trains, and getting cheerfully lost in Shinjuku." },
+    "Japan": { year: "2023", photos: [ph("Tokyo", "#2f8fd8"), ph("Kyoto", "#12659f"), ph("Osaka", "#4aa5e6")],
+      text: "Tokyo neon and Kyoto temples. Dummy travel note: ramen counters, bullet trains, and getting cheerfully lost in Shinjuku. (Three demo photos — use the arrows.)" },
     "United States of America": { year: "2022", photos: ["images/avatar.png"],
       text: "From the Bay Area to the East Coast. Placeholder text — replace with a story from the trip." },
     "France": { year: "2023", photos: ["images/photo.jpeg"],
@@ -27,10 +32,29 @@
     if (!v) return;
     if (active) active.classList.remove("active");
     active = node; node.classList.add("active");
-    pbody.innerHTML =
-      `<h2>${name}</h2><div class="yr">${v.year || ""}</div>` +
-      v.photos.map(src => `<img src="${src}" alt="${name}">`).join("") +
-      `<p>${v.text}</p>`;
+    const photos = v.photos || [];
+    let gallery = "";
+    if (photos.length > 1) {
+      gallery =
+        `<div class="gallery">` +
+        `<img class="slide" src="${photos[0]}" alt="${name}">` +
+        `<button class="gnav prev" aria-label="Previous photo">&#8249;</button>` +
+        `<button class="gnav next" aria-label="Next photo">&#8250;</button>` +
+        `<div class="counter"><span class="cur">1</span>&thinsp;/&thinsp;${photos.length}</div>` +
+        `</div>`;
+    } else if (photos.length === 1) {
+      gallery = `<img src="${photos[0]}" alt="${name}">`;
+    }
+    pbody.innerHTML = `<h2>${name}</h2><div class="yr">${v.year || ""}</div>${gallery}<p>${v.text}</p>`;
+
+    if (photos.length > 1) {
+      let idx = 0;
+      const img = pbody.querySelector(".slide");
+      const cur = pbody.querySelector(".counter .cur");
+      const show = () => { img.src = photos[idx]; cur.textContent = idx + 1; };
+      pbody.querySelector(".prev").addEventListener("click", () => { idx = (idx - 1 + photos.length) % photos.length; show(); });
+      pbody.querySelector(".next").addEventListener("click", () => { idx = (idx + 1) % photos.length; show(); });
+    }
     panel.classList.add("open");
   }
   function closePanel() {
