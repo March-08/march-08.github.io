@@ -6,7 +6,7 @@ body { overflow-x: hidden; }                 /* contain the full-width map break
 /* full-viewport-width map, sitting below the standard navbar + title */
 #map {
   position: relative; left: 50%; margin-left: -50vw; width: 100vw;
-  height: 78vh; margin-top: 1.6rem; background: #e6e3da;    /* ocean */
+  height: 82vh; margin-top: 1rem; background: rgb(249,249,249);   /* ocean = site background */
 }
 #map svg { width: 100%; height: 100%; display: block; }
 .country { fill: #ffffff; stroke: #cfcbc0; stroke-width: .5px; }          /* land */
