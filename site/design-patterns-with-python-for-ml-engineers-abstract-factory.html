@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Design Patterns with Python for ML Engineers: Abstract Factory — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Design Patterns with Python for ML Engineers: Abstract Factory</h1>
+    <p class="subtitle">Learn how you can structure your code by adopting design patterns.</p>
+    <p class="postdate">November 29, 2024 · Design Pattern, Best Practices, Abstract factory</p>
+<figure>
+  <img class="portrait" src="images/design-patterns-with-python-for-ml-engineers-abstract-factory/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>A pattern describes a frequently recurring problem and proposes a possible solution in terms of class/object organization that generally found to be effective in solving the problem itself.</p>
+<p>Design Patterns are characterized by four main elements:</p>
+<ul>
+  <li><strong>Name: </strong>mnemonic reference that allows us to identify the problem and solution in one or two words.</li>
+  <li><strong>Problem: </strong>description of the problem and context to which the pattern is intended to provide a solution.</li>
+  <li><strong>Solution: </strong>describes the basic elements that constitute thesolution and the relationships between them.</li>
+  <li><strong>Consequences: </strong>specifies the possible consequences that the application of the proposed solution may entail.</li>
+</ul>
+<p>There are several categories of design patterns but two main criteria have been identified:</p>
+<p><strong>What the pattern refers to:</strong></p>
+<ul>
+  <li><strong>Objects</strong>: relationships between objects that can change atexecution.</li>
+  <li><strong>Classes</strong>: concern relationships between classes and subclasses.</li>
+</ul>
+<p><strong>What the pattern does (purpose) :</strong></p>
+<ul>
+  <li><strong>Creational</strong>: concerns the process of creating objects.</li>
+  <li><strong>Structural</strong>: concerns the composition of classes and objects.</li>
+  <li><strong>Behavioural</strong>: defines how classes and objects interact anddistribute responsibilities among themselves.</li>
+</ul>
+<p>But how many design patterns exist? In the following figure, you will see a list of design patterns structured in a table according to their scope and purpose. In the following articles, we would go through the most common design patterns.</p>
+<figure>
+  <img class="wide" src="images/design-patterns-with-python-for-ml-engineers-abstract-factory/img-02.png" alt="">
+
+  <figcaption>Design Patterns (Image by Author)</figcaption>
+</figure>
+<h2><strong>How to define a design pattern?</strong></h2>
+<p>A design pattern is defined by some fundamental properties that describe and facilitate its use. These properties are :</p>
+<ul>
+  <li><strong>Structure</strong>: graphical representation via UML of the classes involved andof their relationships. (1) <strong>Participants</strong>: classes participating in the pattern, their relationships and responsibilities. (2) <strong>Collaborations</strong>: how the various classes collaborate to achieve the objectives.</li>
+  <li><strong>Consequences</strong>: advantages and disadvantages of using the pattern and possible side effects of using the pattern.</li>
+  <li><strong>Implementation</strong>: techniques and suggestions for implementationwith reference also to specific programming languages.</li>
+  <li><strong>Example source code</strong>: code fragments that provide aguide for implementation.</li>
+  <li><strong>Known uses</strong>: examples of use in existing systems.</li>
+  <li><strong>Related patterns</strong>: differences and most important relationships with other patterns.</li>
+</ul>
+<h2><strong>Abstract Factory</strong></h2>
+<p>The easiest way to understand how to define a design pattern is in my opinion show an example, let’s start with the Abstract Factory.</p>
+<p>We often find ourselves having to create new objects that are similar but different from each other. Suppose we have to create several cars, all of them will share several properties such as having four wheels and a steering wheel, and they will also share several functionality such as <em>accelerate </em>and <em>stop (break)</em>.</p>
+<p>But if we want to create cars that have their own peculiarities such as <em>“vintage cars” </em>and <em>“racing cars</em>” these will have attributes and functions that are particular to the subclass.</p>
+<p>And this is precisely where the design pattern comes to our aid, to help us easily and dynamically manage the creation of these objects that share properties and functions but each is different from another. The first thing the Abstract Factory recommends is to explicitly declare interfaces (classes that cannot be instantiated) for each product, for example for a <em>car</em> and a <em>bike </em>product. Then you can have all product variants implement the interfaces so we are sure they will share attributes and functions that are common to all objects , such as <em>accelerate() </em>and <em>stop()</em>.</p>
+<figure>
+  <img class="wide" src="images/design-patterns-with-python-for-ml-engineers-abstract-factory/img-03.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>Now we define an interface of an abstract factory that is, an interface of a class with functions that allow us to create a new object of the type <em>Car </em>or <em>Bike</em>. The factory that will actually create the car of the type <em>race </em>or <em>vintage </em>will have to implement the methods of the interface.</p>
+<figure>
+  <img class="wide" src="images/design-patterns-with-python-for-ml-engineers-abstract-factory/img-04.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>This way you will have a factory for each specific subproduct, and you will not have to add attributes and functions during the creation of each individual object.</p>
+<p>In addition, a customer who uses a factory specification such as RaceFactory will get a race car. After a few months, when he goes to buy a new bike, it will also be a race bike because it comes from the same factory, so he won’t have to worry about having products with different styles.</p>
+<figure>
+  <img class="wide" src="images/design-patterns-with-python-for-ml-engineers-abstract-factory/img-05.png" alt="">
+
+  <figcaption>Abstract Factory UML (Image by Author)</figcaption>
+</figure>
+<h2><strong>Let’s code</strong></h2>
+<p>If so far you are still unclear about what this design pattern is for and how it works, welcome to the club! If you are like me, programming will clear your mind.</p>
+<p>First, we create an AbstractFactory, in Python, an abstract class is a class that inherits ABC, as in the following example. This abstract class has two methods, one to create a car and one to create a bike. So any class that inherits this abstract class will have to implement these two methods in its own way.</p>
+<pre><code class="language-python">from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class AbstractFactory(ABC):
+  
+  @abstractmethod
+  def createCar(self) -&gt; Car:
+      pass
+
+  @abstractmethod
+  def createBike(self) -&gt; Bike:
+      pass
+
+
+class RaceFactory(AbstractFactory):
+  
+  def createCar(self) -&gt; Car:
+      return RaceCar()
+
+  def createBike(self) -&gt; Bike:
+      return RaceBike()
+
+
+class VintageFactory(AbstractFactory):
+  def createCar(self) -&gt; Car:
+    return VintageCar()
+
+  def createBike(self) -&gt; Bike:
+      return VintageBike()</code></pre>
+<p>In both RaceFactory and VintageFactory we have methods that create a car and a bike. You see that both return an object of type Car and Bike (indicated by the symbol: <strong><em>-&gt; Car</strong></em>).But actually, Car and Bike are abstract classes the actual classes will be RaceCar and VintageCar (RaceBik and VintageBike). In this way, each Factory will build the cars (or bikes) that relate to it.In this case, the only thing that changes between a RaceCar (RaceBike) and VintageCar (VintagBike) is that it prints <em>“fast”</em> instead of <em>“slowly”</em>.</p>
+<pre><code class="language-python">class Car(ABC):
+
+  @abstractmethod
+  def accelerate(self) -&gt; str:
+    pass
+    
+  @abstractmethod
+  def stop(self) -&gt; str:
+    pass
+
+
+class RaceCar(Car):
+  
+  def accelerate(self) -&gt; str:
+      return "Accelerate really fast!"
+
+  def stop(self) -&gt; str:
+      return "Stop really fast!"
+
+class VintageCar(Car):
+  
+  def accelerate(self) -&gt; str:
+      return "Accelerate really slowly...!"
+
+  def stop(self) -&gt; str:
+      return "Stop really slowly..."</code></pre>
+<pre><code class="language-python">class Bike(ABC):
+  
+  @abstractmethod
+  def turn(self) -&gt; str:
+      pass
+
+  @abstractmethod
+  def honk(self) -&gt; str:
+      pass
+
+
+class RaceBike(Bike):
+  def turn(self) -&gt; str:
+      return "Turn really fast!"
+
+  def honk(self) -&gt; str:
+      return "Honk loudly!"
+
+
+class VintageBike(Bike):
+
+  def turn(self) -&gt; str:
+      return "Turn really slowly..."
+
+  def honk(self) -&gt; str:
+      return "Honk quietly..."</code></pre>
+<p>Now the customer will choose one of the Factories (taking it as input) and then he will create a car and a bike , and he will be sure that the car and the bike will have the same style, they will both be either race or vintage type.</p>
+<p>After creating them he will test them using the methods that the Car and Bike classes provide.</p>
+<pre><code class="language-python">def client_code(factory: AbstractFactory) -&gt; None:
+  
+  car = factory.createCar()
+  bike = factory.createBike()
+
+  print(f"{bike.turn()}")
+  print(f"{bike.honk()}", end="")</code></pre>
+<pre><code class="language-python">if __name__ == "__main__":
+ 
+  print("Client: checks product style")
+  client_code(RaceFactory())
+
+  print("\
+")
+
+  print("Client: checks product style")
+  client_code(VintageFactory())</code></pre>
+<h2><strong>Final Thoughts</strong></h2>
+<p>A Design Pattern describes a frequently recurring problem and proposes</p>
+<p>a possible solution in terms of class/object organization that has generally been found to be effective in solving the problem itself. We are often faced with the problem of wanting to instantiate an object without specifying precisely the class, but respecting a consistency between multiple objects, and for this, it is very useful to learn how to use the Abstract Factory.</p>
+<p>In future articles I will address additional design patterns that a Machine Learning Engineer needs to know in order to be able to write clean structured code.</p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://march-08.github.io/digital-cv/">CV</a></p>
+<p>This article was published on <a href="https://medium.com/data-science/design-patterns-with-python-for-machine-learning-engineers-abstract-factory-f761f89a3c12">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Design Patterns with Python for ML Engineers: Prototype — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Design Patterns with Python for ML Engineers: Prototype</h1>
+    <p class="subtitle">Learn how to use the Prototype design pattern to enhance your code.</p>
+    <p class="postdate">May 6, 2024 · Design Pattern, Prototype</p>
+<figure>
+  <img class="wide" src="images/design-patterns-with-python-for-ml-engineers-prototype/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>This is not the first post blog I am writing about design patterns. In my recent posts, I’ve received positive feedback on this topic because apparently <strong>using design patterns is not a common practice in the Python world</strong>. I think people should learn these patterns to enhance and improve their code. Moreover, today AI software is heavily based on Python, so I think that these tutorials are useful to all the people dealing with AI. I will run my code on the <a href="https://deepnote.com/">Deepnote</a>: which is a cloud-based notebook that’s great for collaborative data science projects.</p>
+<h2><strong>What is a design pattern?</strong></h2>
+<p>Design patterns provide well-defined solutions to problems that recur very often when designing software. Rather than solve the same issue over and over again, these patterns offer reusable solutions, accelerating the whole development process.</p>
+<p>Design patterns essentially provide a robust and tested blueprint to address specific problems optimally, making our lives easier.</p>
+<p>There are various types of design patterns, generally categorized into three groups:</p>
+<p>1. <strong>Creational Patterns</strong>: These focus on the creation of objects, providing mechanisms for object creation while keeping the system flexible and efficient.</p>
+<p>2. <strong>Structural Patterns</strong>: They revolve around the composition of classes and objects, dealing with the relationships between different components to form larger structures.</p>
+<p>3. <strong>Behavioural Patterns</strong>: This category governs how classes and objects interact, outlining the distribution of responsibilities among them. It defines protocols for communication and collaboration within a software system.”</p>
+<figure>
+  <img class="wide" src="images/design-patterns-with-python-for-ml-engineers-prototype/img-02.png" alt="">
+</figure>
+<h2><strong>The Problem</strong></h2>
+<p>When we work on big projects using Python, we generally <strong>adopt an object-oriented programming methodology</strong> to make the code more readable. Usually, we <strong>end up having a lot of classes and tons of objects.</strong></p>
+<p>Sometimes what happens is that <strong>we want to create an exact copy of an object</strong>. How do you do that? In a <strong>naive manner</strong>, you can instantiate another object of the same class and then<strong> copy each internal field of the object you want to clone</strong>. But this process is slow and boring.</p>
+<p>Moreover, there could be another problem<strong>. Sometimes you cannot instantiate an object that easily, because calling the constructor of a class can be costly</strong>. Think for example the case in which in the constructor you run an API request to an external service that you pay.</p>
+<p>How can we solve this? Well… with design patterns, in particular with a creational one: the <em>prototype</em>.</p>
+<h2><strong>The Prototype Design Pattern</strong></h2>
+<p>First of all, we <strong>need to create an abstract class (or interface) with the clone() abstract method</strong>. All the classes that we create will then have to instantiate this interface and define how to clone an object of the class itself. In this way, <strong>the duty of creating a clone is not of the class but of the object itself.</strong></p>
+<figure>
+  <img class="wide" src="images/design-patterns-with-python-for-ml-engineers-prototype/img-03.png" alt="">
+</figure>
+<p>I am now going to <strong>create an abstract class by using the ABC Python library</strong>.</p>
+<p>The following class will define a vehicle prototype with some attributes.</p>
+<pre><code class="language-python">from abc import ABC, abstractmethod
+import time
+
+# Class Creation
+class Prototype(ABC):
+    # Constructor:
+    def __init__(self):
+        # Mocking an expensive call
+        time.sleep(2)
+        # Base attributes
+        self.color = None
+        self.wheels = None
+        self.velocity = None
+
+    # Clone Method:
+    @abstractmethod
+    def clone(self):
+        pass</code></pre>
+<p>Now we can create some class that will implement this interface, and to do that in particular they have to implement the clone() abstract class.<strong> In Python in order to create a copy we can use the deepcopy()</strong> or a shallow copy() method of the copy library.</p>
+<p>To be specific, a shallow copy duplicates references to non-primitive fields, while a deep copy generates new instances with identical data.</p>
+<p>Let’s now define a concrete class.<strong> I am going to make the constructor sleep for 2 seconds to simulate the costly call of the constructor as explained in the introduction.</strong></p>
+<pre><code class="language-python">import copy
+import time
+
+class RaceCar(Prototype):
+    def __init__(self, color, wheels, velocity, attack):
+        super().__init__()
+        # Mock expensive call
+        time.sleep(2)
+        self.color = color
+        self.wheels = wheels
+        self.velocity = velocity
+        # Subclass-specific Attribute
+        self.acceleration = True
+
+    # Overwriting Cloning Method:
+    def clone(self):
+        return copy.deepcopy(self)</code></pre>
+<p>Every time that I want to instantiate a RaceCar object it is going to take 2 seconds, because of the sleep method. We can monitor this.</p>
+<pre><code class="language-python">import time
+
+start = time.time()
+print('Starting to create a race car.')
+race_car = RaceCar("red", 4, 40)
+print('Finished creating a race car', )
+end = time.time()
+
+#will take 2 seconds
+print('Time to complete: ' , end-start)</code></pre>
+<p>Nice! We created a race car, wasn’t that hard. Now <strong>I want to make 5 copies</strong> of the car because my purpose is to develop a video game with a lot of cars. We can simply do the same iterating in a for loop.</p>
+<pre><code class="language-python">cars = []
+
+start = time.time()
+print('Start instantiating clones', )
+for i in range(5):
+    race_car = RaceCar("red", 4, 40)
+    cars.append(race_car)
+end = time.time()
+print('Time to complete: ', end-start)</code></pre>
+<p><strong>If you run this code it will take 2s*5 so 10s in total! </strong>😵‍💫</p>
+<p>What if we use instead the clone method? Let’s try it out.</p>
+<pre><code class="language-python">
+# now we create clones by using propotypes
+cars = []
+
+start = time.time()
+print('Instantiating first car', )
+race_car = RaceCar("red", 4, 40)
+
+for i in range(5):
+    race_car = race_car.clone()
+    cars.appen(race_car)
+end = time.time()
+print('Time to complete: ', end-start)</code></pre>
+<p>This code will take only 2s to run, which is the time needed to instantiate the first car. <strong>The creation of the other cars will take no time.</strong> Fantastic!</p>
+<h2><strong>A Machine Learning Example</strong></h2>
+<p>How can this model used in a machine-learning script? Let’s suppose that you instantiate a model of a predefined PyTorch class like the following.</p>
+<pre><code class="language-python">import copy
+import torch
+import torch.nn as nn
+
+class NeuralNetwork(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(NeuralNetwork, self).__init__()
+        self.layer1 = nn.Linear(input_size, hidden_size)
+        self.activation = nn.ReLU()
+        self.layer2 = nn.Linear(hidden_size, output_size)
+
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.activation(x)
+        x = self.layer2(x)
+        return x
+
+    def clone(self):
+        return copy.deepcopy(self)</code></pre>
+<p>Once the class is defined you can create your model object.</p>
+<pre><code class="language-python"># Base neural network configuration
+base_model = NeuralNetwork(input_size=10, hidden_size=64, output_size=1)</code></pre>
+<p>Now, you want to implement a variation of your model, maybe you’re interested in changing only one or two parameters. What you can do is create a clone of the first model and change manually those parameters.</p>
+<pre><code class="language-python">
+# Clone the base model to create variations
+model_variation_1 = base_model.clone()
+model_variation_1.activation = nn.Tanh()
+
+model_variation_2 = base_model.clone()
+model_variation_2.hidden_size = 128
+
+# Display summaries of the models
+print("Base Model Summary:")
+print(base_model)
+
+print("\
+Model Variation 1 Summary:")
+print(model_variation_1)
+
+print("\
+Model Variation 2 Summary:")
+print(model_variation_2)</code></pre>
+<p>Done, easy right? 😁</p>
+<h2><strong>Final Thoughts</strong></h2>
+<p>In this article, I explained why you should adopt design patterns in Python. A design pattern is not something you can use in only few programming languages (e.g. Java), but it is a theoretical solution to a common problem. Instantiating a lot of objects with the same attributes can be slow and costly, that’s why by specifying a clone method in an interface we can mitigate this problem and create as many clones as we want.</p>
+<p>As a tip, <strong>what you can do to improve your skills as an AI engineer is to improve your skills as a software engineer!</strong></p>
+<p>If you are interested in this article follow me on Medium! 😁</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://twitter.com/_March08_">Twitter</a> | <a href="https://emojiterra.com/laptop-computer/">💻</a> <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>You might be interested in some of my past articles about design patterns :</p>
+<ul>
+  <li><a href="https://towardsdatascience.com/design-patterns-with-python-for-machine-learning-engineers-observer-23cde7ecb2ed">Design Patterns with Python for Machine Learning Engineers: Observer</a></li>
+  <li><a href="https://towardsdatascience.com/design-patterns-with-python-for-machine-learning-engineers-abstract-factory-f761f89a3c12">Design Patterns with Python for Machine Learning Engineers: Abstract Factory</a></li>
+  <li><a href="https://medium.com/@marcellopoliti/design-patterns-with-python-for-machine-learning-engineers-builder-45b8e749f134">Design Patterns with Python for Machine Learning Engineers: Builder</a></li>
+</ul>
+<p>You can find this article also on <a href="https://medium.com/data-science/design-patterns-with-python-for-machine-learning-engineers-prototype-fcc1358a862d">Towards Data Science</a>.</p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

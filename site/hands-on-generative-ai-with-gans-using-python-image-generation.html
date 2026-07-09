@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Hands-on Generative AI with GANs using Python: Image Generation — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Hands-on Generative AI with GANs using Python: Image Generation</h1>
+    <p class="subtitle">Learn how to implement GANs with PyTorch to generate synthetic images.</p>
+    <p class="postdate">August 22, 2024 · GAN, Python, GenAI</p>
+<figure>
+  <img class="wide" src="images/hands-on-generative-ai-with-gans-using-python-image-generation/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>In my <a href="https://medium.com/towards-data-science/hands-on-generative-ai-with-gans-using-python-autoencoders-c77232b402fc">previous article</a>, we learned about Autoencoders, now let’s continue to talk about Generative AI. By now everyone is talking about it and everyone is excited about the practical applications that have been developed. But we continue to see the foundations of these AIs step by step.</p>
+<p>There are several Machine Learning models that allow us to build generative AI, to name a few we have Variational Autoencoders (VAE), autoregressive models and even normalizing flow models. In this article, however, we will focus on GANs.</p>
+<h2><strong>Autoencoders and GANs</strong></h2>
+<p>In the previous article, we dealt with autoencoders and saw their architecture, their use and implementation in PyTorch.</p>
+<p>In short, Autoencoders receive an input x, compress it into a vector of smaller size z, called the latent vector, and finally from z reconstruct x in a more or less approximate way.</p>
+<p>In Autoencoder we have no data generation, but simply an approximate reconstruction of the input. Now imagine that we break the Autoencoder in two and consider only the second part, the part where from the latent vector z the image is reconstructed.</p>
+<figure>
+  <img class="med" src="images/hands-on-generative-ai-with-gans-using-python-image-generation/img-02.png" alt="">
+
+  <figcaption>Output Generation (Image By Author)</figcaption>
+</figure>
+<p>In this case, we can say that the architecture is generative. In fact, given a vector of numbers as input this creates an image! Essentially this is what a generative AI does. The main difference though with respect to autoencoders is that we know well the probability distribution from which we take the latent vector z. For example, a <em>Gaussian(0,1)</em>.</p>
+<p>So we thus have a way to generate images from random numbers taken from a Gaussian distribution, changing these random numbers will change the images we have in the output.</p>
+<figure>
+  <img class="wide" src="images/hands-on-generative-ai-with-gans-using-python-image-generation/img-03.png" alt="">
+
+  <figcaption>Generative Model (Image By Author)</figcaption>
+</figure>
+<h2><strong>GANs Architecture</strong></h2>
+<p>The orange network shown in the previous image can be defined as a G function that given the input z generates the synthetic output <em>x_cap</em>, so <em>x_cap = G(z)</em>.</p>
+<p>The network will be initialized with random weights, so it will not initially be able to generate output that looks real, but only images that will contain noise. So we need to do some training to improve the performance of our network.</p>
+<p>So let’s imagine that we have a human annotator telling us each time whether the output is good or not, whether it looks real or not.</p>
+<figure>
+  <img class="wide" src="images/hands-on-generative-ai-with-gans-using-python-image-generation/img-04.png" alt="">
+
+  <figcaption>Towards GANs (Image By Author)</figcaption>
+</figure>
+<p>Obviously, we cannot do network training expecting a person to make continuous judgments about the output. But then what can we do?</p>
+<p>If you think about it what the annotator does, in this case, is binary classification! And we in Machine Learning are great at developing classifiers. So we can simply train a classifier that we’ll call Discriminator, and we’ll denote with the function D(), which has to be trained to recognize synthetic (fake) images versus real images. So we will feed it both fake images and real images.</p>
+<p>So this is how our architecture changes.</p>
+<figure>
+  <img class="wide" src="images/hands-on-generative-ai-with-gans-using-python-image-generation/img-05.png" alt="">
+
+  <figcaption>GANs Architecture (Image By Author)</figcaption>
+</figure>
+<p>In short, the architecture is not too complex. The difficulty comes at the time of having to train these two networks G and D.</p>
+<p>It is clear that if in training, the two networks have to improve together, they need to find some kind of balance. Because if, for example, D gets too good at distinguishing fake images from real ones before G gets good at generating them, it is quite natural that G will never get better and we will never have our generator ready to be used.</p>
+<p>So the two networks are said to play an adversarial game in which G must fool D, and D must not be fooled by G.</p>
+<h2><strong>GANs Objective Function</strong></h2>
+<p>If we want to be a bit more precise, we can say that D and G have two complementary goals. Let’s suppose we want to generate images.</p>
+<p>We define by D(x) the probability that x is a real image. Obviously, the discriminator wants to maximize its probability of recognizing real inputs from fake inputs. So we want to maximize D(x) when x is drawn from our distribution of real images.</p>
+<p>In contrast, the purpose of the generator G is to fool the discriminator. So if <em>G(z)</em> is the fake image generated by G, <em>D(G(z))</em> is the probability that D will recognize a fake image as real. Then <em>1-D(G(z))</em> is the probability that D correctly recognizes a fake image as fake. So G’s goal is to minimize <em>1-D(G(z))</em>, since he does want to fool D.</p>
+<p>So in the end we can sum up this game of maximization and minimization in the formula we find in the original paper (the formula looks a bit more concept but we have seen the concept):</p>
+<figure>
+  <img class="wide" src="images/hands-on-generative-ai-with-gans-using-python-image-generation/img-06.png" alt="">
+
+  <figcaption>Objective Function (src: <a href="https://arxiv.org/pdf/1406.2661.pdf">https://arxiv.org/pdf/1406.2661.pdf</a>)</figcaption>
+</figure>
+<h2><strong>GANs Implementation</strong></h2>
+<p>We now implement a GAN capable of generating MNIST images automatically.</p>
+<p>As usual, I will run my code a cloud-based environment Deepnote but you can use Google Colab as well, so even those who don’t have a GPU on their laptop can run this code.</p>
+<p>We start by going to check whether indeed our hardware has a GPU.</p>
+<pre><code class="language-python">import torch
+print(torch.__version__)
+print("GPU available: ", torch.cuda.is_available())
+device = torch.device("cuda:0") if torch.cuda.is_available() else "cpu"</code></pre>
+<p>Now if you’re using Colab you can connect to Google Drive.</p>
+<pre><code>from google.colab import drive
+drive.mount('/content/drive/')</code></pre>
+<p>Let’s import the needed libraries.</p>
+<pre><code class="language-python">import torch.nn as nn
+import numpy as np
+import matplotlib.pyplot as plt</code></pre>
+<p>Now we need to create the functions that will define our networks, generator and discriminator.</p>
+<p>The MNIST images have 784 pixels (since the images are 28x28). So the generator given as input a random z vector of length 20 will have to output a vector of 784 which will be our fake image.</p>
+<p>Instead, the discriminator will receive as input a 28x28 = 784-pixel image, it will have a single neuron in output that will classify the image as true or fake.</p>
+<figure>
+  <img class="wide" src="images/hands-on-generative-ai-with-gans-using-python-image-generation/img-07.png" alt="">
+</figure>
+<pre><code class="language-python">def make_generator(
+    input_size:int = 20,
+    num_hidden_layers:int = 1,
+    num_hidden_units:int = 100,
+    num_output_units:int = 784):
+  
+  model = nn.Sequential()
+  for i in range(num_hidden_layers):
+    model.add_module(f'fc_g{i}',
+                     nn.Linear(input_size, num_hidden_units))
+    model.add_module(f'relu_g{i}', nn.LeakyReLU()) 
+    input_size = num_hidden_units
+  model.add_module(f'fc_g{num_hidden_layers}',
+                  nn.Linear(input_size, num_output_units))
+  model.add_module('tanh_g', nn.Tanh())
+  return model</code></pre>
+<p>This function is used to instantiate the generator. Each layer will use a LeakyReLU (a variation of the ReLU, that works best in GANs) as its activation function, except the output is followed by a Hyperbolic Tangent (Tanh) function that results in output a number in the range [-1,1].</p>
+<figure>
+  <img class="wide" src="images/hands-on-generative-ai-with-gans-using-python-image-generation/img-08.png" alt="">
+</figure>
+<pre><code class="language-python">def make_discriminator(
+  input_size:int = 784,
+  num_hidden_layers:int = 1,
+  num_hidden_units:int = 100,
+  num_output_units:int = 1
+):
+  model = nn.Sequential()
+  for i in range(num_hidden_layers):
+    model.add_module(f'fc_d{i}',
+                      nn.Linear(input_size, num_hidden_units, bias = False))
+    model.add_module(f'relu_d{i}', nn.LeakyReLU())
+    model.add_module('dropout', nn.Dropout(p = 0.5))
+    input_size = num_hidden_units
+  model.add_module(f'fc_d{num_hidden_layers}',
+                  nn.Linear(input_size, num_output_units))
+  model.add_module('sigmoid', nn.Sigmoid())
+  return model</code></pre>
+<p>Instead, this function defines the discriminator network, which has the special feature of using dropout after hidden layers (in the base case only one hidden layer). The output goes through a sigmoid function since it must give us the probability of being a real or fake image.</p>
+<p>Now we also download the MNIST dataset that we are going to use. The MNIST dataset is in a range [0,255], but we want it in the range [-1,1] so that it will be similar to the data generated by the Generator network. So we also apply some preprocessing to do this.</p>
+<pre><code class="language-python">import torchvision
+from torchvision import transforms
+
+image_path = './'
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(mean = (0.5), std = (0.5)),
+])
+
+mnist_dataset = torchvision.datasets.MNIST(
+    root = image_path, train = True,
+    transform = transform, download = True
+)</code></pre>
+<p>Now we come to the most important part. We need to create the functions that define the training of our network. We have already said that we should pull the discriminator separately from the generator, so we will have 2 functions.</p>
+<pre><code class="language-python">loss_fn = nn.BCELoss()
+
+## train discriminator
+def d_train(x):
+  disc_model.zero_grad()
+  
+  #train discriminator with a real batch
+  batch_size = x.size(0)
+  x = x.view(batch_size, -1).to(device) #reshape input
+  d_labels_real = torch.ones(batch_size, 1, device = device)
+  d_proba_real = disc_model(x)
+  d_loss_real = loss_fn(d_proba_real, d_labels_real)
+
+  #train discriminator with a fake batch
+  input_z = create_noise(batch_size, z_size, mode_z).to(device)
+  g_output = gen_model(input_z)
+  d_proba_fake = disc_model(g_output)
+  d_labels_fake = torch.zeros(batch_size, 1, device = device)
+  d_loss_fake = loss_fn(d_proba_fake, d_labels_fake)
+
+  #gradient backprop &amp; otimizeonlys Disc
+  d_loss = d_loss_real + d_loss_fake
+  d_loss.backward()
+  d_optimizer.step()
+
+  return d_loss.data.item(), d_proba_real.detach(), d_proba_fake.detach()</code></pre>
+<p>The discriminator will be trained both on the fake data and on real data. When we train it on real data the labels will always be <em>“real” = 1</em>. So we create a vector of 1 with <em>d_labels_real = torch.ones(batch_size, 1, device = device)</em>. Then we feed the input x to the model and calculate the loss using <em>Binary Cross Entropy</em>.</p>
+<p>We do the same thing by feeding fake data. Here the labels will all be zero, <em>d_labels_fake = torch.zeros(batch_size, 1, device = device)</em>. The input instead will be the fake data, that is, the output of the generator <em>g_output = gen_model(input_z)</em>. And we calculate the loss in the same way.</p>
+<p>The final loss will be the sum of the two losses.</p>
+<pre><code class="language-python">## train generator
+def g_train(x):
+  gen_model.zero_grad()
+  batch_size = x.size(0)
+  input_z = create_noise(batch_size, z_size, mode_z).to(device)
+  g_labels_real = torch.ones(batch_size, 1, device = device)
+
+  g_output = gen_model(input_z)
+  d_proba_fake = disc_model(g_output)
+  g_loss = loss_fn(d_proba_fake, g_labels_real)
+
+  #gradient backprop &amp; otpimize Gen
+  g_loss.backward()
+  g_optimizer.step()
+  return g_loss.data.item()</code></pre>
+<p>As for the generator train function, the implementation is slightly different. The generator takes as input the output of the discriminator since it has to see if D has figured out whether it is a fake or real image. And based on that it calculates its loss.</p>
+<p>Now we can initialize our two networks.</p>
+<pre><code class="language-python">image_size = (28,28)
+z_size = 20
+gen_hidden_layers = 1
+gen_hidden_size = 100
+disc_hidden_layers = 1
+disc_hidden_size = 100
+
+gen_model = make_generator(
+    input_size = z_size,
+    num_hidden_layers = gen_hidden_layers,
+    num_hidden_units = gen_hidden_size,
+    num_output_units = np.prod(image_size)
+)
+
+disc_model = make_discriminator(
+    input_size = np.prod(image_size),
+    num_hidden_layers = disc_hidden_layers,
+    num_hidden_units = disc_hidden_size
+)
+
+gen_model = gen_model.to(device)
+disc_model = disc_model.to(device)
+
+loss_fn = nn.BCELoss()
+g_optimizer = torch.optim.Adam(gen_model.parameters())
+d_optimizer = torch.optim.Adam(disc_model.parameters())</code></pre>
+<p>Let’s define a function to create network-generated samples, so as we go along we can see how the fake images improve as the training epochs increase.</p>
+<pre><code class="language-python">fixed_z = create_noise(batch_size, z_size, mode_z).to(device)
+def create_samples(g_model, input_z):
+  g_output = g_model(input_z)
+  images = torch.reshape(g_output, (batch_size, image_size[0], image_size[1]))
+  return (images+1)/2.0</code></pre>
+<p>Now we can finally train the net! We save the losses each time in a list so we can plot them later.</p>
+<pre><code class="language-python">from tqdm import  tqdm
+
+epoch_samples = []
+all_d_losses = []
+all_g_losses = []
+all_d_real = []
+all_d_fake = []
+num_epochs = 100
+
+for epoch in tqdm(range(1, num_epochs+1), total = num_epochs):
+  d_losses, g_losses = [], []
+  d_vals_real, d_vals_fake = [], []
+  for i, (x,_) in enumerate(dataloader):
+    d_loss, d_proba_real, d_proba_dake = d_train(x)
+    d_losses.append(d_loss)
+    g_losses.append(g_train(x))
+    d_vals_real.append(d_proba_real.mean().cpu())
+    d_vals_fake.append(d_proba_fake.mean().cpu())
+
+  all_d_losses.append(torch.tensor(d_losses).mean())
+  all_g_losses.append(torch.tensor(g_losses).mean())
+  all_d_real.append(torch.tensor(d_vals_real).mean())
+  all_d_fake.append(torch.tensor(d_vals_fake).mean())
+  print(f'Epoch {epoch:03d} | Avg Losses &gt;&gt;'
+    f'G/D {all_g_losses[-1]:.4f}/{all_d_losses[-1]:.4f}'
+    f' [D-Real: {all_d_real[-1]:.4f}'
+    f' D-Fake: {all_d_fake[-1]:.4f}]')
+  
+  epoch_samples.append(
+      create_samples(gen_model, fixed_z).detach().cpu().numpy()
+  )</code></pre>
+<p>The training should take about an hour, depending on the hardware cha you used certainly. But in the end, you can print out your fake data and have something like this.</p>
+<pre><code class="language-python">selected_epochs = [1, 2, 4, 10, 50, 100]
+fig = plt.figure(figsize = (10,14))
+for i,e in enumerate(selected_epochs):
+  for j in range(5):
+    ax = fig.add_subplot(6,5, i*5+j+1)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    if j == 0:
+      ax.text(
+          -0.06, 0.5, f'Epoch {e}',
+          rotation = 90, size = 18, color = 'red',
+          horizontalalignment = 'right',
+          verticalalignment = 'center',
+          transform = ax.transAxes
+      )
+      print(e-1,j)
+    image = epoch_samples[e-1][j]
+    ax.imshow(image, cmap = 'gray_r')
+plt.show()</code></pre>
+<p>In my case, I trained for a few epochs so the results are not great, but you are beginning to get a glimpse that the network was learning to generate MNIST-like images.</p>
+<figure>
+  <img class="med" src="images/hands-on-generative-ai-with-gans-using-python-image-generation/img-09.png" alt="">
+</figure>
+<h2><strong>Final Thoughts</strong></h2>
+<p>In this article, we looked at how the architecture of GANs in more detail. We studied their objective function and were able to implement a network capable of generating images from the MNIST dataset! The operation of these networks is not too complicated but their training certainly is. Since we need to find that balance that allows both networks to learn. If you enjoyed this article follow me to read the next one on DCGANs.<a href="https://emojipedia.org/it/apple/ios-15.4/faccina-che-fa-l-occhiolino/">😉</a></p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>This article was published on <a href="https://medium.com/data-science/hands-on-generative-ai-with-gans-using-python-image-generation-9a62e591c7c6">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Introduction to ETL Pipelines for Data Scientists — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Introduction to ETL Pipelines for Data Scientists</h1>
+    <p class="subtitle">Learn the basics of data engineering to improve your ML models.</p>
+    <p class="postdate">January 13, 2025 · ETL</p>
+<figure>
+  <img class="wide" src="images/introduction-to-etl-pipelines-for-data-scientists/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>It is not news that developing Machine Learning algorithms requires data, often a lot of data. Collecting this data is not trivial, in fact, it is one of the most relevant and difficult parts of the entire workflow. When the data is not good, the algorithms trained on it will not be good either.</p>
+<p>For example, recently, I started working on <a href="https://www.linkedin.com/company/llm4eo/posts/?feedView=all">developing a model in an open-science manner</a> for the <a href="https://www.esa.int/">European Space Agency</a> for fine-tuning an LLM on data concerning earth observation and earth science. The whole thing is very exciting, but where do I get the data from?</p>
+<p>In this article, we will look at some data engineering basics for developing a so-called ETL pipeline.</p>
+<p>I run the scripts of this article using <a href="https://deepnote.com/">Deepnote</a>: a cloud-based notebook that’s great for collaborative data science projects and prototyping.</p>
+<h2><strong>What is the problem?</strong></h2>
+<p>In data engineering, when we talk about pipelines, we basically talk about moving data from one place to another. In the case of training an LLM, we probably want to scrap text from various sources, such as Wikipedia, open books, datasets on hugging-face, etc. All these data, though are in different places and all have different formats, so the task starts to get difficult.</p>
+<figure>
+  <img class="wide" src="images/introduction-to-etl-pipelines-for-data-scientists/img-02.png" alt="">
+
+  <figcaption>ETL pipeline (Image by Author)</figcaption>
+</figure>
+<p>A very popular type of pipeline when dealing with data is called ETL which stands for extract, transform, load. ETL pipelines precisely deal with extracting data from somewhere (such as Wikipedia), transforming data, for example, from HTML pages into text files, and loading, i.e., loading these files to a place where they are easily retrievable, for example, using MySQL or MongoDB.</p>
+<h2><strong>Extract</strong></h2>
+<p>Let’s look at a simple example where we need code to extract information from files of different types using Pandas. These examples are trivial; the main purpose is to understand the workflow.</p>
+<p>Let’s suppose to have data in the following formats:</p>
+<ul>
+  <li>CSV</li>
+</ul>
+<pre><code>id,name,age
+1,Alice,30
+2,Bob,25
+3,Charlie,35</code></pre>
+<ul>
+  <li>JSON</li>
+</ul>
+<pre><code>[
+    {"id": 1, "name": "Alice", "age": 30},
+    {"id": 2, "name": "Bob", "age": 25},
+    {"id": 3, "name": "Charlie", "age": 35}
+]</code></pre>
+<ul>
+  <li>XML</li>
+</ul>
+<pre><code>&lt;data&gt;
+    &lt;person&gt;
+        &lt;id&gt;1&lt;/id&gt;
+        &lt;name&gt;Alice&lt;/name&gt;
+        &lt;age&gt;30&lt;/age&gt;
+    &lt;/person&gt;
+    &lt;person&gt;
+        &lt;id&gt;2&lt;/id&gt;
+        &lt;name&gt;Bob&lt;/name&gt;
+        &lt;age&gt;25&lt;/age&gt;
+    &lt;/person&gt;
+    &lt;person&gt;
+        &lt;id&gt;3&lt;/id&gt;
+        &lt;name&gt;Charlie&lt;/name&gt;
+        &lt;age&gt;35&lt;/age&gt;
+    &lt;/person&gt;
+&lt;/data&gt;</code></pre>
+<ul>
+  <li>TXT</li>
+</ul>
+<pre><code>id,name,age
+1,Alice,30
+2,Bob,25
+3,Charlie,35</code></pre>
+<p>In this case simple pandas-based functions that extract this data are as follows:</p>
+<p>In this case, we can do everything on our local machine, but in real projects, we work with large amounts of data so we have to manage a distributed storage system using tools like <a href="https://hadoop.apache.org/">Hadoop</a>.</p>
+<a class="linkcard" href="https://hadoop.apache.org/?source=post_page-----77dfdee5aeee---------------------------------------"><img class="lc-icon" src="images/favicons/hadoop.apache.org.png" alt=""><span class="lc-body"><span class="lc-title">Apache HadoopThis is a release of Apache Hadoop 3.3 line. It contains 117 bug fixes, improvements and enhancements since 3.3.5…hadoop.apache.org</span><span class="lc-domain">hadoop.apache.org</span></span></a>
+<h2><strong>Transform</strong></h2>
+<p>The second step after extracting the data is to transform them. In the context of data science, this means turning them in a way to be ready for training a Machine Learning algorithm. So we may combine the data, clean it, remove outliers remove duplicates and more. It is often said that a data scientist spends about 80% of his time collecting and arranging data. From my experience, I have seen that working on data quality can help you improve the outcome of a model much more than refining the model itself. In the picture below are some of the steps you can take when working to transform and improve the quality of the collected data.</p>
+<figure>
+  <img class="med" src="images/introduction-to-etl-pipelines-for-data-scientists/img-03.png" alt="">
+
+  <figcaption>Transforming techniques (Image by Author)</figcaption>
+</figure>
+<p>If you have experience with data science projects the steps you see in the picture will be very familiar to you. Otherwise, a suggestion I will give you to practice is to solve challenges you find on Kaggle. After you have tried your best to implement these steps to optimize the accuracy of your algorithm you can also see other people’s implementation of the same challenge, this will help you a lot</p>
+<p>Kaggle Challenges:</p>
+<ul>
+  <li><a href="https://www.kaggle.com/competitions/titanic/code">https://www.kaggle.com/competitions/titanic/code</a></li>
+  <li><a href="https://www.kaggle.com/c/boston-housing/rules">https://www.kaggle.com/c/boston-housing/rules</a></li>
+</ul>
+<p>Let us now briefly look at how to approach these steps.</p>
+<ul>
+  <li><strong>Combining Data</strong>: datasets can often be complementary. For example, we have a CSV file with house costs and a JSON file instead that gives us characteristics of the same houses. It might be useful in cases like this to load everything into pandas and join the data using a <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.join.html">join</a></li>
+  <li><strong>Cleaning Data</strong>: often the columns in our data may not be explanatory, or there were errors when the records were recorded. I always recommend spending time (even hours) simply reading the data manually to get an idea of what might be going wrong and fix it.</li>
+  <li><strong>Fixing Encodings</strong>: Consider textual data, these are converted to binary so that the computer can process them. But based on what do we do this conversion? Based on the encoding used. We need to understand what encoding is used for each file in order to read it well, otherwise we may have errors in reading accents or special characters. Some types of encoding you may have heard of are ASCII, UTF-8 or UTF-16, for example.</li>
+  <li><strong>Missing Data</strong>: one thing you are bound to encounter is missing data. For this case, you will have to decide whether to delete the raw of the missing data or to impute the data, then try to fill it with an estimate based on a statistic such as the mean, or the fashion.</li>
+  <li><strong>Remove duplicate rows</strong>: Obviously, the same repeated data is useless and it is better to delete it. Often, however, recognizing duplicate data can be complex because it occurs in files that are in different formats. It is much easier to recognize them when the datasets have already been combined.</li>
+  <li><strong>Dummy Variables</strong>: if you have a categorical column that can take only 3 values, you might consider replacing it with 3 other columns whose value is true or false.</li>
+  <li><strong>Outliers</strong>: these are points that have very different values from the rest of the dataset and could also be detrimental to your model. They are often removed; the main problem is figuring out which points in the dataset are evidentially outliers</li>
+</ul>
+<a class="linkcard" href="https://stackoverflow.com/questions/23199796/detect-and-exclude-outliers-in-a-pandas-dataframe?source=post_page-----77dfdee5aeee---------------------------------------"><img class="lc-icon" src="images/favicons/stackoverflow.com.png" alt=""><span class="lc-body"><span class="lc-title">Detect and exclude outliers in a pandas DataFrameI have a pandas dataframe with few columns. Now I know that certain rows are outliers based on a certain column value…stackoverflow.com</span><span class="lc-domain">stackoverflow.com</span></span></a>
+<ul>
+  <li><strong>Feature Engineering</strong>: in this step, you will try to add new useful features to your dataset and eliminate others that are not interesting.</li>
+</ul>
+<a class="linkcard" href="https://www.kaggle.com/learn/feature-engineering?source=post_page-----77dfdee5aeee---------------------------------------"><img class="lc-icon" src="images/favicons/kaggle.com.png" alt=""><span class="lc-body"><span class="lc-title">Learn Feature Engineering TutorialsBetter features make better models. Discover how to get the most out of your data.www.kaggle.com</span><span class="lc-domain">kaggle.com</span></span></a>
+<h2><strong>Load</strong></h2>
+<p>Once the data has been transformed, we have to save it somewhere otherwise, the work done will be lost. There are various mechanisms for saving data, such as a relational database if we have structured data, or NoSQL DB for unstructured data.</p>
+<p>Sometimes if the data is not very much we could also simply use a CSV file.</p>
+<p>In this table, you will find a list of the most used solutions sorted by their trendiness.</p>
+<figure>
+  <img class="wide" src="images/introduction-to-etl-pipelines-for-data-scientists/img-04.png" alt="src: https://db-engines.com/en/ranking">
+  <figcaption><a href="https://db-engines.com/en/ranking">Source ↗</a></figcaption>
+</figure>
+<a class="linkcard" href="https://db-engines.com/en/ranking?source=post_page-----77dfdee5aeee---------------------------------------"><span class="lc-icon lc-icon-blank"></span><span class="lc-body"><span class="lc-title">DB-Engines RankingThe DB-Engines Ranking shows the popularity of 421 database management systemsdb-engines.com</span><span class="lc-domain">db-engines.com</span></span></a>
+<h2><strong>Conclusions</strong></h2>
+<p>In this article we learned the basics of building an ETL pipeline: extraction of data in various formats via Pandas, transforming the same in a manner that added value, and then loading it into appropriate storage solutions. Good ETL processes are at the heart of proper and correct data analysis and have enormous consequences on any machine learning model’s performance. With those skills, you can be confident that your data is well-prepared and ready to serve up valuable insights.</p>
+<p>If you are interested in this article, follow me on <a href="https://medium.com/@marcellopoliti">Medium</a>! 😁</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://twitter.com/_March08_">X (Twitter)</a> | <a href="https://emojiterra.com/laptop-computer/">💻</a> <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>This article has been published on <a href="https://medium.com/towards-artificial-intelligence/introduction-to-etl-pipelines-for-data-scientists-77dfdee5aeee">Towards AI</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

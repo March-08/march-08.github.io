@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Manage Environment Variables with Pydantic — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Manage Environment Variables with Pydantic</h1>
+    <p class="subtitle">Learn how to use pydantic-settings to validate your secrets.</p>
+    <p class="postdate">March 26, 2025 · Pydantic</p>
+<figure>
+  <img class="wide" src="images/manage-environment-variables-with-pydantic/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>Developers work on applications that are supposed to be deployed on some server in order to allow anyone to use those. Typically in the machine where these apps live, developers set up environment variables that allow the app to run. These variables can be API keys of external services, URL of your database and much more.</p>
+<p>For local development though, it is really inconvenient to declare these variables on the machine because it is a slow and messy process. So I’d like to share in this short tutorial how to use Pydantic to handle environment variables in a secure way.</p>
+<h2><strong>.env file</strong></h2>
+<p>What you commonly do in a Python project is to store all your environment variables in a file named .env. This is a text file containing all the variables in a <code>key : value</code> format. You can use also the value of one of the variables to declare one of the other variables by leveraging the <code>{}</code> syntax.</p>
+<p>The following is an example:</p>
+<pre><code>#.env file
+
+OPENAI_API_KEY="sk-your private key"
+OPENAI_MODEL_ID="gpt-4o-mini"
+
+# Development settings
+DOMAIN=example.org
+ADMIN_EMAIL=admin@${DOMAIN}
+
+WANDB_API_KEY="your-private-key"
+WANDB_PROJECT="myproject"
+WANDB_ENTITY="my-entity"
+
+SERPAPI_KEY= "your-api-key"
+PERPLEXITY_TOKEN = "your-api-token"</code></pre>
+<p>Be aware the .env file should remain private, so it is important that this file is mentioned in your <strong>.gitignore</strong> file, to be sure that you <strong>never push it on GitHub</strong>, otherwise, other developers could steal your keys and use the tools you’ve paid for.</p>
+<h2><strong>env.example file</strong></h2>
+<p>To ease the life of developers who will clone your repository, you could include an env.example file in your project. This is a file containing only the keys of what is supposed to go into the .env file. In this way, other people know what APIs, tokens, or secrets in general they need to set to make the scripts work.</p>
+<pre><code>#env.example
+
+OPENAI_API_KEY=""
+OPENAI_MODEL_ID=""
+
+DOMAIN=""
+ADMIN_EMAIL=""
+
+WANDB_API_KEY=""
+WANDB_PROJECT=""
+WANDB_ENTITY=""
+
+SERPAPI_KEY= ""
+PERPLEXITY_TOKEN = ""</code></pre>
+<h2><strong>python-dotenv</strong></h2>
+<p>python-dotenv is the library you use to load the variables declared into the .env file. To install this library:</p>
+<pre><code>pip install python-dotenv</code></pre>
+<p>Now you can use the load_dotenv to load the variables. Then get a reference to these variables with the os module.</p>
+<pre><code>import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+OPENAI_MODEL_ID = os.getenv('OPENAI_MODEL_ID')</code></pre>
+<p>This method will first look into your .env file to load the variables you’ve declared there. If this file doesn’t exist, the variable will be taken from the host machine. This means that you can use the .env file for your local development but then when the code is deployed to a host environment like a virtual machine or Docker container we are going to directly use the environment variables defined in the host environment.</p>
+<h2><strong>Pydantic</strong></h2>
+<blockquote><p>Pydantic is one of the most used libraries in Python for data validation. It is also used for serializing and deserializing classes into JSON and back. It automatically generates JSON schema, reducing the need for manual schema management. It also provides built-in data validation, ensuring that the serialized data adheres to the expected format. Lastly, it easily integrates with popular web frameworks like FastAPI.</p></blockquote>
+<p><a href="https://github.com/pydantic/pydantic-settings"><strong>pydantic-settings</strong></a><strong> </strong>is a Pydantic feature needed to load and validate settings or config classes from environment variables.</p>
+<pre><code>!pip install pydantic-settings</code></pre>
+<p>We are going to create a class named <code>Settings</code>. This class will inherit <code>BaseSettings</code><em>. </em>This makes the default behaviours of determining the values of any fields to be read from the .env file. If no var is found in the .env file it will be used the default value if provided.</p>
+<pre><code>from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from pydantic import (
+    AliasChoices,
+    Field,
+    RedisDsn,
+)
+
+
+class Settings(BaseSettings):
+    auth_key: str = Field(validation_alias='my_auth_key')
+    api_key: str = Field(alias='my_api_key')
+
+    redis_dsn: RedisDsn = Field(
+        'redis://user:pass@localhost:6379/1', #default value
+        validation_alias=AliasChoices('service_redis_dsn', 'redis_url'),
+    )
+
+    model_config = SettingsConfigDict(env_prefix='my_prefix_')</code></pre>
+<p>In the <code>Settings</code> class above we have defined several fields. The <code>Field</code> class is used to provide <a href="https://docs.pydantic.dev/latest/api/fields/#pydantic.fields.Field">extra information</a> about an attribute.</p>
+<p>In our case, we setup a <code>validation_alias</code>. So the variable name to look for in the .env file is overridden. In the case reported above, the environment variable <em>my_auth_key</em> will be read instead of <em>auth_key</em>.</p>
+<p>You can also have multiple aliases to look for in the .env file that you can specify by leveraging <code>AliasChoises(choise1, choise2).</code></p>
+<p>The last attribute <code>model_config</code> , contains all the variables regarding a particular topic (e.g connection to a db). And this variable will store all .env var that start with the prefix <code>env_prefix.</code></p>
+<h2><strong>Instantiate and use settings</strong></h2>
+<p>The next step would be to actually instantiate and use these settings in your Python project.</p>
+<pre><code>from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from pydantic import (
+    AliasChoices,
+    Field,
+    RedisDsn,
+)
+
+
+class Settings(BaseSettings):
+    auth_key: str = Field(validation_alias='my_auth_key')
+    api_key: str = Field(alias='my_api_key')
+
+    redis_dsn: RedisDsn = Field(
+        'redis://user:pass@localhost:6379/1', #default value
+        validation_alias=AliasChoices('service_redis_dsn', 'redis_url'),
+    )
+
+    model_config = SettingsConfigDict(env_prefix='my_prefix_')
+
+# create immediately a settings object
+settings = Settings()</code></pre>
+<p>Now what use the settings in other parts of our codebase.</p>
+<pre><code>from Settings import settings
+
+print(settings.auth_key)</code></pre>
+<p>You finally have an easy access to your settings, and Pydantic helps you validate that the secrets have the correct format. For more advanced validation tips refer to the Pydantic documentation: <a href="https://docs.pydantic.dev/latest/">https://docs.pydantic.dev/latest/</a></p>
+<h2><strong>Final Thoughts</strong></h2>
+<p>Managing the configuration of a project is a boring but important part of software development. Secrets like API keys, db connections are what usually power your application. Naively you can hardcode these variables in your code and it will still work, but for obvious reasons, this could not be a good practice. In this article, I showed you an introduction on how to use pydantic settings to have a structured and safe way to handle your configurations.</p>
+<p>Follow me on <a href="https://medium.com/@marcellopoliti">Medium</a> if you like this article! 😁</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://x.com/Marcello_AI">X (Twitter)</a> | <a href="https://emojiterra.com/laptop-computer/">💻</a> <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>Check my article on <a href="https://medium.com/@marcellopoliti/manage-environment-variables-with-pydantic-a84ed81a3fa6">Medium</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

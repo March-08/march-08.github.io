@@ -1,0 +1,222 @@
+<title>Marcello Politi — Draft B (Editorial)</title>
+<style>
+  :root{
+    --ground:#FCFBF8;     /* warm paper */
+    --text:#16130F;       /* ink */
+    --muted:#7C766B;
+    --line:#E6E1D6;
+    --accent:#1F3A5F;     /* ink navy */
+    --accent-soft:#E8EDF3;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--ground);color:var(--text);font-family:var(--sans);
+    font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--accent);color:#fff}
+
+  header{position:sticky;top:0;z-index:20;background:rgba(252,251,248,.9);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .bar{max-width:var(--maxw);margin:0 auto;padding:18px 32px;display:flex;align-items:baseline;gap:24px}
+  .brand{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:.2px}
+  nav{margin-left:auto;display:flex;gap:26px}
+  nav a{font-size:14px;color:var(--muted);position:relative;padding:2px 0}
+  nav a:hover{color:var(--accent)}
+  nav a::after{content:"";position:absolute;left:0;bottom:-3px;width:0;height:1.5px;background:var(--accent);transition:width .25s}
+  nav a:hover::after{width:100%}
+
+  main{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+
+  /* hero */
+  .hero{padding:80px 0 56px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+  .hero h1{font-family:var(--serif);font-weight:600;font-size:clamp(46px,9vw,92px);line-height:.98;
+    margin:0;letter-spacing:-1px}
+  .hero h1 .l2{color:var(--muted)}
+  .hero .sub{font-family:var(--serif);font-size:clamp(20px,2.6vw,27px);font-style:italic;
+    color:var(--text);max-width:30ch;margin:28px 0 0}
+
+  /* sectioned layout with left rail */
+  .sec{display:grid;grid-template-columns:160px 1fr;gap:40px;padding:64px 0;border-bottom:1px solid var(--line)}
+  .rail .num{font-family:var(--serif);font-size:34px;color:var(--accent);line-height:1}
+  .rail .lab{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:8px}
+  .body h2{font-family:var(--serif);font-weight:600;font-size:30px;margin:0 0 26px;letter-spacing:-.3px}
+
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  .entry{padding:18px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:16px;align-items:baseline}
+  .entry:first-child{border-top:none}
+  .entry .ti{font-family:var(--serif);font-size:20px}
+  .entry .ti:hover{color:var(--accent)}
+  .entry .dt{font-size:13px;color:var(--muted);white-space:nowrap}
+  .entry .ex{grid-column:1/-1;color:var(--muted);font-size:15px;margin-top:-2px}
+
+  .pub{padding:18px 0;border-top:1px solid var(--line)}
+  .pub:first-child{border-top:none}
+  .pub .ti{font-family:var(--serif);font-size:19px}
+  .pub .au{color:var(--muted);font-size:14px;margin-top:3px}
+  .pub .ven{color:var(--accent);font-weight:600}
+
+  .cvflow{display:grid;gap:28px}
+  .cvblock h3{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600}
+  .cvline{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-top:1px dotted var(--line)}
+  .cvline:first-of-type{border-top:none}
+  .cvline .org{font-family:var(--serif);font-size:18px}
+  .cvline .yr{color:var(--muted);font-size:14px;white-space:nowrap}
+  .skills{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .chip{font-size:13px;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:5px 13px}
+  .dl{display:inline-block;margin-top:18px;font-family:var(--sans);font-size:14px;color:#fff;background:var(--accent);
+    padding:11px 20px;border-radius:8px}
+  .dl:hover{opacity:.9}
+
+  /* map figure */
+  figure{margin:0}
+  .frame{border:1px solid var(--line);background:#fff;border-radius:6px;padding:14px;position:relative;
+    box-shadow:0 1px 0 var(--line)}
+  canvas{display:block;width:100%}
+  .pin{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--accent);
+    border:2px solid #fff;transform:translate(-50%,-50%);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .pin:hover{background:#B0451F}
+  .tip{position:absolute;transform:translate(-50%,-150%);background:var(--text);color:#fff;font-size:12px;
+    padding:5px 9px;border-radius:5px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:5}
+  .tip.show{opacity:1}
+  figcaption{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:14px;margin-top:14px;text-align:center}
+  figcaption b{font-style:normal;color:var(--text)}
+
+  footer{max-width:var(--maxw);margin:0 auto;padding:48px 32px 80px;color:var(--muted);font-size:13px;
+    font-family:var(--serif);font-style:italic}
+
+  @media(max-width:720px){.sec{grid-template-columns:1fr;gap:18px}.rail{display:flex;align-items:baseline;gap:14px}}
+  @media (prefers-reduced-motion:reduce){.reveal{transition:none;opacity:1;transform:none}}
+</style>
+
+<header>
+  <div class="bar">
+    <a class="brand" href="#top">Marcello Politi</a>
+    <nav>
+      <a href="#articles">Articles</a>
+      <a href="#publications">Publications</a>
+      <a href="#cv">CV</a>
+      <a href="#map">Map</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="eyebrow">Research Engineer</div>
+    <h1>Marcello<br><span class="l2">Politi</span></h1>
+    <p class="sub">Notes and work on cryptography, protocols, and the craft of making complex systems legible.</p>
+  </section>
+
+  <section class="sec" id="articles">
+    <div class="rail reveal"><div class="num">01</div><div class="lab">Writing</div></div>
+    <div class="body reveal">
+      <h2>Articles &amp; essays</h2>
+      <a class="entry" href="#"><span class="ti">On economic alignment in decentralized systems</span><span class="dt">Jun 2026</span><span class="ex">Why incentive design, not code, is the real substrate of trust.</span></a>
+      <a class="entry" href="#"><span class="ti">Notes on zero-knowledge proof aggregation</span><span class="dt">Apr 2026</span><span class="ex">A field guide to recursion, folding, and where the costs actually go.</span></a>
+      <a class="entry" href="#"><span class="ti">Why frontend craft matters for research tools</span><span class="dt">Feb 2026</span><span class="ex">An argument for treating interfaces as part of the science.</span></a>
+      <a class="entry" href="#"><span class="ti">A practical guide to reproducible ML pipelines</span><span class="dt">Nov 2025</span><span class="ex">From notebook chaos to one command, deterministically.</span></a>
+    </div>
+  </section>
+
+  <section class="sec" id="publications">
+    <div class="rail reveal"><div class="num">02</div><div class="lab">Research</div></div>
+    <div class="body reveal">
+      <h2>Publications</h2>
+      <div class="pub"><div class="ti">Scalable consensus under adversarial latency</div><div class="au">M. Politi, A. Rossi, K. Sato · <span class="ven">NeurIPS 2025</span></div></div>
+      <div class="pub"><div class="ti">Privacy-preserving aggregation for federated inference</div><div class="au">M. Politi, A. Rossi · <span class="ven">IEEE S&amp;P 2024</span></div></div>
+      <div class="pub"><div class="ti">Mechanism design for open protocols</div><div class="au">M. Politi · <span class="ven">arXiv:2403.01829</span>, 2024</div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="cv">
+    <div class="rail reveal"><div class="num">03</div><div class="lab">Background</div></div>
+    <div class="body reveal">
+      <h2>Curriculum vitae</h2>
+      <div class="cvflow">
+        <div class="cvblock">
+          <h3>Experience</h3>
+          <div class="cvline"><span class="org">Research Engineer · Ethereum Foundation</span><span class="yr">2023 — present</span></div>
+          <div class="cvline"><span class="org">ML Engineer · Acme Labs</span><span class="yr">2021 — 2023</span></div>
+          <div class="cvline"><span class="org">Research Intern · CERN</span><span class="yr">2020</span></div>
+        </div>
+        <div class="cvblock">
+          <h3>Education</h3>
+          <div class="cvline"><span class="org">MSc Computer Science · Imperial College London</span><span class="yr">2021</span></div>
+          <div class="cvline"><span class="org">BSc Mathematics · Sapienza, Rome</span><span class="yr">2019</span></div>
+        </div>
+        <div class="cvblock">
+          <h3>Selected skills</h3>
+          <div class="skills">
+            <span class="chip">Rust</span><span class="chip">Python</span><span class="chip">TypeScript</span>
+            <span class="chip">PyTorch</span><span class="chip">zk-SNARKs</span><span class="chip">Distributed systems</span><span class="chip">React</span>
+          </div>
+        </div>
+        <div><a class="dl" href="#">Download CV (PDF)</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="map">
+    <div class="rail reveal"><div class="num">04</div><div class="lab">Elsewhere</div></div>
+    <div class="body reveal">
+      <h2>Where I've been</h2>
+      <figure>
+        <div class="frame" id="mapwrap">
+          <canvas id="map-canvas"></canvas>
+          <div class="tip" id="tip"></div>
+        </div>
+        <figcaption><b>Fig. 1</b> — Conferences, posts &amp; places lived, <span id="span"></span>.</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<footer>Set in Iowan Old Style · dummy content · draft B — editorial</footer>
+
+<script>
+(function(){
+  const PLACES=[
+    {c:"Rome, IT",lat:41.9,lng:12.5},{c:"Zurich, CH",lat:47.37,lng:8.54},{c:"London, UK",lat:51.5,lng:-0.12},
+    {c:"Berlin, DE",lat:52.52,lng:13.40},{c:"San Francisco, US",lat:37.77,lng:-122.42},{c:"New York, US",lat:40.71,lng:-74.0},
+    {c:"Lisbon, PT",lat:38.72,lng:-9.14},{c:"Tokyo, JP",lat:35.68,lng:139.69},{c:"Singapore, SG",lat:1.35,lng:103.82},
+    {c:"Bangalore, IN",lat:12.97,lng:77.59},{c:"Buenos Aires, AR",lat:-34.6,lng:-58.38},{c:"Cape Town, ZA",lat:-33.92,lng:18.42},
+    {c:"Sydney, AU",lat:-33.87,lng:151.21}
+  ];
+  const CONT=[{lat:56,lng:-100,rLat:23,rLng:33},{lat:62,lng:-150,rLat:8,rLng:13},{lat:72,lng:-42,rLat:9,rLng:14},
+    {lat:-20,lng:-60,rLat:25,rLng:15},{lat:5,lng:20,rLat:33,rLng:20},{lat:52,lng:18,rLat:11,rLng:22},
+    {lat:50,lng:95,rLat:30,rLng:50},{lat:22,lng:80,rLat:13,rLng:10},{lat:-25,lng:134,rLat:11,rLng:16}];
+  const LAT_T=82,LAT_B=-58;
+  const land=(lat,lng)=>CONT.some(c=>{const a=(lng-c.lng)/c.rLng,b=(lat-c.lat)/c.rLat;return a*a+b*b<=1});
+  const px=l=>(l+180)/360, py=l=>(LAT_T-l)/(LAT_T-LAT_B);
+  const wrap=document.getElementById('mapwrap'),cv=document.getElementById('map-canvas'),ctx=cv.getContext('2d'),tip=document.getElementById('tip');
+  function draw(){
+    const W=wrap.clientWidth-28,H=Math.round(W*0.5);
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#CBD3DD';
+    for(let lng=-180;lng<=180;lng+=2.4)for(let lat=LAT_B;lat<=LAT_T;lat+=2.4)
+      if(land(lat,lng)){ctx.beginPath();ctx.arc(px(lng)*W,py(lat)*H,1.0,0,7);ctx.fill();}
+    pins(W,H);
+  }
+  function pins(W,H){
+    wrap.querySelectorAll('.pin').forEach(p=>p.remove());
+    PLACES.forEach(p=>{
+      const el=document.createElement('div');el.className='pin';
+      el.style.left=(14+px(p.lng)*W)+'px';el.style.top=(14+py(p.lat)*H)+'px';
+      el.addEventListener('mouseenter',()=>{tip.textContent=p.c;tip.style.left=el.style.left;tip.style.top=el.style.top;tip.classList.add('show');});
+      el.addEventListener('mouseleave',()=>tip.classList.remove('show'));
+      wrap.appendChild(el);
+    });
+  }
+  document.getElementById('span').textContent='2018–2026';
+  window.addEventListener('resize',draw);draw();
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+</script>

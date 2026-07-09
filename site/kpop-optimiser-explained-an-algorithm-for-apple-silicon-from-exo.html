@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>KPOP Optimiser Explained — An Algorithm for Apple Silicon from Exo — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>KPOP Optimiser Explained — An Algorithm for Apple Silicon from Exo</h1>
+    
+    <p class="postdate">July 19, 2025 · exo, optimiser</p>
+<p>In order to understand this algorithm there are some concepts that we need to recap.</p>
+<p>These are mathematical concepts, so one can go really in depth, but thats not the scope of this article and also I am not a pue mathematician, so I want to give you the idea behind this algorithm.</p>
+<h2>Outer Product</h2>
+<p>If you have a vector <code>g∈R^n</code> , its <strong>outer product</strong> with itself is:</p>
+<p class="mathblock">gg^⊤</p>
+<p>This creates an <code>n×n</code> <strong>matrix</strong>, where each element is:</p>
+<p class="mathblock">(gg^⊤)_ij=g_i⋅g_ j</p>
+<p class="mathblock">beginpmatrix g₁ g₁ &amp; g₁ g₂ &amp; ·s &amp; g₁ g_n g₂ g₁ &amp; g₂ g₂ &amp; ·s &amp; g₂ g_n vdots &amp; vdots &amp; ddots &amp; vdots g_n g₁ &amp; g_n g₂ &amp; ·s &amp; g_n g_n endpmatrix</p>
+<h2>Fisher Information Matrix (FIM)</h2>
+<p>At a single data point (x,y),  the gradient of the loss is</p>
+<p class="mathblock">∇θL(x,y;θ)</p>
+<p>Where <code>L(x,y;θ)</code> it’s the <strong>loss </strong>computed for a single example (x,y) given current parameters <code>θ</code> of our model.</p>
+<p>But what does<code> ∇θL(x,y;θ)</code> exactly mean? It’s the <strong>gradient of the loss w.r.t. every parameter in θ</strong>. Our Machine Learning models contains a lot of parameters (even bilions in LLMs). So we can compute the derivative of the loss function w.r.t each parameter.</p>
+<p class="mathblock">abla_ heta L = beginpmatrix (partial L)/(partial heta₁) (partial L)/(partial heta₂) vdots (partial L)/(partial heta_n) endpmatrix</p>
+<p>In this way you compute how sensitive the loss is to changing each parameter individually, that gives you a number for each parameter, and all those numbers stack into a <strong>vector of length n</strong>.</p>
+<p>Is important to know that the vector  <code>g=∇θL(x,y;θ)</code> points always in the direction where the loss increases the fastest, and we can then use it for training (we move in the opposite direction).</p>
+<p>In general when you train a NN the formula for updating the parameters is:</p>
+<p class="mathblock">θ_t+1=θ_t−η⋅g</p>
+<p>aggiungi lr</p>
+<p>But if you blindly follow the gradient:</p>
+<ul>
+  <li>You might take too big a step in steep directions and overshoot.</li>
+  <li>Or you might take tiny steps in flat directions and converge slowly.</li>
+</ul>
+<p>You need additional information on how steep is each single direction, and this is given from the Fisher matrix.</p>
+<p>We want to:</p>
+<ul>
+  <li>Identify which directions are steep (high curvature) → take smaller steps there.</li>
+  <li>Identify which directions are flat (low curvature) → take larger steps there.</li>
+</ul>
+<p>We can compute the <strong>outer product</strong> of this gradient with itself <code>gg^T</code>  which  is an <code>n×n</code> matrix that encodes how the parameters interact:</p>
+<ul>
+  <li>Diagonal elements: sensitivity of individual parameters.</li>
+  <li>Off-diagonals: how pairs of parameters jointly affect the loss.</li>
+</ul>
+<p>In general when you fit a probabilistic <code>model p(y∣x;θ)</code> you’re asking:</p>
+<blockquote><p><em>“What values of θ make the observed data most likely?”</em></p></blockquote>
+<p>We can measure this via the <strong>log-likelihood</strong>:</p>
+<p class="mathblock">log p(y∣x;θ)</p>
+<p>The gradient of the log-likelihood is called the <strong>score</strong>:</p>
+<p class="mathblock">s(x,y;θ)=∇θ log p(y∣x;θ)</p>
+<p>This score tells you, at (x,y) <strong>which way the parameters should move to increase the likelihood of the data point.</strong></p>
+<ul>
+  <li>If for some parameter <code>θ_j</code>, the score <code>s_j</code> is <strong>consistently large (and steep)</strong>, then, small changes in <code>θ_j</code> lead to big changes in likelihood → the data is very sensitive to <code>θ_j</code>, and we can estimate <code>θ_j</code> precisely.</li>
+  <li>If <code>s_j</code> is always close to 0 → the likelihood barely changes with <code>θ_j</code> → the data tells us little about, and it’s hard to estimate confidently.</li>
+</ul>
+<p>Now the Fisher matrix defined as:</p>
+<p class="mathblock">F(θ)=Ex,y[s(x,y;θ)⋅s(x,y;θ)⊤]</p>
+<p>So:</p>
+<ul>
+  <li>We compute the outer product <code>ss^T</code>, which shows how each pair of parameters interact in affecting likelihood.</li>
+  <li>Then we take the <strong>expected value over the data distribution</strong>, because we care about average behavior over all possible data.</li>
+</ul>
+<p>This additional information provided by the Fisher matrix is useful because:</p>
+<ul>
+  <li>If you take naive gradient steps, you ignore which directions are steep or flat → you might overshoot in steep directions or waste time in flat ones.</li>
+  <li>If you rescale your steps by <code>F⁻¹</code>, you move efficiently according to the information in the data.</li>
+</ul>
+<p>If you know F, you can take <strong>smarter steps</strong> during optimisation:</p>
+<ul>
+  <li>Instead of stepping proportional to the gradient: θ_t+1=θ_t−η⋅∇θL</li>
+  <li>You can adjust the step using <code>F⁻¹</code> (or an approximation of it), e.g. θ_t+1=θ_t−η⋅F¹∇θL</li>
+</ul>
+<p>This is called the <strong>Natural Gradient</strong>, and it moves along the steepest descent measured by the model’s geometry, which often leads to faster convergence.</p>
+<h3>There is a problem!</h3>
+<p>In modern neural nets:</p>
+<ul>
+  <li>θ has millions or even billions of parameters.</li>
+  <li>F is a huge square matrix impossible to store or invert directly.</li>
+</ul>
+<p>That’s why approximations are necessary  like:</p>
+<ul>
+  <li>Diagonal approximation (used by Adam)</li>
+  <li>Block-diagonal or layerwise approximations</li>
+  <li><strong>Kronecker-factored approximation (KFAC),</strong> used by KPOP</li>
+</ul>
+<h2>The idea of KFAC</h2>
+<p>In a neural network, parameters are naturally organised into <strong>layers</strong>, and each layer is usually a <strong>matrix of weights</strong> <code>Wi∈mathbbR^R · C</code>,  each <strong>layer </strong>connects C input units to R output units.</p>
+<figure>
+  <img class="wide" src="images/kpop-optimiser-explained-an-algorithm-for-apple-silicon-from-exo/img-01.png" alt="">
+</figure>
+<p>For each layer:</p>
+<ul>
+  <li>Inputs to the layer:  <code>X_i</code> —&gt; size B×C (activations from previous layer, on a batch size B)</li>
+  <li>Output gradients of the layer: <code>ΔY_i</code> —&gt; size B×R (gradient of loss w.r.t. outputs of this layer)</li>
+  <li>You can compute this when you backpropagate using <code>ΔY_i​=∂L/∂Z_i​​</code></li>
+  <li>You get, for each example in the batch, a <code>1 × R </code>vector of gradients w.r.t. the outputs of this layer.</li>
+</ul>
+<p>Now you can compute the gradient of the weights of each layer with:</p>
+<p class="mathblock">Gi=ΔY_i^⊤Xi</p>
+<p>which is a <code>(R×B)⋅(B×C)=R×C</code> matrix.</p>
+<p>If you look at the <strong>Fisher block corresponding to layer i</strong>, it’s :</p>
+<p class="mathblock">Fi≈E[(vec(Gi))(vec(Gi))^⊤]</p>
+<ul>
+  <li>vec(G_i) means:  take the matrix G_i “flatten” it into a <strong>vector </strong>by stacking its columns (or rows into a single long vector.</li>
+</ul>
+<p>But that <code>F_i</code> is still  a <code>(RC×1)⋅(1×RC)=RC×RC</code>, which is already large if R and C are large.</p>
+<p>In the KFAC approximation  we approximate <code>F_i</code> as the Kronecker product of two much smaller matrices:</p>
+<p class="mathblock">Fi≈Ri⊗Ci</p>
+<p>Here:</p>
+<ul>
+  <li>Ri: summarizes correlations along rows (output space) of Wi.</li>
+  <li>Ci: summarizes correlations along columns (input space) of Wi.</li>
+</ul>
+<p>We trust that this aproximation works here, to learn more about KFAC:</p>
+<a class="linkcard" href="https://fdangel.com/posts/kfac_explained.html"><span class="lc-icon lc-icon-blank"></span><span class="lc-body"><span class="lc-title">KFAC explained</span><span class="lc-domain">fdangel.com</span></span></a>
+<p>Why do we do this? Because directly storing the full Fisher matrix is too expensive, but approximating it as Ri ⊗ Ci drastically reduces the memory/computation cost.</p>
+<p>Here ⊗ is the <strong>Kronecker product</strong>:</p>
+<ul>
+  <li>If A is m×m and B is n×n, then A ⊗ B  is mn×mn.</li>
+</ul>
+<p>Why is this useful?</p>
+<p>Instead of inverting a huge <code>F_I</code> of size RC×RC, you invert <code>bar R_i</code> and <code>bar C_i</code> separately:</p>
+<p class="mathblock">F_i⁻¹≈R_i^−1⊗C_i⁻¹</p>
+<h2>How does this connect to KPOP?</h2>
+<p>KPOP builds on KFAC:</p>
+<ul>
+  <li>KPOP computes <code>bar R_i</code> and <code>bar C_i</code> as in KFAC.</li>
+  <li>Then it further <strong>diagonalizes </strong><code>bar R_i</code> and <code>bar C_i</code>  by  computing their eigenvalues and eigenvectors → this is the <strong>Kronecker-Factored Eigenbasis (KFE)</strong>.</li>
+  <li>KPOP rotates the gradient into this eigenbasis and runs Adam there → better conditioning, adaptive steps.</li>
+</ul>
+<p>So matrices  <code>bar R_i</code> and <code>bar C_i</code> can still be quite large, so we further reduce them to make optimization even easier by diagonalizing them.</p>
+<p>Diagonalizing a matrix means:</p>
+<ul>
+  <li>Finding its <strong>eigenvectors</strong> and <strong>eigenvalues</strong>.</li>
+  <li>Rotating the matrix into the basis defined by its eigenvectors.</li>
+</ul>
+<p>For a symmetric matrix M, you can write:</p>
+<p class="mathblock">M=QΛQ^⊤</p>
+<p>where:</p>
+<ul>
+  <li>Q: matrix of eigenvectors</li>
+  <li>Λ: diagonal matrix of eigenvalues</li>
+</ul>
+<p>In a diagonal matrix, all the off-diagonal correlations are gone.</p>
+<p>In out case it makes optimization much simpler &amp; more stable, because the curvature in each direction is now uncoupled.</p>
+<p>Meaning that:</p>
+<ul>
+  <li>In standard basis: changing weight 1 affects weight 2 → messy.</li>
+  <li>In eigenbasis: each direction is independent → you can scale &amp; adapt each direction independently.</li>
+</ul>
+<p>Think of skiing down a mountain:</p>
+<ul>
+  <li>Without diagonalization: you don’t know the slope directions → you keep sliding sideways &amp; adjusting, it is slow &amp; unstable.</li>
+  <li>With diagonalization: you align your skis along the steepest descent, you co faster and with more control</li>
+</ul>
+<p>Quick recap:</p>
+<ul>
+  <li>From Fisher → KFAC → diagonalization → so you can rescale gradients along independent, curvature-aligned directions instead of blindly following the raw gradient.</li>
+</ul>
+<h2>What is an <strong>EMA (Exponential Moving Average)?</strong></h2>
+<p>Instead of using just the most recent Ri and Ci, we maintain a <strong>smoothed running average</strong>:</p>
+<p class="mathblock">bar R_i←α⋅bar R_i+(1−α)⋅Ri bar C_i←α⋅bar C_i+(1−α)⋅Ci</p>
+<p>This gives more weight to recent values, but also retains information from earlier iterations — more stable.</p>
+<p>Now we have the ingredients to take a look at the pseudo- code</p>
+<h2>Step-by-step pseudocode</h2>
+<h3>Initialization</h3>
+<ul>
+  <li>Parameters: θ (all weights &amp; biases)</li>
+  <li>Learning rate: η</li>
+  <li>Decay rates: ααα (for KFAC EMA), β1, β2 (for Adam moments)</li>
+  <li>Small constant: ϵ (numerical stability)</li>
+</ul>
+<p>For each layer i:</p>
+<ul>
+  <li>Initialize first moment estimate <code>m_i = 0</code></li>
+  <li>Initialize second moment estimate <code>v_i = 0</code></li>
+  <li>Initialize KFAC factors <code>bar R_i, bar C_i</code> to identity or zeros</li>
+</ul>
+<p>m and v are used by the Adam optimiser, it keeps track of two moving averages of the gradient, to make the optimization more stable and adaptive.</p>
+<p>These are called:</p>
+<ul>
+  <li>m: the <strong>first moment estimate</strong> → running average of the gradient itself.</li>
+  <li>v: the <strong>second moment estimate</strong> → running average of the square of the gradient (element-wise).</li>
+</ul>
+<h3>Loop over training iterations:</h3>
+<p>For each iteration t:</p>
+<p>For each weight matrix Wi in θ:</p>
+<h3>Compute gradients of weights:</h3>
+<ul>
+  <li>Forward &amp; backward pass → get:</li>
+  <li><code>G_i=∇W_i*L</code> →  gradient of weights Wi (R×C)</li>
+  <li><code>X_i</code>: activations at this layer (B×C)</li>
+  <li><code>ΔY_i = ∇_Z_iL</code> =:  gradients of loss wrt <strong>outputs of this layer</strong> (B×R)</li>
+</ul>
+<h3>Update KFAC factors (EMA of covariances):</h3>
+<ul>
+  <li>Batch estimates of covariance:</li>
+  <li><code>Ci_​= 1/B <em> ​X_i^T</em> X_ i quad ​(C×C)</code></li>
+  <li><code>R_i​=1/B <em> ​ΔY_i^T </em> ​ΔY_i quad​(R×R)</code></li>
+  <li>Exponential moving averages (to smooth over time):</li>
+  <li><code>bar C_i​←α bar C_i​+(1−α)C_i​</code></li>
+  <li><code>bar R_i​←α bar R_i​+(1−α)Ri​</code></li>
+</ul>
+<h3>(Periodically) Diagonalize KFAC factors:</h3>
+<ul>
+  <li>Every few iterations (e.g., t&lt;10t or tmod  100=0):</li>
+  <li>AllReduce: sync <code>bar R_i</code> and <code>bar C_i</code> across devices (if distributed)</li>
+  <li>Compute eigen-decompositions: bar C_i=Q_CΛ_CQ_C^T</li>
+</ul>
+<p class="mathblock">bar R_i=Q_RΛ_RQ_R^T</p>
+<h3>Rotate gradient into eigenbasis (KFE):</h3>
+<ul>
+  <li>Transform <code>G_i</code> KFE:</li>
+</ul>
+<p class="mathblock">G_ì'=Q_R^TG_iQ_C</p>
+<p>Now Gi′ is the gradient expressed in independent (uncorrelated) directions.</p>
+<h3>Run Adam in the KFE</h3>
+<p>For the vectorized rotated gradient Gi′G'_iGi′:</p>
+<ul>
+  <li><strong>Update first moment:</strong></li>
+</ul>
+<p class="mathblock">m_i leftarrow beta₁ m_i + (1 - beta₁) extvec(G'_i)</p>
+<ul>
+  <li><strong>Update second moment:</strong></li>
+</ul>
+<p class="mathblock">v_i leftarrow beta₂ v_i + (1 - beta₂) big( extvec(G'_i) big)²</p>
+<ul>
+  <li>Bias correction:</li>
+</ul>
+<p class="mathblock">hatm_i = (m_i)/(1 - beta₁^t), quad hatv_i = (v_i)/(1 - beta₂^t)</p>
+<ul>
+  <li>Compute update in KFE:</li>
+</ul>
+<p class="mathblock">Delta W'_i = -eta · extmat left( frachatm_isqrthatv_i + epsilon right)</p>
+<h3>Rotate update back to original space</h3>
+<ul>
+  <li>Transform <code>ΔW_i'</code> back:</li>
+</ul>
+<p class="mathblock">Delta W_i = Q_R Delta W'_i Q_C^ op</p>
+<ul>
+  <li><strong>Update weights:</strong></li>
+</ul>
+<p class="mathblock">W_i leftarrow W_i + Delta W_i</p>
+<h3>What happens in KPOP:</h3>
+<p>KPOP <strong>does not directly multiply the gradient by </strong><code>F⁻¹</code><strong>  to regularize it</strong>, like natural gradient does.</p>
+<p>Instead:</p>
+<ul>
+  <li>It takes the same intuition: <em>"the directions of the gradient should be scaled according to the curvature in each direction"</em>.</li>
+  <li>But it implements this idea differently:</li>
+  <li>It approximates the Fisher using <strong>KFAC </strong></li>
+  <li>Then further diagonalizes R and C, i.e., moves to the <strong>Kronecker-Factored Eigenbasis (KFE)</strong>.</li>
+  <li>In this rotated basis, the curvature is already diagonalized → directions are uncorrelated.</li>
+</ul>
+<p>Then instead of explicitly applying <code>F⁻¹</code>. it runs <strong>Adam</strong> in this eigenbasis:</p>
+<p>update in KFE:  <code>Δθ'=−η⋅Adam(g′)</code> . where g′ is the gradient rotated into the eigenbasis.</p>
+<p>Instead of computing <code>F⁻¹</code><strong> </strong>KPOP finds a coordinate system where F is already diagonal (eigenbasis), and in that basis applies a smarter optimizer (Adam), which already rescales each direction properly.</p>
+<h2>Code Implementation</h2>
+<pre><code class="language-python">import torch
+from torch import Tensor
+from typing import List, Dict
+
+class KPOP:
+    def __init__(
+        self,
+        params: List[torch.nn.Parameter],
+        lr: float = 1e-3,
+        alpha: float = 0.95,
+        beta1: float = 0.9,
+        beta2: float = 0.999,
+        eps: float = 1e-8
+    ) -&gt; None:
+        """
+        params: list of weight matrices to optimize
+        lr: learning rate
+        alpha: decay rate for KFAC factor EMA
+        beta1, beta2: Adam parameters
+        eps: numerical stability
+        """
+        self.params: List[torch.nn.Parameter] = params
+        self.lr: float = lr
+        self.alpha: float = alpha
+        self.beta1: float = beta1
+        self.beta2: float = beta2
+        self.eps: float = eps
+        
+        # Per-parameter state
+        self.state: Dict[torch.nn.Parameter, Dict] = {}
+        for p in self.params:
+            R, C = p.shape
+            self.state[p] = {
+                'm': torch.zeros_like(p),       # Adam 1st moment
+                'v': torch.zeros_like(p),       # Adam 2nd moment
+                'R': torch.eye(R),              # Row KFAC factor
+                'C': torch.eye(C),              # Column KFAC factor
+                'QR': torch.eye(R),             # Eigenvectors of R
+                'QC': torch.eye(C),             # Eigenvectors of C
+                'Lambda_R': torch.ones(R),     # Eigenvalues of R
+                'Lambda_C': torch.ones(C),     # Eigenvalues of C
+                'step': 0                       # step counter
+            }
+
+    def step(
+        self,
+        grads: List[Tensor],
+        activations: List[Tensor],
+        output_grads: List[Tensor]
+    ) -&gt; None:
+        """
+        grads: list of gradients ∇W (R×C)
+        activations: list of X inputs (B×C)
+        output_grads: list of ΔY (B×R)
+        """
+        for p, g, X, dY in zip(self.params, grads, activations, output_grads):
+            s: Dict = self.state[p]
+            R, C = p.shape
+            B: int = X.shape[0]
+            s['step'] += 1
+
+            # ---- Step 1: update KFAC factors ----
+            C_batch: Tensor = (X.T @ X) / B          # C × C
+            R_batch: Tensor = (dY.T @ dY) / B        # R × R
+            s['C'] = self.alpha * s['C'] + (1 - self.alpha) * C_batch
+            s['R'] = self.alpha * s['R'] + (1 - self.alpha) * R_batch
+
+            # ---- Step 2: diagonalize periodically ----
+            if s['step'] &lt;= 10 or s['step'] % 100 == 0:
+                s['Lambda_C'], s['QC'] = torch.linalg.eigh(s['C'])  # C × C
+                s['Lambda_R'], s['QR'] = torch.linalg.eigh(s['R'])  # R × R
+
+            # ---- Step 3: rotate gradient into KFE ----
+            G_kfe: Tensor = s['QR'].T @ g @ s['QC']  # R × C
+
+            # ---- Step 4: Adam in KFE ----
+            g_vec: Tensor = G_kfe.flatten()
+            m: Tensor = s['m'].flatten()
+            v: Tensor = s['v'].flatten()
+            m = self.beta1 * m + (1 - self.beta1) * g_vec
+            v = self.beta2 * v + (1 - self.beta2) * (g_vec ** 2)
+            m_hat: Tensor = m / (1 - self.beta1 ** s['step'])
+            v_hat: Tensor = v / (1 - self.beta2 ** s['step'])
+            delta_kfe_vec: Tensor = -self.lr * (m_hat / (v_hat.sqrt() + self.eps))
+
+            # ---- Step 5: rotate back ----
+            delta_kfe: Tensor = delta_kfe_vec.view_as(G_kfe)
+            delta: Tensor = s['QR'] @ delta_kfe @ s['QC'].T
+
+            # ---- Step 6: update parameters ----
+            p.data += delta
+
+            # Save moments back
+            s['m'] = m.view_as(p)
+            s['v'] = v.view_as(p)
+
+</code></pre>
+<pre><code class="language-python">import torch.nn as nn
+from torch import Tensor
+
+B: int = 32     # batch size
+C: int = 10     # input dim
+R: int = 5      # output dim
+num_steps: int = 500
+
+torch.manual_seed(42)
+
+X_data: Tensor = torch.randn(B, C)
+true_W: Tensor = torch.randn(R, C)
+true_b: Tensor = torch.randn(R)
+Y_target: Tensor = X_data @ true_W.T + true_b
+
+W: nn.Parameter = nn.Parameter(torch.randn(R, C))
+b: nn.Parameter = nn.Parameter(torch.zeros(R))
+
+kpop: KPOP = KPOP(params=[W], lr=1e-2)
+
+for step in range(1, num_steps + 1):
+    Y_pred: Tensor = X_data @ W.T + b
+    loss: Tensor = ((Y_pred - Y_target) ** 2).mean()
+
+    loss.backward()
+
+    grad_W: Tensor = W.grad.clone()
+    grad_b: Tensor = b.grad.clone()
+
+    with torch.no_grad():
+        dY: Tensor = 2 * (Y_pred - Y_target) / B  # B×R
+
+        W.grad.zero_()
+        b.grad.zero_()
+
+        kpop.step(grads=[grad_W], activations=[X_data], output_grads=[dY])
+
+        b -= 1e-2 * grad_b
+
+    if step % 50 == 0:
+        print(f"Step {step}, Loss: {loss.item():.4f}")
+</code></pre>
+<h2>Pros and Cons of KPOP</h2>
+<h3>Memory overhead</h3>
+<p>KPOP explicitly keeps and updates the following for each later,</p>
+<ul>
+  <li><code>bar R_i</code> →  the row-wise Kronecker factor (size R×R)</li>
+  <li><code>bar C_i</code> → the column-wise Kronecker factor (size C×C)</li>
+  <li><code>bar Q_R, Λ_R</code> →   eigenvectors and eigenvalues of <code>bar R_i</code></li>
+  <li><code>bar Q_C, Λ_C</code> → eigenvectors and eigenvalues of <code>bar C_i</code></li>
+  <li><code>m_i</code>, <code>v_i</code> → Adam’s first and second moments  (both of size R×C)</li>
+</ul>
+<p>which makes the memory requirements pro portional to <code>O(R²+C²+RC)</code>.</p>
+<ul>
+  <li>The <code>R²</code> and <code>C²</code> terms come from the KFAC/KFE factors.</li>
+  <li>The RC term comes from storing m and v, same as Adam.</li>
+</ul>
+<p>In contrast:</p>
+<ul>
+  <li>Adam (or AdamW) only keeps m and v (both R×C) so its memory is proportional to <code>O(RC)</code></li>
+</ul>
+<p>So KPOP consumes more memory because it tracks the curvature approximation</p>
+<h3>FLOPs per progress</h3>
+<p>On the other hand, KPOP is <em>more efficient per FLOP</em>, because:</p>
+<ul>
+  <li>The updates in the eigenbasis are better aligned with the true curvature.</li>
+  <li>AdamW (or vanilla SGD) may require many more steps (and thus more FLOPs) to converge, because it ignores curvature and might oscillate in steep directions.</li>
+  <li>KPOP effectively takes <em>better, more informed steps</em>, needing fewer of them to reach good solutions.</li>
+</ul>
+<p>Empirically, this is why wall-clock time and step count to reach a target loss are lower for KPOP than Adam, despite higher cost per step.<br></p>
+<p>This means:</p>
+<ul>
+  <li>On H100, memory is scarce → you can’t afford big R,CR, CR,C matrices.</li>
+  <li>On M3 Ultra, memory is abundant → you can afford large R,CR, CR,C, and you want to minimize FLOPs.</li>
+</ul>
+<p>############################################################</p>
+<pre><code class="language-markdown"># Explaining KPOP: Smarter Optimization with Curvature and Eigenvectors
+
+*For Curious Readers*
+
+## Introduction: Smarter Steps for Training Large Models
+
+When training a machine learning model, we want to find the parameters $\	heta$ that minimize the loss $L(\	heta)$.  
+We adjust $\	heta$ step by step using the gradient:
+
+$$\
+abla_\	heta L = \\frac{\\partial L}{\\partial \	heta}$$
+
+and update:
+
+$$\	heta \\gets \	heta - \\eta \
+abla_\	heta L$$
+
+where $\\eta$ is the learning rate.
+
+This is called **gradient descent**.  
+It works well, but it assumes the loss surface is smooth and equally steep in all directions — which is rarely true.  
+In reality, the loss surface is like a bumpy, twisted valley: steep in some directions, flat in others.  
+Just following the gradient leads to inefficient, zig-zagging paths.
+
+## Why Curvature Matters
+
+To move more effectively, we need to understand the *curvature* of the surface — how steep or flat it is in different directions.  
+This allows us to take big steps in flat directions and small steps in steep ones.
+
+**Think of it like driving:** If you're on a straight highway, you can floor the accelerator. But if you're navigating hairpin turns on a mountain road, you need to slow down in sharp curves and speed up on straightaways. The "curvature" tells you when to accelerate and when to brake.
+
+In optimization, this curvature is mathematically described by the **Hessian matrix** — the matrix of second derivatives. But computing the Hessian directly is prohibitively expensive for large neural networks. 
+
+Instead, we use the **Fisher Information Matrix**, which approximates the Hessian under certain assumptions:
+
+$$F = \\mathbb{E} \\big[ (\
+abla_\	heta \\log p(x; \	heta)) (\
+abla_\	heta \\log p(x; \	heta))^\	op \\big]$$
+
+**Why does this work?** The Fisher Information Matrix captures how much the model's predictions change when we slightly adjust the parameters. When predictions are sensitive to parameter changes (high curvature), the Fisher matrix has large values. When predictions are stable (low curvature), the Fisher matrix has small values.
+
+The ideal update would adjust the gradient by the inverse of $F$, called the **natural gradient**:
+
+$$\\Delta \	heta = - \\eta F^{-1} \
+abla_\	heta L$$
+
+But $F$ is huge and inverting it directly is impractical.
+
+## The KFAC Approximation
+
+The first clever idea is to approximate $F$ efficiently using **Kronecker-Factored Approximate Curvature** (KFAC).  
+It assumes some independence between layers of the model and approximates $F$ for each layer as a Kronecker product:
+
+$$F_i \\approx R_i \\otimes C_i$$
+
+where:
+
+- $C_i$ is the empirical **covariance matrix of the input activations** to layer $i$:  
+  it captures how different input features (the entries of the input vector $x^{(i)}$) vary together across the batch.  
+  It is computed as:
+  
+  $$C_i = \\frac{1}{B} \\sum_{b=1}^B (x_b^{(i)} - \\mu_i)(x_b^{(i)} - \\mu_i)^\	op$$
+  
+  where $x_b^{(i)}$ is the input activation vector to layer $i$ for sample $b$, and $\\mu_i = \\frac{1}{B} \\sum_{b=1}^B x_b^{(i)}$ is the sample mean.
+  In practice, the mean term is often omitted when activations are approximately zero-centered (e.g., due to batch normalization).
+  
+  Note that $x_b^{(i)}$ represents different things depending on the layer:
+  - For the first layer: the actual input features (pixels, tokens, etc.)
+  - For intermediate layers: the output activations from layer $i-1$
+  
+  If two input features tend to increase and decrease together in the data, $C_i$ reflects this by having a large positive off-diagonal entry.  
+  If they are independent, the corresponding entry is close to zero.
+
+- $R_i$ is the empirical **covariance matrix of the output gradients** (errors) at layer $i$:  
+  it captures how the components of the error signal (the gradient of the loss with respect to the layer's outputs) vary together across the batch.  
+  It is computed as:
+  
+  $$R_i = \\frac{1}{B} \\sum_{b=1}^B (y_b^{(i)} - \
+u_i)(y_b^{(i)} - \
+u_i)^\	op$$
+  
+  where $y_b^{(i)}$ is the output gradient vector (error signal) at layer $i$ for sample $b$, and $\
+u_i = \\frac{1}{B} \\sum_{b=1}^B y_b^{(i)}$ is the sample mean.
+  In practice, the mean term is often omitted when gradients are approximately zero-centered.
+  
+  Note that $y_b^{(i)}$ represents the gradients of the loss with respect to the outputs of layer $i$:
+  - These are the error signals flowing backward through the network
+  - They indicate how much each output dimension contributes to the total loss
+  
+  If two output gradients tend to rise or fall together (meaning errors at two outputs are correlated), $R_i$ reflects this correlation.
+
+Why compute these covariances?  
+The optimizer aims to approximate the curvature of the loss surface with respect to the weights $W_i$.  
+The exact curvature involves the second derivative of the loss — or equivalently, the Fisher Information Matrix — which is expensive to compute.  
+However, under some assumptions, the Fisher block for $W_i$ can be approximated by the Kronecker product $R_i \\otimes C_i$.  
+Thus, $R_i$ and $C_i$ summarize how the input signals and output errors co-vary, providing an efficient approximation to curvature.
+
+**But there's still a problem:** Even though KFAC makes the Fisher matrix easier to compute, $R_i$ and $C_i$ are still full matrices with off-diagonal entries. This means different gradient directions are still coupled together, making optimization complex.
+
+**The KPOP insight:** What if we could find a coordinate system where the curvature matrix becomes diagonal? In such a system, each direction would be completely independent, and we could optimize each one separately. This is exactly what eigendecomposition achieves!
+
+## Updating Kronecker Factors During Training
+
+So far we've explained how to compute $R_i$ and $C_i$, but there's a crucial implementation detail: these matrices need to be updated continuously during training to track the changing curvature.
+
+KPOP uses **Exponential Moving Averages (EMA)** to adapt the Fisher information matrix as training progresses. Here's how it works:
+
+**Step 1: Compute batch-level estimates**
+At each training iteration, compute fresh estimates from the current batch:
+
+$$C_i^{(t)} = \\frac{1}{B} X_i X_i^\	op \\quad \	ext{and} \\quad R_i^{(t)} = \\frac{1}{B} \\Delta Y_i \\Delta Y_i^\	op$$
+
+where:
+- $X_i \\in \\mathbb{R}^{C \	imes B}$ is the activation matrix for layer $i$
+- $\\Delta Y_i \\in \\mathbb{R}^{R \	imes B}$ is the gradient matrix (error signals) for layer $i$
+- $B$ is the batch size
+- $t$ denotes the current training iteration
+
+**Step 2: Update EMA estimates**
+Instead of using the raw batch estimates, maintain running averages:
+
+$$\	ilde{C}_i^{(t)} \\leftarrow \\alpha \	ilde{C}_i^{(t-1)} + (1-\\alpha) C_i^{(t)}$$
+
+$$\	ilde{R}_i^{(t)} \\leftarrow \\alpha \	ilde{R}_i^{(t-1)} + (1-\\alpha) R_i^{(t)}$$
+
+where $\\alpha \\in [0,1)$ is the decay parameter (typically $\\alpha = 0.95$ or $\\alpha = 0.99$).
+
+**Why use EMA instead of raw batch estimates?**
+- **Stability**: Raw batch estimates are noisy; EMA provides smooth, stable curvature estimates
+- **Memory of past geometry**: The curvature information from previous iterations helps guide current updates
+- **Robustness**: Reduces sensitivity to outlier batches or sudden changes in data distribution
+
+**The eigendecomposition step:**
+The eigenvectors and eigenvalues are computed from the EMA estimates $\	ilde{R}_i$ and $\	ilde{C}_i$, not the raw batch estimates:
+
+$$\	ilde{R}_i = Q_R \\Lambda_R Q_R^\	op, \\quad \	ilde{C}_i = Q_C \\Lambda_C Q_C^\	op$$
+
+This EMA mechanism is what makes KPOP practical for real training scenarios!
+
+## Why Eigenvectors and Eigenvalues Help
+
+Even with KFAC, $R_i$ and $C_i$ are still full matrices — so different directions of the gradient still interact.  
+To make each direction independent, we diagonalize $R_i$ and $C_i$ by computing their **eigenvalues** and **eigenvectors**:
+
+$$R_i = Q_R \\Lambda_R Q_R^\	op, \\quad C_i = Q_C \\Lambda_C Q_C^\	op$$
+
+where:
+- $Q_R$, $Q_C$ are matrices whose columns are eigenvectors — special directions in which the matrix acts by scaling only.
+- $\\Lambda_R$, $\\Lambda_C$ are diagonal matrices of eigenvalues — the amount of scaling in each eigenvector direction.
+
+**Why is this crucial?** Think of it this way: if you're hiking in mountains, you want to know which directions are steep cliffs (high eigenvalues) versus gentle slopes (low eigenvalues). The eigenvectors point you toward these natural directions of the landscape, while eigenvalues tell you how steep each direction is.
+
+In this eigenbasis, the curvature becomes diagonal — each direction is independent and we know exactly how steep it is (from the eigenvalues). This transforms a complex, intertwined optimization problem into a collection of simple, independent 1D problems.
+
+## Transforming the Gradient
+
+Here is the core idea of KPOP:
+
+1. Compute the gradient of the loss with respect to the weights at layer $i$, denoted $G_i$.
+
+2. Rotate $G_i$ into the eigenbasis:
+   
+   $$G'_i = Q_R^\	op G_i Q_C$$
+   
+   This expresses the gradient in terms of the eigenvectors of $R_i$ and $C_i$.
+   
+   In this rotated space:
+   - The curvature is diagonal.
+   - Each direction (each entry in $G'_i$) corresponds to an independent direction of steepest descent.
+
+3. Apply an adaptive optimizer (like Adam) to $G'_i$, adjusting the step in each direction according to its eigenvalue and past gradients:
+   
+   $$m_t = \\beta_1 m_{t-1} + (1-\\beta_1) G'_i$$
+   
+   $$v_t = \\beta_2 v_{t-1} + (1-\\beta_2) (G'_i)^2$$
+   
+   $$\\hat{m}_t = \\frac{m_t}{1-\\beta_1^t}, \\quad \\hat{v}_t = \\frac{v_t}{1-\\beta_2^t}$$
+   
+   The standard Adam update is then applied in the rotated space:
+   
+   $$\\Delta W'_i = - \\eta \\frac{\\hat{m}_t}{\\sqrt{\\hat{v}_t} + \\epsilon}$$
+   
+   **Why does this work without explicit eigenvalue preconditioning?** The eigenvalues have already done their job by rotating us into the eigenbasis where the curvature is diagonal. In this space, Adam's assumption of independent directions becomes valid, so standard Adam works optimally.
+
+4. Rotate the update back to the original parameter space:
+   
+   $$\\Delta W_i = Q_R \\Delta W'_i Q_C^\	op$$
+
+In short:  
+rotate the gradient into the eigenbasis (where directions are independent), apply Adam there, and rotate back.  
+This aligns the update with the curvature, leading to more efficient steps.
+
+### Addressing Common Misconceptions
+
+**Misconception 1: "KPOP is computationally less complex"**
+
+This is **wrong**! KPOP is actually **MORE expensive** per step than Adam:
+- Computing eigendecompositions: $O(d^3)$ for each covariance matrix
+- Matrix multiplications for rotations: $O(d^2)$ operations
+- Adam only needs element-wise operations: $O(d)$
+
+**Why use KPOP then?** Because it converges in **fewer steps**. Think of it like:
+- Adam: cheap car, long journey (many steps)
+- KPOP: expensive car, short journey (fewer steps)
+
+**Misconception 2: "The space is reduced to 1D"**
+
+The space is **NOT** reduced to 1D! Here's what actually happens:
+
+- **Before rotation**: Optimization problem is coupled (changing one parameter affects how you should change others)
+- **After rotation**: Optimization becomes a collection of **independent** problems, each still in its own dimension
+- We still have the same number of parameters, just in a better coordinate system
+
+**Analogy:** Imagine you're solving a 2D maze, but the walls are diagonal. Instead of moving "northeast" and "southeast" (coupled directions), you rotate your view so you can move "north" and "east" independently. You're still in 2D, but navigation becomes much simpler.
+
+**Misconception 3: "Only eigenvectors are used"**
+
+Both eigenvectors AND eigenvalues are crucial:
+- **Eigenvectors** ($Q_R, Q_C$): Define the rotation to independent coordinates
+- **Eigenvalues** ($\\Lambda_R, \\Lambda_C$): Define the natural coordinate system where the curvature is diagonal, making Adam's assumptions valid
+
+The eigenvalues work *implicitly* by defining the coordinate transformation, not by explicit preconditioning of step sizes.
+
+## A Concrete Example: Understanding the Rotation
+
+Let's work through a simple $2\	imes 2$ example to see exactly what "rotation" means.
+
+**Setup:** Imagine a layer with 2 inputs and 2 outputs, so the weight matrix $W$ is $2\	imes 2$:
+
+$$W = \\begin{pmatrix} w_{11} &amp; w_{12} \\\\ w_{21} &amp; w_{22} \\end{pmatrix}$$
+
+**Step 1: Compute the gradient**
+Suppose our gradient is:
+
+$$G = \\begin{pmatrix} 1.0 &amp; 0.5 \\\\ 0.5 &amp; 1.0 \\end{pmatrix}$$
+
+**Step 2: Compute covariance matrices**
+From our batch, suppose we get:
+
+$$C = \\begin{pmatrix} 2.0 &amp; 1.0 \\\\ 1.0 &amp; 1.0 \\end{pmatrix}, \\quad R = \\begin{pmatrix} 1.5 &amp; 0.5 \\\\ 0.5 &amp; 0.5 \\end{pmatrix}$$
+
+**Step 3: Find eigenvectors (the "rotation" matrices)**
+For $C$:
+
+$$C = Q_C \\Lambda_C Q_C^\	op = \\begin{pmatrix} 0.85 &amp; -0.53 \\\\ 0.53 &amp; 0.85 \\end{pmatrix} \\begin{pmatrix} 2.62 &amp; 0 \\\\ 0 &amp; 0.38 \\end{pmatrix} \\begin{pmatrix} 0.85 &amp; 0.53 \\\\ -0.53 &amp; 0.85 \\end{pmatrix}$$
+
+For $R$:
+
+$$R = Q_R \\Lambda_R Q_R^\	op = \\begin{pmatrix} 0.92 &amp; -0.39 \\\\ 0.39 &amp; 0.92 \\end{pmatrix} \\begin{pmatrix} 1.82 &amp; 0 \\\\ 0 &amp; 0.18 \\end{pmatrix} \\begin{pmatrix} 0.92 &amp; 0.39 \\\\ -0.39 &amp; 0.92 \\end{pmatrix}$$
+
+**Step 4: "Rotate" the gradient**
+
+$$G' = Q_R^\	op G Q_C = \\begin{pmatrix} 0.92 &amp; 0.39 \\\\ -0.39 &amp; 0.92 \\end{pmatrix} \\begin{pmatrix} 1.0 &amp; 0.5 \\\\ 0.5 &amp; 1.0 \\end{pmatrix} \\begin{pmatrix} 0.85 &amp; -0.53 \\\\ 0.53 &amp; 0.85 \\end{pmatrix}$$
+
+$$G' = \\begin{pmatrix} 1.31 &amp; 0.02 \\\\ 0.02 &amp; 0.69 \\end{pmatrix}$$
+
+**What happened?**
+- **Original gradient $G$**: Had off-diagonal terms (0.5), meaning the gradient directions were coupled
+- **Rotated gradient $G'$**: Nearly diagonal! The off-diagonal terms (0.02) are almost zero
+
+**Why is this powerful?**
+In the original coordinates, updating $w_{11}$ affects the loss in a way that depends on $w_{12}$, $w_{21}$, and $w_{22}$. Everything is tangled together.
+
+In the rotated coordinates, each direction is nearly independent. We can optimize each direction separately without worrying about complex interactions.
+
+**Step 5: Apply Adam in the rotated space**
+Now we simply apply Adam to $G'$ where directions are independent:
+
+$$\	ext{Adam\\_output} = \\begin{pmatrix} -0.131 &amp; -0.002 \\\\ -0.002 &amp; -0.069 \\end{pmatrix}$$
+
+**Why is this effective without explicit eigenvalue scaling?** 
+
+The magic happens because we're now in the eigenbasis! The eigenvalues have already "rotated" us into a coordinate system where:
+- Each direction is independent (nearly diagonal gradient)
+- Adam's assumptions are valid
+- The curvature information is implicitly encoded in the coordinate system itself
+
+**Step 6: Rotate back**
+
+$$\\Delta W = Q_R (\	ext{Adam\\_output}) Q_C^\	op$$
+
+**What did we accomplish?**
+
+1. **Found natural coordinates**: The eigenvectors revealed the coordinate system where optimization directions are independent
+2. **Identified steepness**: The eigenvalues told us which directions are steep (high curvature) vs flat (low curvature)
+3. **Smart step sizing**: We took small steps in steep directions, big steps in flat directions
+4. **No more zig-zagging**: Instead of fighting against the problem's geometry, we aligned with it
+
+**The key insight:** KPOP doesn't reduce complexity - it **transforms** the problem into a form where each direction can be optimized independently with appropriate step sizes. This leads to faster convergence despite higher per-step cost.
+
+**Visual analogy:** Imagine you're trying to navigate in a city, but the streets are at weird angles. Instead of giving directions like "go 3.2 blocks at 23° angle," you:
+1. Rotate your map so the streets align with horizontal/vertical
+2. Give simple directions: "go 2 blocks north, 4 blocks east"
+3. Rotate back to the original map orientation
+
+That's exactly what KPOP does with gradients!
+
+## Why Combine with Adam?
+
+Adam already adapts learning rates for each parameter based on past gradients, but it assumes the curvature is already diagonal — which is not true in the original space.  
+By moving into the eigenbasis where curvature is diagonal, this assumption becomes true, making Adam more effective.
+
+## Pros and Cons of KPOP
+
+### Memory Overhead
+
+KPOP explicitly keeps and updates, for each layer $i$:
+- $R_i$ — output gradient covariance matrix ($d_{out}^{(i)} \	imes d_{out}^{(i)}$)
+- $C_i$ — input activation covariance matrix ($d_{in}^{(i)} \	imes d_{in}^{(i)}$)
+- $Q_{R,i}, \\Lambda_{R,i}$ — eigenvectors and eigenvalues of $R_i$
+- $Q_{C,i}, \\Lambda_{C,i}$ — eigenvectors and eigenvalues of $C_i$
+- $m_i, v_i$ — Adam's first and second moments ($d_{out}^{(i)} \	imes d_{in}^{(i)}$)
+
+where $d_{out}^{(i)}$ and $d_{in}^{(i)}$ are the output and input dimensions of layer $i$, respectively.
+
+This makes the memory requirement per layer:
+
+$$O\\big((d_{out}^{(i)})^2 + (d_{in}^{(i)})^2 + d_{out}^{(i)} \\cdot d_{in}^{(i)}\\big)$$
+
+By contrast, Adam only keeps $m$ and $v$ ($d_{out}^{(i)} \	imes d_{in}^{(i)}$) → $O(d_{out}^{(i)} \\cdot d_{in}^{(i)})$.
+
+So KPOP consumes more memory because it tracks the curvature approximation.
+
+### FLOPs per Progress
+
+On the other hand, KPOP is more efficient per FLOP because:
+- The updates in the eigenbasis are better aligned with the true curvature.
+- Adam or SGD may require many more steps (and thus more FLOPs) to converge because they ignore curvature and may oscillate.
+- KPOP takes more informed steps, needing fewer of them to reach a good solution.
+
+Empirically, wall-clock time and step count to reach a target loss are lower for KPOP than Adam, despite higher cost per step.
+
+### Hardware Considerations
+
+This trade-off depends on hardware:
+- On NVIDIA H100, memory is scarce — so the $(d_{out}^{(i)})^2 + (d_{in}^{(i)})^2$ terms are expensive.
+- On Apple M3 Ultra, memory is abundant — so you can afford the extra curvature matrices and benefit from fewer FLOPs.
+
+**Concrete example:** Consider a transformer layer with $d_{in} = d_{out} = 4096$. 
+- **Adam memory:** $2 \	imes 4096^2 \\approx 32M$ parameters (for $m$ and $v$)
+- **KPOP memory:** $32M + 2 \	imes 4096^2 \\approx 64M$ parameters (Adam + curvature matrices)
+
+**On H100 (80GB HBM):** Training a 70B parameter model is already tight on memory. The extra 32M parameters per layer $\	imes$ 100 layers = 3.2B extra parameters might not fit.
+
+**On M3 Ultra (192GB unified memory):** The extra memory is easily affordable, and KPOP's faster convergence (requiring 30–50% fewer steps) often leads to better wall-clock time despite higher per-step cost.
+
+**The sweet spot:** KPOP shines when memory is available but compute time is the bottleneck — making it ideal for research settings, fine-tuning, or training on high-memory consumer hardware.
+
+## Conclusion
+
+KPOP is an elegant optimizer that:
+- Learns the curvature of the loss landscape.
+- Rotates into the natural axes of that landscape (eigenbasis).
+- Applies adaptive updates (like Adam) efficiently in that space.
+- Rotates back to the original parameters.
+
+This allows it to move straight toward the minimum instead of zig-zagging — leading to faster, more robust training, even on consumer-grade hardware.
+
+**When should you use KPOP?**
+- You have sufficient memory (at least 2× what Adam needs)
+- Training time is more important than memory efficiency  
+- You're training on consumer hardware with abundant memory
+- You need robust convergence on complex loss landscapes
+
+**When to stick with Adam:**
+- Memory is extremely constrained (e.g., edge devices, large-scale distributed training)
+- Your model already converges quickly with simple optimizers
+- You're optimizing for minimal memory footprint over training speed
+
+**The big picture:** KPOP represents a fundamental shift from "one-size-fits-all" optimizers toward "geometry-aware" optimization. By understanding and adapting to the shape of the loss landscape, it achieves what mathematicians call "quadratic convergence" — the holy grail of optimization where each step becomes exponentially more effective.
+
+As neural networks grow larger and more complex, this type of curvature-aware optimization may become essential for training the next generation of AI models efficiently.
+
+**Key ideas:**
+- Fisher matrix captures curvature.
+- KFAC approximates Fisher efficiently.
+- Eigenvectors/eigenvalues align us with independent directions.
+- Adam adapts step size for each direction.
+
+Together, they make KPOP a powerful optimizer for large-scale training.
+
+## Further Reading
+
+If you want to explore further:
+- Martens &amp; Grosse (2015): KFAC
+- Kingma &amp; Ba (2015): Adam
+- George et al. (2018): Kronecker-Factored Eigenbasis </code></pre>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

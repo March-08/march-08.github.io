@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Train YOLO for Object Detection on a Custom Dataset using Python — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Train YOLO for Object Detection on a Custom Dataset using Python</h1>
+    <p class="subtitle">Learn about Yolov4 and Darknet to train a Custom Object Detector.</p>
+    <p class="postdate">November 2, 2024 · YOLO, Object Detection, Python</p>
+<figure>
+  <img class="wide" src="images/train-yolo-for-object-detection-on-a-custom-dataset-using-python/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>I recently started working in the field of computer vision. And in these early days, I’m studying how the various <strong>algorithms of object detection</strong> work. Among the most well-known ones are <strong>R-CNN</strong>, <strong>Fast R-CNN</strong>, <strong>Faster R-CNN </strong>and of course <strong>YOLO</strong>.</p>
+<p>In this article, I want to focus on the last mentioned algorithm. YOLO is the state of the art in object detection and there are endless use cases where YOLO can be used. Today, however, I don’t want to tell you about how YOLO works and its architecture, but<strong> I want to show you simply how you can launch this algorithm and make your predictions</strong>. Plus we’ll also see how it’s possible to<strong> train it on a custom dataset</strong> so you can adapt it to your data.</p>
+<p>If you would also like to read an article of mine on the inner workings of YOLO follow me because I have proposed to write it in the next few days.</p>
+<h2><strong>Darknet</strong></h2>
+<p>I don’t think there is any better way to describe Darknet than the definition you can find on their site at this <a href="https://pjreddie.com/darknet/">link</a>.</p>
+<blockquote><p>Darknet is an open source neural network framework written in C and CUDA. It is fast, easy to install, and supports CPU and GPU<br>computation. You can find the source on GitHub or you can read more about what Darknet can do right <a href="https://pjreddie.com/darknet/">here</a>.</p></blockquote>
+<p>So all we will have to do is learn how to use this open-source project.</p>
+<p>You can find the darknet code on <a href="https://github.com/AlexeyAB/darknet">github</a>. Take a look at it because we are going to use it to train YOLO on our custom dataset.</p>
+<h2><strong>Clone Darknet</strong></h2>
+<p>The code I’ll show you in this article below is meant to be run on Colab, since I didn’t have a GPU with me… of course you can also repeat this code on your notebook.</p>
+<p>What will change occasionally are the paths.</p>
+<p>So first we go to clone the darknet GitHub repository. Colab allows us to write bash commands if we use the <strong><em>%%bash </strong>command.</em></p>
+<pre><code>%%bash
+git clone https://github.com/AlexeyAB/darknet</code></pre>
+<p>Once you clone the repo you will see lots of files in your working directory, relax it looks more complicated than it is.</p>
+<p>Now we need to<strong> reconfigure the makefile</strong>. Don’t know what a makefile is? To simplify it is a file that makes it easy to compile your code.</p>
+<p>If you have ever written code in C, you know that the practice is to write a file <em>file.c</em> after which you compile it using a command like <em>g++ etc…</em></p>
+<p>This command used to compile could be very long in large projects since it has to take into account dependencies and so much more.</p>
+<p>So it would be really laborious every time to compile by going to rewrite <em>g++ etc…</em></p>
+<p>Then what we do is create a makefile that already contains this written command inside, and all we would have to do is <strong>launch the makefile to compile the code</strong>.</p>
+<p>The <strong>makefile usually contains within itself configuration variables</strong> that the user can set as desired.</p>
+<p>That said what we want to do is set some variables that we find in the Darknet makefile.</p>
+<p>So make sure you have a GPU available and run the following cell.</p>
+<pre><code>%%bash
+cd darknet
+sed -i 's/OPENCV=0/OPENCV=1/' Makefile
+# In case you dont have a GPU, make sure to comment out the
+# below 3 lines
+sed -i 's/GPU=0/GPU=1/' Makefile
+sed -i 's/CUDNN=0/CUDNN=1/' Makefile
+sed -i 's/CUDNN_HALF=0/CUDNN_HALF=1/' Makefile</code></pre>
+<p>In this cell command <em>sed -i</em> for example in the first line allows you to change the OPENCV variable from 0 to 1.</p>
+<p>The setting we set in the previous cell allows us to launch YOLO on the GPU instead of the CPU.</p>
+<p>Now we are going to launch the makefile with the make command.</p>
+<pre><code>%%bash
+#compile darkent source code
+cd darknet</code></pre>
+<p>Now we install a library that will serve among other things to draw bounding boxes around the objects detected by YOLO.</p>
+<pre><code>%%capture
+!pip install -q torch_snippets</code></pre>
+<h2><strong>Download the dataset</strong></h2>
+<p>I will use an object detection dataset containing images of trucks and buses. There are a lot of object detection datasets on Kaggle and you can download one from there.</p>
+<p>If you don’t know how to download a Kaggle dataset directly from Colab you can go and read some of my <a href="https://towardsdatascience.com/transfer-learning-data-augmentation-for-robust-image-classification-643ca88b3175">previous articles</a>.</p>
+<p>So I download and unzip the dataset.</p>
+<pre><code>!wget - quiet link_to_dataset
+!tar -xf open-images-bus-trucks.tar.xz
+!rm open-images-bus-trucks.tar.xz</code></pre>
+<p>The structure of the downloaded dataset is depicted in the following figure.</p>
+<figure>
+  <img class="wide" src="images/train-yolo-for-object-detection-on-a-custom-dataset-using-python/img-02.png" alt="Image By Author">
+  <figcaption>Image By Author</figcaption>
+</figure>
+<h2><strong>Download YOLO</strong></h2>
+<p>Obviously, you will not have to do the YOLO training from scratch but will go and <strong>download the weights </strong>directly from the Internet.</p>
+<p>To download the weights from <strong>YOLO4</strong> use the following command.</p>
+<pre><code>!wget - quiet https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.weights</code></pre>
+<p>To see if everything is working properly run the following command.</p>
+<pre><code>%%bash
+#I had to use the flag -dont_show cause wasnt working. Try to run wiithout it
+cd darknet
+./darknet detector test cfg/coco.data cfg/yolov4.cfg ../yolov4.weights data/person.jpg -dont_show</code></pre>
+<p>In this command, we have just run</p>
+<ul>
+  <li>we specify that we want the configuration of YOLO4: <em>cfg/yolov4.cfg</em></li>
+  <li>We specify to use the weights we just downloaded: <em>../yolov4.weights</em></li>
+  <li>We are going to do the prediction on the coco dataset that you have since you cloned the repo: <em>cfg/coco.data</em></li>
+  <li>And we do the prediction of the following image: <em>data/person.jpg</em></li>
+</ul>
+<h2><strong>Prepare your dataset</strong></h2>
+<p>YOLO expects to find certain files and folders set up correctly in order to do the training on your custom dataset.</p>
+<p>First, you will need to open the file in the <em>darknet/data/obj.names </em>path where you put write your labels.</p>
+<p>In Colab we can use the <strong>magic command </strong>to write directly into the file using a cell. Everything under the magic command will be copied</p>
+<p>into the specified file.</p>
+<pre><code>%%writefile darknet/data/obj.names
+bus
+truck</code></pre>
+<p>Now we need to modify another file to tell YOLO how many classes to expect, where to find the paths for training and</p>
+<p>validation and where to find the file with the name of the labels.</p>
+<p>We can do this simply using the magic command and the following lines.</p>
+<pre><code>%%writefile darknet/data/obj.data
+classes = 2
+train = darknet/data/train.txt
+valid = darknet/data/val.txt
+names = darknet/data/obj.names
+backup = backup/</code></pre>
+<p>So to understand it, your train txt file should look like you see in the following picture (similar for validation).</p>
+<figure>
+  <img class="portrait" src="images/train-yolo-for-object-detection-on-a-custom-dataset-using-python/img-03.png" alt="">
+</figure>
+<p>In which each line indicates where to find the training image.</p>
+<p>The files we specified though are still empty. So we copy this data from the dataset folder we downloaded into the default one within Darknet.</p>
+<pre><code>!mkdir -p darknet/data/obj
+!cp -r open-images-bus-trucks/images/* darknet/data/obj/
+!cp -r open-images-bus-trucks/yolo_labels/all/{train,val}.txt darknet/data/
+!cp -r open-images-bus-trucks/yolo_labels/all/labels/*.txt darknet/data/obj/
+#add prefix 'darkent/' in front of each row in darkent/data/train.txt
+!sed -i -e 's/^/darknet\\//' darknet/data/train.txt
+!sed -i -e 's/^/darknet\\//' darknet/data/val.txt</code></pre>
+<p>As we did before we go to download the weights for YOLO. This time we take <strong><em>yolov4-tiny</strong></em> which is faster than the previous one.</p>
+<p>Then we copy the weights to the appropriate folder inside Darknet.</p>
+<pre><code>!wget - quiet https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.conv.29
+!cp yolov4-tiny.conv.29 darknet/build/darknet/x64/</code></pre>
+<p>Now let’s rename the configuration file that is in charge of configuring the <em>yolov4 tiny</em> architecture.</p>
+<p>And after that, we’re going to edit some parameters to set the number of batches the number of classes and other parameters.</p>
+<pre><code>%%bash
+cd darknet
+# create a copy of existing configuration and modify it in place
+cp cfg/yolov4-tiny-custom.cfg cfg/yolov4-tiny-bus-trucks.cfg
+# max_batches to 4000 (since the dataset is small enough)
+sed -i 's/max_batches = 500200/max_batches=4000/' cfg/yolov4-tiny-bus-trucks.cfg
+# number of sub-batches per batch
+sed -i 's/subdivisions=1/subdivisions=16/' cfg/yolov4-tiny-bus-trucks.cfg
+# number of batches after which learning rate is decayed
+sed -i 's/steps=400000,450000/steps=3200,3600/' cfg/yolov4-tiny-bus-trucks.cfg
+# number of classes is 2 as opposed to 80
+# (which is the number of COCO classes)
+sed -i 's/classes=80/classes=2/g' cfg/yolov4-tiny-bus-trucks.cfg
+# in the classification and regression heads,
+# change number of output convolution filters
+# from 255 -&gt; 21 and 57 -&gt; 33, since we have fewer classes
+# we don't need as many filters
+sed -i 's/filters=255/filters=21/g' cfg/yolov4-tiny-bus-trucks.cfg
+sed -i 's/filters=57/filters=33/g' cfg/yolov4-tiny-bus-trucks.cfg</code></pre>
+<h2><strong>Train the model!</strong></h2>
+<p>Now we are ready, all that remains is to launch the model train</p>
+<pre><code>!./darknet/darknet detector train darknet/data/obj.data ./darknet/cfg/yolov4-tiny-bus-trucks.cfg yolov4-tiny.conv.29 -dont_show -mapLastAt</code></pre>
+<p>This training in my case took about one hour.</p>
+<p>Now you can run the predictions on your images to get the classes and bounding box.</p>
+<pre><code>from torch_snippets import Glob, stem, show, read
+# upload your own images to a folder
+image_paths = Glob('images-of-trucks-and-busses')
+for f in image_paths:
+ !./darknet detector test \\
+ data/obj.data cfg/yolov4-tiny-bus-trucks.cfg\\
+ backup/yolov4-tiny-bus-trucks_4000.weights {f}
+ !mv predictions.jpg {stem(f)}_pred.jpg
+for i in Glob('*_pred.jpg'):
+ show(read(i, 1), sz=20)</code></pre>
+<figure>
+  <img class="med" src="images/train-yolo-for-object-detection-on-a-custom-dataset-using-python/img-04.png" alt="">
+</figure>
+<h2><strong>Final Thoughts</strong></h2>
+<p>As we have seen using YOLO is not that complicated. There are efficient implementations that we can clone and use for our use case. In my case ‘I just used it for fun by making predictions about some photos I took this summer on my trip to Africa!😁</p>
+<p>I have not gone into the specifics of how this algorithm works, because I would like to go into more detail in future articles using a top-down approach. So I hope you are now also able to use YOLO and play with it as I am doing!</p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://march-08.github.io/digital-cv/">CV</a></p>
+<p>This article was published on <a href="https://medium.com/data-science/train-yolo-for-object-detection-on-a-custom-dataset-using-python-e4fe5eb94673">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

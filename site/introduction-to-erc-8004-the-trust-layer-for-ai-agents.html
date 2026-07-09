@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Introduction to ERC-8004: The Trust Layer for AI Agents — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Introduction to ERC-8004: The Trust Layer for AI Agents</h1>
+    
+    <p class="postdate">January 9, 2026 · 8004, Ethereum, Agents</p>
+<p>ERC-8004 creates a public discovery and trust layer for autonomous AI agents through three lightweight on-chain registries: Identity, Reputation, and Validation.</p>
+<h2><strong>Introduction</strong></h2>
+<p>We're entering the age of AI agents, autonomous software that doesn't just answer questions, but coordinates with other software to deliver real-world outcomes.</p>
+<p>Imagine a travel agent that syncs with a budgeting agent and a carbon-impact agent to plan your trip. Or factory agents that negotiate supply, price, and routing across continents. Or health agents that assemble second opinions within minutes.</p>
+<p>But there's a problem: how do agents from different organizations trust each other?</p>
+<p>When a human hires a contractor, they check references, read reviews, and verify credentials. AI agents need the same capabilities, but at machine speed and without human intermediaries. This is the "trust gap" that ERC-8004 is designed to solve.</p>
+<h3>What you will learn:</h3>
+<p>By the end of this article, you will:</p>
+<ul>
+  <li>Understand what ERC-8004 is and the problem it solves</li>
+  <li>Know how the three core registries (Identity, Reputation, Validation) work together</li>
+  <li>Have a clear path to start building with ERC-8004</li>
+</ul>
+<p>This article is the first of a series of guides to help you understand and build using the new ERC-8004 standard.</p>
+<h3>What problems does ERC-8004 Solve?</h3>
+<p>Today's agent communication protocols like <a href="https://a2a-protocol.org/latest/"><strong>Google's Agent-to-Agent (A2A)</strong></a> and the <a href="https://modelcontextprotocol.io/docs/getting-started/intro"><strong>Model Context Protocol (MCP)</strong></a> handle how agents talk to each other. But they don't address three critical questions:</p>
+<ul>
+  <li><strong>Discovery</strong>: How do agents find each other across organizational boundaries?</li>
+  <li><strong>Identity</strong>: How do agents know who they're dealing with?</li>
+  <li><strong>Trust</strong>: How do agents evaluate whether another agent is reliable?</li>
+</ul>
+<p>Without answers to these questions, the agent economy fragments into walled gardens controlled by large platforms, or becomes a playground for fraud.</p>
+<h2><strong>What is ERC-8004?</strong></h2>
+<p><a href="https://eips.ethereum.org/EIPS/eip-8004"><strong>ERC-8004</strong></a>, officially titled "Trustless Agents", is an Ethereum standard that creates a public discovery and trust layer for autonomous AI agents. It was proposed in August 2025 by a cross-industry team including contributors from MetaMask, the Ethereum Foundation, Google, and Coinbase.</p>
+<p>At its core, ERC-8004 extends existing agent communication protocols (like A2A and MCP) with three lightweight on-chain registries:</p>
+<p>1. <strong>Identity registry:</strong> Gives every agent a portable, verifiable identity</p>
+<p>2. <strong>Reputation registry:</strong> Records feedback from clients who have worked with an agent</p>
+<p>3. <strong>Validation registry:</strong> Enables third-party verification of an agent's work</p>
+<p>ERC-8004 deliberately keeps things minimal. It doesn't try to solve everything, it provides just enough on-chain infrastructure for trust, while leaving application-specific logic off-chain. This design philosophy means:</p>
+<ul>
+  <li>The standard is lightweight and inexpensive to use</li>
+  <li>Developers can plug in their own trust models</li>
+  <li>The ecosystem can evolve without breaking the core protocol</li>
+</ul>
+<h3>How ERC-8004 relates to other standards</h3>
+<p>ERC-8004 doesn't replace existing protocols, it complements them:</p>
+<div class="tablewrap"><table class="ntable"><thead><tr><th><strong>Protocol</strong></th><th><strong>What It Does</strong></th><th><strong>ERC-8004's Role</strong></th></tr></thead><tbody><tr><td><strong>A2A</strong> (Agent-to-Agent)</td><td>Agent authentication, messaging, task orchestration</td><td>Adds discovery and trust layer</td></tr><tr><td><strong>MCP</strong> (Model Context Protocol)</td><td>Servers list capabilities (tools, prompts, resources)</td><td>Agents can advertise MCP endpoints in their registration</td></tr><tr><td><strong>x402</strong></td><td>HTTP-native micropayments between agents</td><td>Agents can pay each other on-chain via HTTP and JSON payloads</td></tr></tbody></table></div>
+<h2><strong>Why ERC-8004 matters</strong></h2>
+<p>As AI agents proliferate, dozens of projects are creating their own discovery and trust systems. Without a shared standard, the ecosystem risks fragmentation, agents from one platform can't interact with agents from another.</p>
+<p>This is the coordination problem ERC-8004 addresses. Just as ERC-20 unified the token economy and ERC-721 enabled the NFT market, ERC-8004 aims to create a common foundation for the agent economy.</p>
+<h3>Why Ethereum?</h3>
+<p>You might ask: why build this on Ethereum instead of a centralized platform?</p>
+<p>The answer comes down to neutrality and permanence:</p>
+<ul>
+  <li><strong>Credibly neutral</strong>: No single company controls who can register or what reputation data gets recorded</li>
+  <li><strong>Censorship-resistant</strong>: Agent identities and reputation histories can't be quietly deleted or modified</li>
+  <li><strong>Globally accessible</strong>: Any agent, anywhere, can plug into the same trust infrastructure</li>
+  <li><strong>Composable</strong>: Smart contracts can read reputation data and make automated decisions</li>
+</ul>
+<p>Ethereum isn't where models run, it's where their trust runs. A discovery and accountability backbone that any agent can plug into.</p>
+<h2><strong>How does ERC-8004 work?</strong></h2>
+<p>ERC-8004 introduces three registries that work together. Let's explore each one.</p>
+<figure>
+  <img class="wide" src="images/introduction-to-erc-8004-the-trust-layer-for-ai-agents/img-01.jpg" alt="">
+</figure>
+<h3>1. Identity Registry</h3>
+<p>Before ERC-8004, there was no standard way to discover agents across organizations. The Identity Registry creates a global, crawlable directory of agents—enabling the equivalent of "web search" for AI agents.</p>
+<p>The Identity Registry gives every agent a unique, portable identity on-chain. It's built on <a href="https://ethereum.org/developers/docs/standards/tokens/erc-721/"><strong>ERC-721</strong></a>, which means:</p>
+<ul>
+  <li>Each agent identity is an NFT that can be viewed in any wallet or NFT marketplace</li>
+  <li>Ownership can be transferred or delegated</li>
+  <li>The identity is globally unique and censorship-resistant</li>
+</ul>
+<p><strong>How it works:</strong></p>
+<p>When an agent registers, it receives an <strong><code>agentId</code></strong> (the NFT token ID). This ID links to a registration file (hosted on chain as Base64, IPFS, or any URL) that contains:</p>
+<ul>
+  <li>Agent name and description</li>
+  <li>Supported endpoints (A2A, MCP, etc.)</li>
+  <li>Wallet addresses on various chains</li>
+  <li>Which trust models the agent supports</li>
+  <li>Support for OASF (Open Agent Service Framework) endpoints</li>
+</ul>
+<p>Think of it as a machine-readable "passport" for AI agents.</p>
+<h3>2. Reputation Registry</h3>
+<p>Reputation is collateral for AI agents. Agents with transparent track records can command higher prices and access more opportunities. The Reputation Registry makes this reputation portable, it follows the agent regardless of which platform or application it uses.</p>
+<p>The Reputation Registry creates an on-chain audit trail of client feedback. When you hire an agent to perform a task, you can leave a rating that becomes part of the agent's permanent record.</p>
+<p><strong>How it works:</strong></p>
+<p>1. When an agent accepts a task, it signs a <strong><code>feedbackAuth</code></strong> authorizing the client to leave feedback</p>
+<p>2. After the task, the client submits feedback: a score (0-100), optional tags, and a link to detailed off-chain data</p>
+<p>3. The feedback is recorded on-chain and linked to the agent's identity</p>
+<p>4. Anyone can query an agent's reputation history</p>
+<p><strong>Key design decisions:</strong></p>
+<ul>
+  <li><strong>Pre-authorization prevents spam</strong>: Only clients the agent has actually worked with can leave feedback</li>
+  <li><strong>On-chain + off-chain hybrid</strong>: Basic scores are stored on-chain for composability; detailed feedback lives off-chain for cost efficiency</li>
+  <li><strong>Revocable feedback</strong>: Clients can revoke feedback if disputes are resolved</li>
+  <li><strong>Response mechanism</strong>: Agents (or anyone) can append responses to feedback</li>
+</ul>
+<h3>3. Validation registry</h3>
+<p>Different tasks require different levels of assurance. Ordering pizza? Reputation feedback is probably enough. Managing a DeFi portfolio or diagnosing medical conditions? You want cryptographic or economic guarantees. The Validation Registry provides a unified interface for all these trust models.</p>
+<p>For high-stakes tasks, reputation alone isn't enough. The Validation Registry enables independent third-party verification of an agent's work.</p>
+<p><strong>How it works:</strong></p>
+<p>1. An agent requests validation by specifying a validator contract and providing a hash of the task data</p>
+<p>2. The validator performs the check (using various methods)</p>
+<p>3. The validator records a response (0-100) on-chain</p>
+<p><strong>Validation methods:</strong></p>
+<p>ERC-8004 supports multiple validation approaches:</p>
+<ul>
+  <li><strong>Crypto-economic validation</strong>: Stakers re-run the job and risk their stake on the outcome</li>
+  <li><strong>Zero-knowledge proofs (zkML)</strong>: Cryptographic proof that computation was performed correctly</li>
+  <li><strong>TEE attestations</strong>: Trusted Execution Environment oracles verify the work</li>
+  <li><strong>Trusted judges</strong>: Human or algorithmic arbiters for subjective tasks</li>
+</ul>
+<h3>How the 3 registries work together</h3>
+<p>Here's how the registries combine in practice:</p>
+<p>1. A client searches the <strong>Identity registry</strong> to discover agents with the right capabilities</p>
+<p>2. The client checks the <strong>Reputation registry</strong> to filter for agents with strong track records</p>
+<p>3. For the chosen agent, the client may check the <strong>Validation registry</strong> to see if the agent's work has been independently verified</p>
+<p>4. After completing the task, the client adds feedback to the <strong>Reputation registry</strong>, building the agent's reputation over time</p>
+<p>This creates a virtuous cycle: good agents build reputation, attract more clients, and can afford validation, which further increases trust.</p>
+<h2><strong>ERC-8004 use cases</strong></h2>
+<p>So what can you actually build with this? Here's where the ERC-8004 standard is gaining traction and possible use cases:</p>
+<p><strong>DeFi and trading</strong></p>
+<ul>
+  <li><strong>Research-as-a-Service</strong>: Portfolio agents discover and hire analysis agents based on reputation scores, then validate high-stakes recommendations via stake-secured re-execution</li>
+  <li><strong>On-chain credit</strong>: Lending protocols check borrower agent reputation before extending credit</li>
+</ul>
+<p><strong>Enterprise coordination</strong></p>
+<ul>
+  <li><strong>Supply Chain</strong>: Logistics agents from different companies discover each other, verify capabilities via TEE attestation, and build cross-organizational trust without legal agreements</li>
+  <li><strong>Procurement</strong>: Purchasing agents evaluate vendor agents based on delivery history and payment-verified feedback</li>
+</ul>
+<p><strong>AI Agent marketplaces</strong></p>
+<ul>
+  <li><strong>Specialized services</strong>: Agents offering narrow capabilities (code review, fact-checking, translation) build portable reputation that commands premium pricing</li>
+  <li><strong>Quality filtering</strong>: Clients filter service providers by feedback from verified transactions (using x402 payment proofs to distinguish real clients from Sybil attacks)</li>
+</ul>
+<p><strong>Governance &amp; DAOs</strong></p>
+<ul>
+  <li><strong>Verified Advisory</strong>: DAOs hire analysis agents for treasury proposals, requiring zkML validation to prove financial models ran correctly</li>
+  <li><strong>Delegate Reputation</strong>: Governance agents build track records that follow them across protocols</li>
+</ul>
+<h2><strong>What's next</strong></h2>
+<p>The community is exploring several enhancements:</p>
+<ul>
+  <li><strong>More on-chain data</strong>: Enabling smart contract aggregation and composability for reputation signals</li>
+  <li><strong>MCP compatibility</strong>: Ensuring seamless integration alongside A2A</li>
+  <li><strong>x402 integration</strong>: Clearer guidance on payment proofs in feedback</li>
+  <li><strong>ENS support</strong>: Human-readable agent discovery</li>
+  <li><strong>TEE and stake-secured validation</strong>: Reference implementations and schemas</li>
+</ul>
+<h3>How to Contribute</h3>
+<ul>
+  <li><strong>Provide feedback</strong>: Comment on the Ethereum Magicians thread</li>
+  <li><strong>Build prototypes</strong>: Test the registries and share your experience</li>
+  <li><strong>Join the Builder Program</strong>: Get hands-on support for your project</li>
+  <li><strong>Spread the word</strong>: Help educate the community about trustless agents</li>
+</ul>
+<h2><strong>Resources</strong></h2>
+<h3>Official resources</h3>
+<ul>
+  <li><a href="https://eips.ethereum.org/EIPS/eip-8004"><strong>EIP-8004 Specification</strong></a>: The complete technical standard</li>
+  <li><a href="https://8004.org/"><strong>8004.org</strong></a>: Official website with overview and builder program info</li>
+  <li><a href="https://ethereum-magicians.org/t/erc-8004-trustless-agents/25098"><strong>Ethereum Magicians Discussion</strong></a>: Public technical discussion</li>
+</ul>
+<h3>Community</h3>
+<ul>
+  <li><a href="https://t.me/ERC8004"><strong>Telegram Group</strong></a>: Active community chat</li>
+  <li><a href="https://8004.org/"><strong>Community Calls</strong></a>: Regular calls for updates and Q&amp;A</li>
+</ul>
+<h3>Developer tools</h3>
+<ul>
+  <li><a href="https://sdk.ag0.xyz/"><strong>Agent0 SDK</strong></a>: Fully fledged SDK to register and discover ERC-8004 compatible agents on chain</li>
+  <li><a href="https://github.com/agent0lab/subgraph?tab=readme-ov-file"><strong>Agent0 SDK Subgraph</strong></a>: A multi-chain subgraph for indexing <a href="https://eips.ethereum.org/EIP-8004"><strong>ERC-8004</strong></a> agents protocol data, providing GraphQL APIs for agent discovery, reputation tracking, and validation.</li>
+  <li><a href="https://www.npmjs.com/package/create-8004-agent"><strong>create-8004-agent</strong></a>: CLI tool to scaffold ERC-8004 compliant AI agents with A2A, MCP, and x402 payment support</li>
+  <li><a href="https://www.daydreams.systems/"><strong>DayDreams</strong></a>: Community driven open source agent framework to build multi-chain autonomous agents</li>
+</ul>
+<h3>Scanners and directories</h3>
+<ul>
+  <li><a href="https://www.8004scan.io/"><strong>8004scan.io</strong></a>: The first on-chain explorer for ERC-8004, browse agent registrations, reputation scores, and validation records.</li>
+  <li><a href="https://8004agents.ai/"><strong>8004agents.ai</strong></a>: Multichain agent directory to explore ERC-8004 agents across Sepolia, Base, Linea, Polygon, and other networks.</li>
+  <li><a href="https://x402synthex.xyz/?chain=solana-devnet&amp;amp;sort=recent"><strong>x402synthex.xyz</strong></a>: AI-powered search for 8004 agents and x402 services, with trust scores and capability insights.</li>
+</ul>
+<h2><strong>Conclusion</strong></h2>
+<p>ERC-8004 represents a foundational step toward an open, permissionless agent economy. By providing standardized registries for identity, reputation, and validation, it enables AI agents to discover each other and build trust, without relying on centralized intermediaries.</p>
+<p><strong>Key takeaways:</strong></p>
+<ul>
+  <li>ERC-8004 solves the "trust gap" for AI agents operating across organizational boundaries</li>
+  <li>It introduces three lightweight registries: Identity (who are you?), Reputation (are you reliable?), and Validation (can you prove it?)</li>
+  <li>The standard is minimal by design, enabling pluggable trust models and ecosystem evolution</li>
+  <li>Ethereum serves as the neutral coordination layer—not where agents run, but where their trust runs</li>
+</ul>
+<p>The agent economy is coming. ERC-8004 ensures it can be built on open, credibly neutral infrastructure rather than proprietary platforms.</p>
+<p><strong>Ready to get involved?</strong></p>
+<ul>
+  <li>Join the <a href="https://t.me/ERC8004"><strong>Telegram community</strong></a></li>
+  <li>Apply to the <a href="https://8004.org/"><strong>Builder Program</strong></a></li>
+  <li>Start experimenting on testnet</li>
+</ul>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

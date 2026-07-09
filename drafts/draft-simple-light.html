@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Marcello Politi</title>
+<style>
+  :root{
+    --ground:#fbfbfa; --panel:#f4f4f2; --text:#18181b; --muted:#71717a;
+    --line:#e7e7e4; --accent:#2563eb; --accent-soft:#eff4ff;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+    --maxw:720px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--ground);color:var(--text);font-family:var(--sans);
+    font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--accent);color:#fff}
+
+  header{border-bottom:1px solid var(--line);background:rgba(251,251,250,.85);backdrop-filter:blur(8px);
+    position:sticky;top:0;z-index:10}
+  .bar{max-width:var(--maxw);margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:18px}
+  .brand{font-weight:600;letter-spacing:-.2px}
+  nav{margin-left:auto;display:flex;gap:2px}
+  nav a{font-family:var(--mono);font-size:13px;color:var(--muted);padding:5px 10px;border-radius:7px}
+  nav a:hover{color:var(--text);background:var(--panel)}
+  nav a.on{color:var(--accent);background:var(--accent-soft)}
+
+  main{max-width:var(--maxw);margin:0 auto;padding:34px 22px;width:100%;flex:1}
+  .label{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.5px;margin-bottom:14px}
+  .view{display:none;animation:fade .2s ease}
+  .view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+  /* home */
+  h1{font-size:30px;line-height:1.15;margin:0 0 6px;letter-spacing:-.6px;font-weight:650}
+  .role{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .role b{color:var(--accent);font-weight:600}
+  .lede{color:#3f3f46;max-width:56ch;margin:16px 0 28px}
+  .links{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:30px}
+  .links a{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:7px;
+    padding:6px 11px;color:var(--muted)}
+  .links a:hover{border-color:var(--accent);color:var(--accent)}
+  .recent{border-top:1px solid var(--line);padding-top:8px}
+
+  .row{display:flex;gap:16px;align-items:baseline;padding:13px 10px;margin:0 -10px;border-radius:9px;transition:.12s;cursor:pointer}
+  .row:hover{background:var(--panel)}
+  .row .d{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:74px;flex-shrink:0}
+  .row .t{flex:1}
+  .row .arr{color:var(--accent);opacity:0;transition:.12s}
+  .row:hover .arr{opacity:1;transform:translateX(2px)}
+
+  h2{font-size:20px;margin:0 0 18px;letter-spacing:-.3px}
+
+  .pub{padding:15px 0;border-top:1px solid var(--line)}.pub:first-of-type{border-top:none}
+  .pub .t{font-weight:500}.pub .m{font-size:13px;color:var(--muted);margin-top:3px}
+  .pub .v{font-family:var(--mono);color:var(--accent)}
+
+  .art h2{font-size:23px;margin-bottom:4px}
+  .art .meta{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:20px}
+  .art p{color:#3f3f46;max-width:62ch;margin:0 0 16px}
+  .back{font-family:var(--mono);font-size:12px;color:var(--accent);display:inline-block;margin-bottom:18px;cursor:pointer}
+
+  .cv{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+  .cvc{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:16px}
+  .cvc h3{margin:0 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--accent)}
+  .cvi{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px dashed var(--line);font-size:14px}
+  .cvi:first-of-type{border-top:none}.cvi .y{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+  .chip{font-family:var(--mono);font-size:12px;border:1px solid var(--line);background:var(--ground);border-radius:7px;padding:5px 9px}
+
+  footer{max-width:var(--maxw);margin:0 auto;padding:24px 22px 36px;color:var(--muted);font-family:var(--mono);font-size:12px;width:100%}
+
+  @media(max-width:540px){.cv{grid-template-columns:1fr}nav a{padding:5px 7px}}
+  @media(prefers-reduced-motion:reduce){.view{animation:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <a class="brand" href="#/">Marcello Politi</a>
+    <nav id="nav">
+      <a href="#/writing" data-r="writing">writing</a>
+      <a href="#/work" data-r="work">work</a>
+      <a href="#/map" data-r="map">map</a>
+      <a href="#/about" data-r="about">about</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section class="view on" id="v-home">
+    <h1>Marcello Politi</h1>
+    <div class="role">research engineer · <b>cryptography × distributed systems × ML</b></div>
+    <p class="lede">I build systems that make complex technology feel simple — and write about the parts that resist simplification.</p>
+    <div class="links">
+      <a href="#">GitHub</a><a href="#">Scholar</a><a href="#">Twitter/X</a><a href="#">cv.pdf ↓</a>
+    </div>
+    <div class="label">// recent writing</div>
+    <div class="recent" id="home-recent"></div>
+  </section>
+
+  <!-- WRITING -->
+  <section class="view" id="v-writing">
+    <div class="label">// writing</div>
+    <h2>Essays &amp; notes</h2>
+    <div id="writing-list"></div>
+  </section>
+
+  <!-- ARTICLE -->
+  <section class="view" id="v-article"><div class="art" id="article-body"></div></section>
+
+  <!-- WORK -->
+  <section class="view" id="v-work">
+    <div class="label">// work</div>
+    <h2>Selected publications</h2>
+    <div id="work-list"></div>
+  </section>
+
+  <!-- MAP -->
+  <section class="view" id="v-map">
+    <div class="label">// map</div>
+    <h2>Where I've been</h2>
+    <p class="lede">13 places, 5 continents.</p>
+    <div class="chips" id="map-chips"></div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="view" id="v-about">
+    <div class="label">// about</div>
+    <h2>About</h2>
+    <p class="lede" style="max-width:60ch">I'm a research engineer working across cryptography, distributed protocols and machine learning. Currently at the Ethereum Foundation.</p>
+    <div class="cv">
+      <div class="cvc"><h3>experience</h3>
+        <div class="cvi"><span>Research Engineer · Ethereum Foundation</span><span class="y">2023—</span></div>
+        <div class="cvi"><span>ML Engineer · Acme Labs</span><span class="y">2021—23</span></div>
+        <div class="cvi"><span>Research Intern · CERN</span><span class="y">2020</span></div></div>
+      <div class="cvc"><h3>education</h3>
+        <div class="cvi"><span>MSc Computer Science · Imperial</span><span class="y">2021</span></div>
+        <div class="cvi"><span>BSc Mathematics · Sapienza</span><span class="y">2019</span></div></div>
+    </div>
+    <div class="chips">
+      <span class="chip">Rust</span><span class="chip">Python</span><span class="chip">PyTorch</span>
+      <span class="chip">zk-SNARKs</span><span class="chip">Distributed systems</span>
+    </div>
+  </section>
+</main>
+
+<footer>built with plain HTML · dummy content · draft — simple / light</footer>
+
+<script>
+const ARTICLES=[
+  {d:"2026.06",t:"On economic alignment in decentralized systems",
+   body:["Incentive design is the part of a protocol that survives contact with reality. Code can be audited and fixed; misaligned incentives quietly compound until the system behaves in ways no one intended.",
+   "This piece argues we should treat economic alignment as a first-class engineering concern — specified, tested, and monitored like any other subsystem.",
+   "I walk through three failure patterns I keep seeing, and a small checklist for catching them before launch."]},
+  {d:"2026.04",t:"Notes on zero-knowledge proof aggregation",
+   body:["Aggregation is where zero-knowledge systems get practical — and where the cost model gets confusing fast.",
+   "Here I separate the three techniques people lump together, and show, with rough numbers, where prover time and verifier cost really land."]},
+  {d:"2026.02",t:"Why frontend craft matters for research tools",
+   body:["A research tool nobody can use is a result nobody can reproduce. Interface quality is part of the scientific contribution, not decoration.",
+   "I make the case for funding and reviewing tooling the way we review papers."]},
+  {d:"2025.11",t:"A practical guide to reproducible ML pipelines",
+   body:["Reproducibility is mostly a discipline problem dressed up as a tooling problem.",
+   "This is the setup I use to get from a messy notebook to one deterministic command."]}
+];
+const PUBS=[
+  {t:"Scalable consensus under adversarial latency",m:"M. Politi, A. Rossi, K. Sato",v:"NeurIPS 2025"},
+  {t:"Privacy-preserving aggregation for federated inference",m:"M. Politi, A. Rossi",v:"IEEE S&P 2024"},
+  {t:"Mechanism design for open protocols",m:"M. Politi",v:"arXiv:2403.01829, 2024"}
+];
+const PLACES=["Rome","Zurich","London","Berlin","San Francisco","New York","Lisbon","Tokyo","Singapore","Bangalore","Buenos Aires","Cape Town","Sydney"];
+
+function rowHTML(a,i){return `<a class="row" href="#/article/${i}"><span class="d">${a.d}</span><span class="t">${a.t}</span><span class="arr">→</span></a>`;}
+document.getElementById('home-recent').innerHTML=ARTICLES.slice(0,3).map(rowHTML).join('');
+document.getElementById('writing-list').innerHTML=ARTICLES.map(rowHTML).join('');
+document.getElementById('work-list').innerHTML=PUBS.map(p=>`<div class="pub"><div class="t">${p.t}</div><div class="m">${p.m} — <span class="v">${p.v}</span></div></div>`).join('');
+document.getElementById('map-chips').innerHTML=PLACES.map(c=>`<span class="chip">${c}</span>`).join('');
+
+function renderArticle(i){const a=ARTICLES[i];if(!a)return;
+  document.getElementById('article-body').innerHTML=
+    `<span class="back" onclick="location.hash='#/writing'">← writing</span>
+     <h2>${a.t}</h2><div class="meta">${a.d}</div>${a.body.map(p=>`<p>${p}</p>`).join('')}`;}
+
+const VIEWS={home:'v-home',writing:'v-writing',article:'v-article',work:'v-work',map:'v-map',about:'v-about'};
+function show(name){Object.values(VIEWS).forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.getElementById(VIEWS[name]).classList.add('on');
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.r===name));
+  window.scrollTo(0,0);}
+function route(){const parts=location.hash.replace(/^#\/?/,'').split('/');
+  let name=parts[0]||'home';if(!VIEWS[name])name='home';
+  if(name==='article'){renderArticle(parts[1]);}show(name);}
+window.addEventListener('hashchange',route);route();
+</script>
+</body>
+</html>

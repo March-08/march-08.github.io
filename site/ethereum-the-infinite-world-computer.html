@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Ethereum: The Infinite World Computer — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Ethereum: The Infinite World Computer</h1>
+    
+    <p class="postdate">October 19, 2025 · Ethereum, blockchain</p>
+<nav class="toc"><span class="toc-title">Contents</span><ul><li class="toc-h2"><a href="#sec-1">Introduction</a></li><li class="toc-h2"><a href="#sec-2">Get Started with Ethereum</a></li><li class="toc-h2"><a href="#sec-3">Using a wallet</a></li><li class="toc-h2"><a href="#sec-4">Wallets and Contracts</a></li><li class="toc-h2"><a href="#sec-5">Simple Smart Contract</a></li><li class="toc-h2"><a href="#sec-6">Ethereum Clients</a></li><li class="toc-h2"><a href="#sec-7">Cryptography</a></li><li class="toc-h2"><a href="#sec-8">Elliptic Curve</a></li><li class="toc-h2"><a href="#sec-9">Hash Functions</a></li><li class="toc-h2"><a href="#sec-10">Wallets</a></li><li class="toc-h2"><a href="#sec-11">Transactions</a></li><li class="toc-h2"><a href="#sec-12">Digital Singnatures</a></li><li class="toc-h2"><a href="#sec-13">EIP-155: Simple replay attack protection</a></li><li class="toc-h2"><a href="#sec-14">Transaction propagation</a></li><li class="toc-h2"><a href="#sec-15">Smart Contracts and Solidity</a></li><li class="toc-h2"><a href="#sec-16">Functions</a></li><li class="toc-h2"><a href="#sec-17">Constructor</a></li><li class="toc-h2"><a href="#sec-18">Inheritance, Modifiers and Events</a></li><li class="toc-h2"><a href="#sec-19">Tokens</a></li><li class="toc-h2"><a href="#sec-20">Fungibility</a></li><li class="toc-h2"><a href="#sec-21">Utility or Equity</a></li><li class="toc-h2"><a href="#sec-22">ERC20 Token Standard</a></li><li class="toc-h2"><a href="#sec-23">ERC721 Non-fungible Token</a></li><li class="toc-h2"><a href="#sec-24">Oracles</a></li></ul></nav>
+<h2 id="sec-1">Introduction</h2>
+<blockquote><p>Ethereum is a deterministic unbounded state machine, consisting of a globally accessible singleton state and a virtual machine that applies changes to the state.</p></blockquote>
+<p>Ethereum purpose is not to be a currency, but ether are intended to be a <em>utility currency </em>to pay for the use of the world computer.</p>
+<p>Many similarities with bitcoin’s blockchain, but the big innovation here is that Ethereum’s blockchain can be programmed, so can support any kind of application.</p>
+<ul>
+  <li>Ethereum’s nodes, instead of only tracking the state of the currency ownership, they track general-purpose data that can expressed in the format of <em>key-value tuple.</em></li>
+  <li>Ethereum has a memory that store both code and data.</li>
+  <li>Ethereum can load code into it’s state machine and run the code, storing the results (state changes) into the blockchain → state changes are governed by consensus rules.</li>
+  <li>Ethereum code (smart contracts) unlike Bitcoin, is Turing Complete, it can compute any algorithm computed by any Turing Machine.</li>
+</ul>
+<figure>
+  <div class="embed"><iframe src="https://en.wikipedia.org/wiki/Turing_completeness" loading="lazy"></iframe></div>
+  <figcaption> · <a href="https://en.wikipedia.org/wiki/Turing_completeness">open ↗</a></figcaption>
+</figure>
+<p>Turing complete systems can run <em>infinite loops </em>(see example on the right).</p>
+<p>Smart contracts could have these kind of loop, and break the world computer → how we can prevent this?</p>
+<p>Ethereum introduces the mechanism of <strong><em>gas</strong></em>. In a smart contract every code instruction has a predetermined gas cost.</p>
+<p>So once the gas is consumed, the code stops running. Gas is paid with ether.</p>
+<p>Any unused gas is refunded back to the sender of the tx.</p>
+<figure>
+  <img class="wide" src="images/ethereum-the-infinite-world-computer/img-01.png" alt="">
+</figure>
+<h2 id="sec-2">Get Started with Ethereum</h2>
+<h2 id="sec-3">Using a wallet</h2>
+<p>Ethereum’s <em>utility currency</em> is called ether (ETH). It can be divided into smaller units, the smallest possible unit is called <strong><em>wei.</strong></em></p>
+<p class="mathblock">1 ETH = 10¹⁸wei</p>
+<p>In order to interact with the Ethereum ecosystem you need a <strong>wallet.</strong></p>
+<p>A wallet is a software that helps you manage your account by holding your keys and broadcasting your transactions.</p>
+<p>Some of my favorite wallets are:</p>
+<ul>
+  <li><a href="https://metamask.io/en-GB">Metamask</a> 🐺</li>
+  <li><a href="https://rabby.io/">Rabbit</a> 🐇</li>
+</ul>
+<p>You can install both as your browser extension.</p>
+<p>When you’ll create an account using for example MetaMask, it will ask you to generate a <strong><em>mnemonic backup </strong></em>consisting of 12 english words that you can use to recover access to your founds or to switch to another wallet.</p>
+<p>In MetaMask you will have access to many different networks, among which some test network. Testnets are useful for learning of developing purposes, because every currency spent there has no real value.</p>
+<p>So switch to the <strong>Sepolia </strong>test network in your MetaMask wallet (in a dropdown menu).</p>
+<p>To load your wallet with some ETH, you can go on a <a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia">faucet website</a>, insert your wallet address and request some funds.</p>
+<figure>
+  <img class="wide" src="images/ethereum-the-infinite-world-computer/img-02.png" alt="">
+</figure>
+<p>The Faucet website will elaborate a transaction to send you funds. All transaction are visible on a block explorer. The most famous one is <a href="https://etherscan.io/">Etherscan</a>, while for Seoplia you can use <a href="https://sepolia.etherscan.io/address/0x3e8017C24352CBd3130e728Fe2FE7332BCF9ED58">this one</a>.</p>
+<p>Every transactions requires the payment of a fee, called <strong>gas</strong>, used to reward miners to validate the transaction.</p>
+<p>The gas price is not stable changes every time depending on the network congestion.</p>
+<p>E.g:</p>
+<ul>
+  <li>Gas price 3 gwei ( <code>10⁹</code> wei)</li>
+  <li>A simple transaction requires 21000 gas units</li>
+  <li>Total fee = 3*21000 = 63000 gwei</li>
+</ul>
+<p>Ether is not merely a currency, it is used to pay for running <strong><em>smart contracts, </strong></em>which are programs that run on an emulated computer called <strong><em>Ethereum Virtual Machine (EVM)</strong></em>.</p>
+<p>Each node of the Ethereum network, has a local copy of the EVM to validate contracts execution, while the Ethereum blockchain records the changing state of this world computer as it processes smart contracts.</p>
+<h2 id="sec-4">Wallets and Contracts</h2>
+<p>Wallet such as MetaMask that hold private keys, are called <strong><em>Externally Owned Account (EOA)</strong></em>.</p>
+<p>Another type of account exists called <strong><em>contract account. </strong></em>This account has a smart contract code which has some logic.</p>
+<p>Contracts can send and receive funds like EOAs. But when a transaction (tx) destination is a contract address, it causes the contract to run in the EVM, using the tx and the tx data as input. Tx contain indeed data specifying which function of the contract to <em>call </em>(run). <br></p>
+<p>Since contracts don’t have private keys, they cannot <em>initiate</em> a tx. Only an EOA can initiate a tx.</p>
+<h2 id="sec-5">Simple Smart Contract</h2>
+<p>Ethereum has <a href="https://ethereum.org/developers/docs/smart-contracts/languages/">different high level languages</a> to write contracts, the most common one is Solidity.</p>
+<p>A contract code is then converted into EVM bytecode and executed.</p>
+<p>Let’s write a faucet contract. It will have a function to withdraw some money (faucet sends money to who requests), and a function to receive money (users send money to contract).</p>
+<p>The contract is commented to be understood.</p>
+<pre><code class="language-solidity">// SPDX-License-Identifier: CC-BY-SA-4.0
+
+// Version of Solidity compiler this program was written for
+pragma solidity 0.8.30;
+
+// this line specifyis that we are writing a contract. Like class in OOP languages
+contract Faucet {
+
+    // A particular (defualt) function used to accept payments by anyone
+    // called fallback or default function
+    // is called it users triggers this contract without specifying any particular function
+    receive() external payable {}
+
+    // function users can use to withdraw some money
+    function withdraw(uint withdraw_amount) public {
+        
+        // Make a check to lLimit withdrawal amount
+        require(withdraw_amount &lt;= 100000000000000000);
+
+        // Send the amount to the address that requested it
+        payable(msg.sender).transfer(withdraw_amount);
+    }
+}</code></pre>
+<p>The <strong><em>msg</strong></em> object is one of the inputs that all conctacts can access. It represents the transaction that triggered the execution of this contract.</p>
+<p>We cast the sender of the transaction as payable so that we can transfer money to him/her →  <code>payable(msg.sender).transfer(withdraw_amount)</code></p>
+<p>There are some IDEs that come with a Solidity compiler, the most popular one being <a href="https://remix.ethereum.org/"><strong><em>Remix</strong></em></a>.</p>
+<p>In Remix you can navigate into the contracts folder and create a <em>Faucet.sol</em> Solidity file, and paste the contract.</p>
+<p>Then on the compiler icon you can compile the code. In the <em>ENVIRONMENT</em> dropdown menu, you can choose “W<em>alletConnection”, </em> so it will automatically select the chain selected in your wallet → Sepolia.</p>
+<p>In the <em>Account</em> box, you’ll see your wallet address.</p>
+<p>After the contracts it’s compiled you can <em>deploy <strong></em> </strong>by clicking on the button and by signing a tx.</p>
+<figure>
+  <img class="wide" src="images/ethereum-the-infinite-world-computer/img-03.png" alt="">
+</figure>
+<figure>
+  <img class="portrait" src="images/ethereum-the-infinite-world-computer/img-04.png" alt="">
+</figure>
+<p>In Remix it will appear a section where you can visualise your contract address, and you can actually use it.</p>
+<figure>
+  <img class="med" src="images/ethereum-the-infinite-world-computer/img-05.png" alt="">
+</figure>
+<p>You can check your contract address on Etherscan, and see that has zero transactions, and zero balance, since nobody sent any money to this address yet.</p>
+<figure>
+  <img class="wide" src="images/ethereum-the-infinite-world-computer/img-06.png" alt="">
+</figure>
+<p>You can open MetaMask, and send money to the contract address as for any “normal” address.</p>
+<figure>
+  <img class="wide" src="images/ethereum-the-infinite-world-computer/img-07.png" alt="">
+</figure>
+<p>After few seconds you’ll see in Etherscan some positive balance and a transaction.</p>
+<figure>
+  <img class="wide" src="images/ethereum-the-infinite-world-computer/img-08.png" alt="">
+</figure>
+<p>It is now time to test the withdraw functionality we built directly from Remix. Let’s withdraw some amount from our faucet.    <br></p>
+<figure>
+  <img class="wide" src="images/ethereum-the-infinite-world-computer/img-09.png" alt="">
+</figure>
+<p>Now there are less money and another tx appeared in Etherscan.</p>
+<p>Since the ethers have been sent from the contracts code, the new ts will appear under the “<em>intenral transaction” </em>tab.</p>
+<p>You can see that the internal tx has a partent tx which is the tx that started from my wallet. Since this tx initiates the run of the smart contract that sends the money.</p>
+<figure>
+  <img class="wide" src="images/ethereum-the-infinite-world-computer/img-10.png" alt="">
+</figure>
+<h2 id="sec-6">Ethereum Clients</h2>
+<p>Ethreum does not have a reference implementation like bitcoin with the <a href="https://bitcoincore.org/">Bitcoin Core</a>, but it has a <strong>reference specification </strong>that anybody can implement.</p>
+<p>Specifications are defined in the <strong><em>Yellow Paper.</strong></em></p>
+<a class="linkcard" href="https://ethereum.github.io/yellowpaper/paper.pdf"><span class="lc-icon lc-icon-blank"></span><span class="lc-body"><span class="lc-title">📄 View PDF</span><span class="lc-domain">ethereum.github.io</span></span></a>
+<p>This is why there are many implementatins of the Ethereum protocol in several programming langauges.</p>
+<p>One of the most common ones is [Geth](/0798ec0a4c5743288d90f50d69e99385?pvs=25) from the Ethereum Foundation, which is based on the  Go-lang. So anybody with enough resources can install a full-node locally and be part of the network.</p>
+<p>In order to develop dApps, you don’t need a full node though you can use:</p>
+<ul>
+  <li>A testnet node (smaller blockchain)</li>
+  <li>Local private chain like <a href="https://archive.trufflesuite.com/ganache/">Ganache</a></li>
+  <li>Run a remote client, that does not store the entire blockchain, but connects to a full-nodes and provides some functionalities</li>
+  <li>Usually remote client offers API (like web3.js API) in addition to the transaction functionality of normal wallets</li>
+  <li>A remote client is also a mobile or browser wallet that only allows you to broadcast txs.</li>
+</ul>
+<p>Geth (Go-Ethereum) implementation is here: <a href="https://github.com/ethereum/go-ethereum">https://github.com/ethereum/go-ethereum</a></p>
+<p>If you install the full-node, you can use your node functionlities via JSON-RPC APIs.</p>
+<h2 id="sec-7">Cryptography</h2>
+<p>One of Ethereum’s foundational technologies is <em>cryptography</em>. Is is important to note that in the communication of the Ethereum network, all data is uncrypted, this allows nodes to run verifications of transactions. Cryptography is instead use not to keep secrets but for other properties.</p>
+<p>EOAs ownership of ether, is established via: <em> private keys, Ethereum address </em>and digital signatures.</p>
+<p>A private key uniquely determines an Ethereum account.</p>
+<p>In public key cryptography, key always come in pair (private and public) and are based on mathematical function that have a special property: are easy to calculate in one direction but hard to calculate the inverse.</p>
+<p>🔑 🟢 —&gt; Public Key : it’s like the bank number, you can share it → used to receive funds</p>
+<p>🔑 🟠 —&gt; Private Key: it’s like the PIN (password), to keep it private → used to sign transactions and spend funds</p>
+<p>For example if we have to prime numbers, is easy to calculate their multiplication. But from a big number, is very difficult to say what prime numbers generated it → <strong><em>prime factorization problem</strong></em></p>
+<p>If I have the result 8.018.009 and a factor 2.003, it’s easy to finde the missin factor: 4.003</p>
+<p>Functions like these, where knowing part of the secret makes the problem easy, are called <strong><em>trapdoor functions.</strong></em></p>
+<p>The private key is needed to produce the <strong><em>digital signature</strong></em>, requested to sign each transaction in order to spend funds.</p>
+<p>Elliptic curve math, ensures that the digital signature is valid for a given transaction and a public key, without knowing the private key. So anyone can validate a signature without knowing the secret.</p>
+<h2 id="sec-8">Elliptic Curve</h2>
+<p>A private key is simply a random number with 256 bit. Imagine fo tossing a coin 256 times and get the result as your key.<br>There are <code>2²⁵⁶</code> possible outcomes ≈ <code>10⁸⁰</code> → more or less one different key for each atom in the universe. So it is practically impossible that two users ends up with the same key.</p>
+<p>The public key is generated from the private one using the elliptic curve multiplication: <code>K = k * G</code></p>
+<ul>
+  <li><code>k</code> is the pvt key</li>
+  <li><code>G</code> constant point called <strong><em>generator point</strong></em></li>
+  <li><code>K</code> is the pbl key</li>
+</ul>
+<p>Given K, if you want to find k, you can only brute force, so its computationally hard, if these values are high, is basically impossible.</p>
+<figure>
+  <img class="wide" src="images/ethereum-the-infinite-world-computer/img-11.png" alt="">
+</figure>
+<p>Ethereum uses a specific elliptic curve called <strong><em>secp256k1, </strong> </em>which is defined by the following function:</p>
+<p class="mathblock">y² mod(p)= (x³ +7) mod(p)</p>
+<p>p is a prime number, and indicates that this curve is over a finite field. <label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">It’s like the clock, in that case p is 12, so instead of saying 23 we say 11pm</span></p>
+<p>In our case p is <code>2²⁵⁶-2³²-2⁹-2⁸-2⁷-2⁶-2⁴-1</code> which is a very large number.</p>
+<p>So a point on this curve is defined by 2 coordinates such as:</p>
+<ul>
+  <li><code>x-coordinate: 26557396834603496405429715671000649890342828193837296682021408587325818683135</code></li>
+  <li><code>y-coordinate: 111966831483317698639766129155297399177101885252094551915029716042625069463573</code></li>
+</ul>
+<p><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote">so these two numbers are a solution of the equation</span></p>
+<p>Some basic properties of the elliptic curve:</p>
+<ul>
+  <li>The addition on P1 and P2 gives P3 on the elliptic curve as the image above.</li>
+  <li>the + is associative</li>
+  <li>if P1 = P2, we draw the tangent and intersect the point P3 in this way</li>
+  <li>There is a special point called “point at infinity” so that:</li>
+  <li>if P1 is point at infinity → P1 + P2 = P2</li>
+  <li>for a point P on the curve, and a number k, k*P = P + P + P …. (k times). k sometimes is called the “exponent”</li>
+</ul>
+<p>How to generate a public key?</p>
+<p>Given a random private key, which is a random number, curve, we multiply it  for a given fixed G, the generator point and a point on the curve, to produce another point on the curve K , the pbl key.</p>
+<p>Since G is always the same, whoever posses k can generate K.</p>
+<p>k*G is like summing G to itself k times.</p>
+<figure>
+  <img class="med" src="images/ethereum-the-infinite-world-computer/img-12.png" alt="">
+</figure>
+<p>An Ethereum uncompressed public key has the format :<code>04 + x-coordinate + y-coordinate</code> .</p>
+<h2 id="sec-9">Hash Functions</h2>
+<p>Cryptographic hash functions are heavily used in Ethereum.</p>
+<p>An hash function maps an input of arbitrary size into a fixed length output (the output looks random).</p>
+<ul>
+  <li>The function are <strong><em>one way, </strong></em>it is difficult to recreate the input given the output.</li>
+  <li>By slightly changing the input the output changes completely</li>
+  <li>Its a <strong><em>many to one</strong></em> function → finding 2 input that generate the same output is called <strong><em>hash collision</strong></em></li>
+  <li>In a good hash function, collision are rare.</li>
+</ul>
+<p>Ethereum uses the <a href="https://emn178.github.io/online-tools/keccak_256.html">Keccak-256</a> hash function.</p>
+<figure>
+  <div class="embed"><iframe src="https://emn178.github.io/online-tools/keccak_256.html" loading="lazy"></iframe></div>
+  <figcaption> · <a href="https://emn178.github.io/online-tools/keccak_256.html">open ↗</a></figcaption>
+</figure>
+<p>The term Keccak-256 is frequently and incorrectly referred to as SHA-3 in Ethereum code, documentation, and other resources.</p>
+<p><a href="https://github.com/ethereum/EIPs/issues/59">Ethereum Proposal #59</a> reflects a community effort to address and correct this terminology.</p>
+<p>Ethereum addresses are derived from public keys that are encrypted with keccak-256, and where the last 20 bytes are kept.</p>
+<p>Often addresses start with 0x to indicate that are hexadecimal encoded.</p>
+<h2 id="sec-10">Wallets</h2>
+<p>A wallet is a software that serves as an interface to Ethereum. A wallet can manage your keys, so give you access to your funds stored on the blockchain, and allow you to create and sign transactions.</p>
+<p>When designing a wallet you should find a balance between convenience and privacy:</p>
+<ul>
+  <li>having a single key and a single address for everything is very convenient, but it’s easy to track your movements</li>
+  <li>having a different set of keys for each tx can preserve your privacy a lot, but its not convenient</li>
+</ul>
+<p>There are two types of wallet:</p>
+<ul>
+  <li><strong><em>Nondeterminist wallets:</strong> </em>where each key is independently generated from a different random number</li>
+  <li><strong><em>Determinist wallets: </strong></em>a master key (or seed) is used to generate all of the other keys,</li>
+  <li>to make them more secure, the seed is encoded in <strong><em>mnemonic words</strong></em></li>
+  <li>The keys are derived in a tree structure using the <em>Hierarchical Deterministic Wallets </em>method. This is useful to have part of the trees that are used for different scopes. For example some keys are assigned only to certain departments in a company.</li>
+</ul>
+<figure>
+  <img class="wide" src="images/ethereum-the-infinite-world-computer/img-13.png" alt="">
+</figure>
+<h2 id="sec-11">Transactions</h2>
+<blockquote><p>Transactions are signed messages originated by an externally owned account, transmitted by the Ethereum network, and recorded on the Ethereum blockchain.</p></blockquote>
+<p>Transactions are the only things that can change the state in the EVM.</p>
+<p>A transaction is a serialised message containing:</p>
+<ul>
+  <li>Nonce</li>
+  <li>Gas Price</li>
+  <li>Gas Limit</li>
+  <li>Recipient (to)</li>
+  <li>Data</li>
+  <li>v,r,s (digital signature)</li>
+</ul>
+<p>Note that there is no “from” field, since the originator EOA can be recovered from the digital signature.,</p>
+<p>Why each transaction needs a nonce and what is it? From the yellow paper:</p>
+<div class="deepdive">
+  <span class="callout-label">Deep dive</span>
+  <p>nonce: A scalar value equal to the number of transactions sent from this address or, in the case of accounts with associated code, the number of contract-creations made by this accout.</p>
+</div>
+<p>Some scenarios example when a nonce is needed:</p>
+<p>1. You send 2 transactions. You just realised after sending the transactions, that you don’t have enough ether for both, so you would like the protocol to reject the second one because obviously you prioritise the first one. But the network doesn’t know which one is the first or second one because the transactions come in a “random” order to the nodes. Here a nonce solves the situation.</p>
+<p>2. Imagine you send a transaction of 10 eth to buy your knew playstation-5. What if some node replays the transaction by resending it multiple times to the network? He could do this and you will spend 10 eth over and over again. But if in the transaction there is a nonce we know that a particular transaction has already been included in the chain, and new transactions will need new nonces which will affect the transaction hash.</p>
+<p>The Ethereum network processes transactions sequentially, meaning that if you send a tx with nonce 0 and then a tx with nonce 2, the second transaction will not be included in any block but it will wait in a <strong><em>mempool</strong></em> until a tx with nonce 1 is received.</p>
+<p>The gas price is the price that the transaction originator is willing to pay for a gas unit. Different kind of transaction require a different amount of gas unit (e. g a simple EOA to EOA tx requires 21k units). Gas price can change based on the state of the network, so it can be only estimated averaging the gar price of the latest blocks.</p>
+<p>The gas limit instead,  is the maximum number of gas units a transaction originator is willing to buy in order to complete the transaction. When you send a tx to run a smart contract, maybe this smart contract has an internal loop which requires a lot of gas, and you set a limit to not exceed.</p>
+<p>A tx Recipient (to) can be an EOA or a contract.</p>
+<p>The main <strong><em>payload </strong></em> of a transaction is contained in two fields: value and data.</p>
+<p>You can have both of them or only one. For instance a tx with only the value is a simple payment.</p>
+<p>If the destination address is a contract, the EVM will execute the contract code by running the contact’s function specified in the transaction, with the arguments also specified in the transaction.</p>
+<p>Indeed the data field contains a serialised field representing the:</p>
+<ul>
+  <li>function selector</li>
+  <li>function arguments</li>
+</ul>
+<p>There is a special transaction which is used for <em>creating a new contract. </em>In this case the destination address is the <em>zero address</em> (0x0) → we send the ABI code of the contract we wrote (you can compile with remix). See example below.</p>
+<pre><code class="language-solidity">faucet_code = "0x6080604052348015600e575f5ffd5b506101328061001c5f395ff3fe608060405260043610601e575f3560e01c80632e1a7d4d146028576024565b36602457005b5f5ffd5b3480156032575f5ffd5b50604960048036038101906045919060d6565b604b565b005b67016345785d8a0000811115605e575f5ffd5b3373ffffffffffffffffffffffffffffffffffffffff166108fc8290811502906040515f60405180830381858888f1935050505015801560a0573d5f5f3e3d5ffd5b5050565b5f5ffd5b5f819050919050565b60b88160a8565b811460c1575f5ffd5b50565b5f8135905060d08160b1565b92915050565b5f6020828403121560e85760e760a4565b5b5f60f38482850160c4565b9150509291505056fea2646970667358221220a82768799e4269ac8e8c111092081a43e0d3442080df0f7d0ea0b2b57eb9681064736f6c634300081e0033"
+web3.eth.sendTransaction({
+    from: '0x7524fBAf044fEd4BB2436152408b897D79c5E71C',
+    to: '0',
+    data: faucet_code,
+    gas: 2000000,
+    gasPrice: 1000000000,
+});</code></pre>
+<h2 id="sec-12">Digital Singnatures</h2>
+<blockquote><p>A digital signature is a mathematical scheme for presenting the authenticity of digital messages or documents. A valid digital signature gives a recipient a reason to believe that the message was created by a known sender (authentication), that the sender cannot deny having sent the message (non-repudiation), and that the message was not altered in transit (integrity). [Wikipedia]</p></blockquote>
+<p>The digital signature algorithm used by Ethereum is called “Elliptic Curve Digital Signature Algorithm” or <strong><em>ECDSA.</strong></em></p>
+<p>The signature is a function that takes as argument the hash of the message and the signer private key.</p>
+<p><strong> </strong></p>
+<p class="mathblock">Sig = F_sig(F_keccak256(m),k)</p>
+<p>The signature is composed of two values : Sig = <code>(r,s)</code>.</p>
+<p>To verify the signature instead we need:</p>
+<ul>
+  <li>the signature (r,s)</li>
+  <li>the message (m)</li>
+  <li>the signer public Key (K)</li>
+</ul>
+<p>The verification returns true, if the signature is valid.</p>
+<p>For a demonstration of why this works check it <a href="https://rareskills.io/post/ecdsa-tutorial">this article</a>.</p>
+<h2 id="sec-13">EIP-155: <strong>Simple replay attack protection</strong></h2>
+<p>The <a href="https://eips.ethereum.org/EIPS/eip-155">EIP-155</a>, is a standard to include in a transaction the <strong><em>chain-id.</strong></em></p>
+<p>When we sign and broadcast a chain, nothing stops an attacker to copy the transaction and reuse it into another blockchain. That’s why also an identifier is needed, so we know in which chain the tx is valid, and thanks to the nonce if it has been already used.</p>
+<p>Some identifiers are shown in the table:</p>
+<div class="tablewrap"><table class="ntable"><tbody><tr><td>CHAIN_ID</td><td>Chain(s)</td></tr><tr><td>1</td><td>Ethereum mainnet</td></tr><tr><td>2</td><td>Morden (disused), Expanse mainnet</td></tr><tr><td>3</td><td>Ropsten</td></tr><tr><td>4</td><td>Rinkeby</td></tr><tr><td>5</td><td>Goerli</td></tr><tr><td>42</td><td>Kovan</td></tr><tr><td>1337</td><td>Geth private chains (default)</td></tr></tbody></table></div>
+<h2 id="sec-14">Transaction propagation</h2>
+<p>Ethereum is a peer-to-peer (P2P) network, where each nodes propagates information to its <em>neighbors, </em>until the information, in our case the transaction are spread over the entire network. Each Ethereum node is connected to at least 13 other nodes, making the graph sufficiently robust and connected</p>
+<p>Even if in p2p, all the nodes are equal, some of them can have the special role of being <strong><em>validators</strong></em>, so they have the capacity to include transactions into  linked blocks → blockchain.</p>
+<h2 id="sec-15">Smart Contracts and Solidity</h2>
+<p>Smart contracts are typically written in high level languages, the most known one being <strong><em>Solidity. </strong></em></p>
+<p>A contract written in solidity must be compiled to the low level <em>bytecode </em>to be run in the EVM.</p>
+<p>Contracts only run if they are called by a transaction (generated by an EOA or another contract) → there’s no such thing of a contract running in background.</p>
+<p>Transactions are <strong><em>atomic, </strong></em>if a transaction fails, the change in state are rolled back as if the transaction never run → the failed tx is still recorded.</p>
+<p>A contract can be deleted only if the contract logic allows so. There is an opcode called SELFDESTRUCT, that can be used in Solidy, and allows the contract to be delete. If the functionality is not included the contract will be there an usable forever.</p>
+<p>The main “product” in the Solidy project is the compiler <strong>solc, </strong>which converts programs in EVM bytecodes.</p>
+<p>To install Solidity refer to the documentation →  <a href="https://docs.soliditylang.org/en/latest/installing-solidity.html">Installing the Solidity Compiler — Solidity 0.8.31-develop documentation</a></p>
+<p>The project also manages the <em>Application Binary Interface</em> or <strong><em>ABI.  </strong></em>The ABI defines how data structures and functions are accessed in <em>machine code</em>.<strong><em> </strong></em></p>
+<blockquote><p>In Ethereum, the ABI is used to encode contract calls for the EVM and to read data out of transactions. The purpose of an ABI is to define the functions on the contract that can be invoked and describe how each function will accept arguments and return its results.</p></blockquote>
+<p>Using the ABI a DApp such as wallet, will know how to construct a transaction to call a function of a contract we deployed on Ethereum.</p>
+<p>A Solidity contract starts with the pragma, which is useful for the compiler to understand which version of the Solidity language was used to write the contract.   <br><strong><code>pragma solidity</code></strong><code> ^</code><strong><code>0.8.26</code></strong><code>;</code></p>
+<p>The main resource to learn more about Solidity is the official documentation → <a href="https://docs.soliditylang.org/en/v0.8.30/introduction-to-smart-contracts.html#a-simple-smart-contract">Introduction to Smart Contracts — Solidity 0.8.30 documentation</a></p>
+<p>A contract by default has access to a some global objects including: <em>block</em>, <em>msg</em> and <em>tx.</em></p>
+<p>If we want to know the address of the tx that is invoking the contract we can use <code>msg.sender</code></p>
+<p>The principal data structure of a contract is <code>contract</code> which acts like a class in a OOP language.</p>
+<p>But we can also use the <code>interface</code> , to only declare the functions we intend to implement in a contract that inherits the interface, and the <code>library</code> which is a contract meant to be used by other contracts.</p>
+<h2 id="sec-16">Functions</h2>
+<p>Functions defined in a contract can be called via transactions. A function is defined by:</p>
+<ul>
+  <li>A <code>function name</code>. The only function with no name is the fallback function</li>
+  <li><code>parameters</code></li>
+  <li>arguments names and types to be passed to the function when called</li>
+  <li><code>visibility</code> (who can run the functions?)</li>
+  <li><code>public</code>: can be called by other contracts or EOA tx, or from within contract</li>
+  <li><code>external</code>: like public, but cannot be called within the contract</li>
+  <li><code>internal</code>: Only accessible within the contract and by derived contracts</li>
+  <li><code>private</code>: like internal, but cannot be called by derived contracts</li>
+  <li><code>behaviour</code></li>
+  <li><code>view</code>: a function that promises to not modify any state</li>
+  <li><code>pure</code>: neither reads nor writes any variables in storage</li>
+  <li><code>payable</code>: can accept incoming payments.</li>
+</ul>
+<pre><code class="language-solidity">function FunctionName([parameters]) {public|private|internal|external} [pure|constant|view|payable] [modifiers] [returns (return types)]</code></pre>
+<h2 id="sec-17">Constructor</h2>
+<p>This is a special function called only once when the contract is created. This function is defined by the keyword <code>constructor()</code> with no name.</p>
+<pre><code class="language-solidity">pragma ^0.4.22
+
+contract MyContract{
+	constructor(){
+		// this is the constructor
+		}
+}</code></pre>
+<p>A contract can be also deleted with a special Solidity command: <code>selfdestruct(address recipient)</code> → we need to specify the address of who is going to receive the balance still present in the contract.</p>
+<p>We probably want only the contract owner to be able to delete the contract. We can then use the constructor to identify the owner address, and then add a check using <code>require</code> to the destroy functionality.</p>
+<p>Since the constructor is called when the contract is created, we are sure the msg.sender contains the address of the contract creator.</p>
+<pre><code class="language-solidity">pragma ^0.4.22
+
+contract owned {
+	address owner;
+	
+	constructor() {
+		owner = msg.sender;
+		}
+	
+	function destroy() public {
+		require(msg.sender == owner);
+		selfdestruct(owner);
+	}
+}</code></pre>
+<h2 id="sec-18">Inheritance, Modifiers and Events</h2>
+<p>Contracts can <strong><em>inherit</strong></em> from other contract using the <code>is</code> keyword.</p>
+<pre><code class="language-solidity">contract Child is Parent {
+	....
+}	</code></pre>
+<p>In this case the child contract will inherit all the functionality of the parent. This is useful to modularise our code.</p>
+<p>We can have basic generic functionality defined in a contract and then have children contracts more specific.</p>
+<p>Function modifiers allows us to use very handy design patterns.</p>
+<p>A modifier enable us to change the behaviour of other functions, for example for access control.</p>
+<p>The following <strong><em>modifier</strong></em> always checks if the caller is the contract owner. The <code>_;</code> is a placeholder for the real function code.</p>
+<pre><code class="language-solidity">modifier onlyOwner {
+	require(msg.sender == owner);
+	_;
+}</code></pre>
+<p>When a transaction completes, it produces a <em>transaction receipt, </em>which contains <em>log </em>entries that provide info about the actions occurred during the execution of the tx.</p>
+<p><strong>Events </strong>are Solodity objects that are used to construct these logs.</p>
+<p>Events are used by DApps to watch specific events and change the app interface.</p>
+<p>First we define an event and the we emit it.</p>
+<pre><code class="language-solidity">event Withdrawal(address indexed to, uint amount);
+
+...
+
+emit Withdrawal(msg.sender, msg.value);</code></pre>
+<p>Let’s see a complete example of our Faucet.sol with using the inheritance, modifiers and events.</p>
+<pre><code class="language-solidity">pragma ^0.4.22
+
+contract owned {
+	address owner;
+	
+	constructor() {
+		owner = msg.sender;
+		}
+		
+	modifier onlyOwner {
+		require(msg.sender == owner);
+		_;
+	}
+}
+
+contract mortal is owned {
+	function destroy() public onlyOwner {
+		selfdestruct(owner);
+	}
+}
+
+contract Faucet is mortal {
+	event Withdrawal(address indexed to, uint amount);
+	event Deposit(address indexed from, uint amount);
+	
+	
+	function withdraw(uint withdraw_amount) public {
+		require(withdraw_amount &lt;= 0.1 ether);
+	  require(this.balance &gt;= withdraw_amount, "Insufficient balance in faucet for wthdrawal request");
+	  
+	  msg.sender.transfer(withdraw_amount);
+	 }
+	 
+	 function() public payable {
+		 emit Deposit(msg.sender, msg.value); 		
+}</code></pre>
+<h2 id="sec-19">Tokens</h2>
+<h2 id="sec-20">Fungibility</h2>
+<p>Tokens are blockchain-based abstraction that can be owned and can represent a currency or even a digital/physical asset.</p>
+<p>Many blockchain serve multiple tokens that can be treated among them and even with other currencies creating a real market.</p>
+<p>Tokens can be programmed to serve different functions also simultaneously_ voting rights, access/ownership to resource, currency.</p>
+<p>Tokens are called <strong><em>fungible</strong></em> when one unit of a token can be treated with one unit of another dollar. For example dollars are fungible because if two people swap 1$, they’re are not richer or poorer.</p>
+<p>If on my dollar bill, I have a text saying “this dollar bill can be used to redeem a Ferrari”, at this point the dollar has a value that goes beyond the 1$ and cannot be exchanged with any other dollar bill. Tokens that work like this dollar bill are called <strong><em>not-fungible</strong></em>.</p>
+<p>Some tokens represent digital items that are intrinsic in the blockchain. This means that tokens that represent intrinsic assets do not carry counterparty risks. If you hold the keys you hold the item, e.g a <a href="https://www.cryptokitties.co/">cryptokitty</a>.</p>
+<p>When a token represents an item that is not on the blockchain, for example a physical item, you suffer of counterparty risk. You might own a token demonstrate your ownership of a Ferrari, but the ferrari is physically parked in a garage, so you need to trust that the garage custodian will actually give you the car because you have the token.</p>
+<h2 id="sec-21">Utility or Equity</h2>
+<p>The majority of web3 projects uses tokens in two ways: either <em>utility tokens </em>or <em>equity tokens.</em></p>
+<p>Utility tokens are needed for the project to be usable, they can garantee access to resources or services.</p>
+<p>Equity tokens only represent ownership of something, such as equity in a startup.</p>
+<p>Tokens are a great fundraising mechanism for startups, but the this practice is regulated in many jurisdiction. Startups then hope to get around by issuing utility tokens and still raise money, but this is risky.</p>
+<h2 id="sec-22">ERC20 Token Standard</h2>
+<p>ERC stands from Ethereum Request for Comments, GitHub issues where people discuss new tech and standards.</p>
+<p>This GitHub issue was the number #20 that’s why we today talk about ERC-20 → <a href="https://ethereum.org/developers/docs/standards/tokens/erc-20/">ERC-20 Token Standard | ethereum.org</a></p>
+<p>ERC-20 is a standard that defines the interface to implement <em>fungible tokens.</em></p>
+<p>The interface consists in several functions and event signatures (or prototypes) that developer should implement. These are:</p>
+<p>1. <em>totalSupplay: </em>returns total units of token that exist</p>
+<p>2. *balanceOf:** *returns balance of an address</p>
+<p>3. <em>transfer: </em>transfer x tokens to address</p>
+<p>4. <em>transferFrom: </em>transfer x tokens from a given account to another (to be used with approve)</p>
+<p>5. <em>approve: </em>authorizes an addrsess to execute several transfers up to a certain amount</p>
+<p>6. <em>allowance: </em>returns the remaining amount that the spender is approved to withdraw from the owner</p>
+<p>7. *Transfer** (event): *event triggered upon successful transfer</p>
+<p>8. *Approval** (event): *event triggered upon successful approve</p>
+<p>How does the ERC20 intefrace is defined in solidity?</p>
+<pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+interface IERC20 {
+    /**
+     * @dev Returns the number of decimals the token uses - e.g. 8, means to divide the token amount
+     * by 100000000 to get its user representation.
+     */
+    function decimals() external view returns (uint8);
+
+    /**
+     * @dev Returns the name of the token.
+     */
+    function name() external view returns (string memory);
+
+    /**
+     * @dev Returns the symbol of the token.
+     */
+    function symbol() external view returns (string memory);
+
+    /**
+     * @dev Returns the amount of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `to`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address to, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Moves `amount` tokens from `from` to `to` using the
+     * allowance mechanism. `amount` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) external returns (bool);
+
+    // Events
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}</code></pre>
+<p>The data structures contained in an ERC-20 implementation are only two, both defined using a <em>data mapping</em>:</p>
+<ul>
+  <li>One to track balances for each owner</li>
+  <li><code>mapping(address ⇒ uint256) balances;</code></li>
+  <li>One to map allowances (an owner of a token can delegate the authority to a spender)</li>
+  <li><code>mapping(address ⇒ mapping ( address ⇒ uint256)) public allowed;</code></li>
+</ul>
+<p>The <em>approve</em> + <em>transferFrom </em>workflow allows a token owner to delegate control of tokens to another address. This is useful for example for a company to sell tokens for an ICO (initial coin offering, similar to IPO).</p>
+<p>Example ICO:</p>
+<ul>
+  <li>Alice wants to allow the AliceICO contract to sell 50% of all the AliceCoin tokens to buyers like Bob and Charlie.</li>
+  <li>Alice launches the AliceCoin ERC20 contract, issuing all the AliceCoin to her own address.</li>
+  <li>Then Alice launches the AliceICO contract that can sell tokens for ether.</li>
+  <li>Alice instantiates the <em>approve &amp; transferFrom</em> workflow</li>
+  <li>Alice sends a tx to the AliceCoin contract, calling approve with the address of AliceICO contract and 50% of the totalSupply</li>
+  <li>This will trigger the Approval Event</li>
+  <li>Now Alice ICO contract can sell AliceCoin</li>
+  <li>When AliceICO contract receives ether from Bob, it needs to send some AliceCoin to Bob in return</li>
+  <li>Within the AliceICO contract, there is an exchange rate between AliceCoin and ether.</li>
+  <li>When AliceICO contract calls the AliceCoin tranferFrom function, it sets Alice’s address as the sender and Bob as the recipient.</li>
+  <li>AliceCoin contract transfers the balance from Alice to Bob and triggers a <em>Transfer</em> event</li>
+  <li>AliceICO can call the <em>transferFrom </em>an unlimited number of times, as long as it doesn’t exceed the approval limit Alice set.</li>
+  <li>The AliceICO contract can keep track of how many AliceTokens it can sell by calling the allowance function</li>
+</ul>
+<p>ERC-20 secure implementations: <a href="https://docs.openzeppelin.com/contracts/5.x/erc20">ERC-20</a></p>
+<h2 id="sec-23">ERC721 Non-fungible Token</h2>
+<a class="linkcard" href="https://ethereum.org/developers/docs/standards/tokens/erc-721/"><img class="lc-icon" src="images/favicons/ethereum.org.png" alt=""><span class="lc-body"><span class="lc-title">ERC-721 Non-Fungible Token Standard | ethereum.org</span><span class="lc-domain">ethereum.org</span></span></a>
+<p><br>Non-fungible tokens track ownership of a unique thing. The thing owned can be a digital item, such as game items, or physical items like ownership of a house.</p>
+<p>To understand the difference between the ERC20 and ERC721, you can take a look of the data structure used, which is:</p>
+<p><code>mapping ( uint256 ⇒ address ) private deedOwner;</code></p>
+<p>The ERC20 tracks balances that belong to owners, where the owner is the primary key. The ERC721 track each each deed ID (unique token ID), and who owns it, with the deed ID beign the primary key.</p>
+<p>The ERC721 Solidity interface looks like this 👇🏻</p>
+<pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+interface IERC721 {
+    /**
+     * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
+     */
+    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
+     */
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+
+    /**
+     * @dev Returns the number of tokens in `owner`'s account.
+     */
+    function balanceOf(address owner) external view returns (uint256 balance);
+
+    /**
+     * @dev Returns the owner of the `tokenId` token.
+     *
+     * Requirements:
+     * - `tokenId` must exist.
+     */
+    function ownerOf(uint256 tokenId) external view returns (address owner);
+
+    /**
+     * @dev Safely transfers `tokenId` token from `from` to `to`.
+     *
+     * Requirements:
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must exist and be owned by `from`.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}.
+     */
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external;
+
+    /**
+     * @dev Safely transfers `tokenId` token from `from` to `to` with additional data.
+     */
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes calldata data
+    ) external;
+
+    /**
+     * @dev Transfers `tokenId` from `from` to `to`.
+     *
+     * WARNING: Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
+     */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external;
+
+    /**
+     * @dev Gives permission to `to` to transfer `tokenId` token to another account.
+     */
+    function approve(address to, uint256 tokenId) external;
+
+    /**
+     * @dev Returns the account approved for `tokenId` token.
+     */
+    function getApproved(uint256 tokenId) external view returns (address operator);
+
+    /**
+     * @dev Approve or remove `operator` as an operator for the caller.
+     */
+    function setApprovalForAll(address operator, bool approved) external;
+
+    /**
+     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
+     */
+    function isApprovedForAll(address owner, address operator) external view returns (bool);
+}</code></pre>
+<h2 id="sec-24">Oracles</h2>
+<p>Oracles are essentially, systems that can provide external data sources to smart contracts. Oracles provide a trustless (or near-trustless) way of getting extrinsic data (in the real world), such as the results of football games, on chain. They bridge the gap between the off-chain world and the smart contracts.</p>
+<p>Some data that might be provided by an oracle could be: random numbers, exchange rate, capital markets, weather data, sporting event etc.</p>
+<p>The common design pattern of an oracle is the following:</p>
+<ul>
+  <li>collect data from an off-chain source</li>
+  <li>transfer data on-chain with a signed message</li>
+  <li>make the data available by putting it in a smart contract’s storage</li>
+</ul>
+<p>Once data is in a smart contract it can be retrieved by others.</p>
+<p>There are mainly 3 types of oracles:</p>
+<p>1. <strong><em>immediate-read: </strong></em>when the data is needed for an immediate decision: “is this person over 18 yo?”. The lookup is done when the info is needed and never again. This type of oracle store data once in its contract storage. A university might set up an oracle for the certificates of academic achievement of past students.</p>
+<p>2. <strong><em>publish-subscribe: </strong></em>oracle that provide broadcast services for data that is expected to change. When the oracle is updated with new information it flags signals to those who are considered “subscribed”. Interested parties should listen for updates. Examples are: price feeds, weather info, social statistic, traffic data etc.</p>
+<p>3. <strong><em>request-response: </strong></em>this is where the data space is too huge to be stored in a smart contract, and users only need a small part of it. Such systems have off-chain infrastructure. In this pattern usually an EOA transact with a decentralised application, resulting in an interaction with a function defined in the oracle smart contract. This function initiates the request to the oracle, with the associated arguments detailing the data requested. Once the tx has been validated, the oracle request can be observed as an EVM event emitted by the oracle contract, or as a state change; the arguments can be retreived and used to perform the actual query of the off-chain data source.  Finally, the resulting data is signed by the oracle owner, attesting to the validity of the data at a given time, and delivered in a transaction to the decentralised application that made the request.</p>
+<p>How we can trust off-chain methods? There is the possibility that data as been tampered with in transit.</p>
+<p>Two common approaches to validate data integrity are: <strong><em>authenticity proofs</strong></em> and <strong><em>trusted execution environments (TEE)</strong></em></p>
+<p>Authenticity proofs, are cryptographic guarantees that data has not been tampered with, By verifying the authenticity proof on-chain, smart contracts are able to verify the integrity of the data before operating upon it.</p>
+<p>TEE oracles instead (such as Town Crier), utilize hardware-based secure enclaves to ensure data integrity.</p>
+<figure>
+  <div class="videowrap" data-yt="MREwcSo0uz4">
+    <img src="images/ethereum-the-infinite-world-computer/video-14.jpg" alt="">
+    <span class="pbtn"></span>
+  </div>
+</figure>
+<p>Oracles can bes used also to perform computation, not only data storage.</p>
+<p>You can trust a centralised but auditable service like Oraclize, that provide a service for decentralised applications that requested a particular computation.</p>
+<p>Otherwise you can use a more decentralised alternative like <a href="https://truebit.io/">TrueBit</a>. They use a system of solvers and verifiers who are incentivized to perform computations and verification of those computations, respectively.</p>
+<p>In effect, TrueBit is an implementation of a computation market, allowing decentralised applications to pay for verifiable computation to be performed outside of the network, but relying on Ethereum to enforce the rules of the verification game. In theory, this enables trustless smart contract to securely perform any computation task.</p>
+<p>A broad range of application exist like True bit (e.g for machine learning).</p>
+<p>This Solidity smart contract, called ETHUSDPriceConsumer, uses Chainlink's decentralized price feed to securely retrieve the latest ETH/USD exchange rate directly on-chain without needing requests or callbacks. It provides simple view functions to access the current price (with 8 decimals) and the feed's decimals, making it easy for other contracts or users to query real-time pricing data efficiently.</p>
+<pre><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.7;
+
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+/**
+ * Simple contract to read the latest ETH/USD price from Chainlink.
+ * Example uses Ethereum Mainnet address (as of 2025).
+ * For testnets, use the appropriate feed address from:
+ * https://docs.chain.link/data-feeds/price-feeds/addresses
+ */
+contract ETHUSDPriceConsumer {
+    AggregatorV3Interface internal priceFeed;
+
+    /**
+     * Network: Ethereum Mainnet
+     * Aggregator: ETH/USD
+     * Address: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
+     */
+    constructor() {
+        priceFeed = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+    }
+
+    /**
+     * Returns the latest price as int256 (e.g., 250000000000 means $2500.00).
+     * Price has 8 decimals.
+     */
+    function getLatestPrice() public view returns (int256) {
+        (
+            , // roundId (ignored)
+            int256 price,
+            , // startedAt (ignored)
+            , // timeStamp (ignored)
+            // answeredInRound (ignored)
+        ) = priceFeed.latestRoundData();
+        return price; // Typically positive; add checks in production if needed
+    }
+
+    /**
+     * Optional: Helper to get decimals (always 8 for this feed).
+     */
+    function getDecimals() public view returns (uint8) {
+        return priceFeed.decimals();
+    }
+}</code></pre>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>A Simple CI/CD Setup for ML Projects — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>A Simple CI/CD Setup for ML Projects</h1>
+    <p class="subtitle">Apply best practices and learn to use GitHub Actions to build robust code.</p>
+    <p class="postdate">April 27, 2024 · MLOps, CI/CD</p>
+<figure>
+  <img class="wide" src="images/a-simple-ci-cd-setup-for-ml-projects/img-01.jpg" alt="">
+</figure>
+<h3>Introduction</h3>
+<p>Dealing with <strong>integrations, deployment, scalability</strong> and all those topics that make Machine Learning projects a real product is a job on its own. There is a reason why there exist different job positions ranging from data scientist to ML Engineer and MLOps. Still, even if you don’t need to be an expert on these topics, it is <strong>good to have some standard well-defined practices that can help you when you kick off a project</strong>. Certainly! In this article, I outline the best practices I’ve developed – a balance between code quality and the time invested in implementing them. I run my code on <a href="https://deepnote.com/">Deepnote</a>, which is a cloud-based notebook that’s great for collaborative <a href="https://towardsdatascience.com/tag/data-science/">Data Science</a> projects.</p>
+<h3>Start Simple – Readme</h3>
+<p>This may seem trivial but <strong>try to keep a Readme file more or less up to date</strong>. If it costs you little time, and you like it, also try to make a Readme that looks good. Include imagine headers icons or whatever. This file must <strong>be clear and understandable</strong>. Remember that in a real project, you will not only be working with other developers but also with salespeople, and project managers, and every now and then they might have to read the Readme to understand what you are working on.</p>
+<p>You can find <a href="https://github.com/othneildrew/Best-README-Template">here </a>a really nice readme template!</p>
+<blockquote><a class="linkcard" href="https://github.com/othneildrew/Best-README-Template"><img class="lc-icon" src="images/favicons/github.com.png" alt=""><span class="lc-body"><span class="lc-title">GitHub – othneildrew/Best-README-Template: An awesome README template to jumpstart your projects!</span><span class="lc-domain">github.com</span></span></a></blockquote>
+<h3>Use virtual environments, your laptop will be happy</h3>
+<p>You probably know this better than I do, in order to develop a cool project we need external libraries. Often a lot of them! These <strong>libraries may have dependencies or conflicts</strong>. That is why it is a <strong>good idea to create virtual environments</strong>. A virtual environment helps you <strong>to have projects isolated from each other</strong>, to have completely different development environments. Usually, to do this in Python you <strong>use pip or conda</strong>.</p>
+<blockquote><p>pip</p></blockquote>
+<p>I personally am a fan of pip. Here is how to create and activate a virtual environment.</p>
+<pre><code>#create virtual env
+python3 -m venv .venv</code></pre>
+<pre><code>#activate virtual env
+source .venv/bin/activate</code></pre>
+<p>Now you’re allowed to install all the libraries you wish!</p>
+<h3>Create a Requirements file, your colleagues will be happy</h3>
+<p>There is <strong>no point in writing code</strong>, especially in a field like <a href="https://towardsdatascience.com/tag/machine-learning/">Machine Learning</a>, if <strong>you do not allow reproducibility</strong> of the code and experiments. Surely the <strong>place to start is to create a requirements.txt</strong> file</p>
+<blockquote><a class="linkcard" href="https://pip.pypa.io/en/stable/reference/requirements-file-format/"><img class="lc-icon" src="images/favicons/pip.pypa.io.png" alt=""><span class="lc-body"><span class="lc-title">Requirements File Format – pip documentation v23.3.2</span><span class="lc-domain">pip.pypa.io</span></span></a></blockquote>
+<p>I <strong>can’t run code written by someone else if I don’t know what libraries that person has installed</strong> to run the code. For this reason, you should keep a text file named <strong><em>requirements.txt</strong></em> in which you <strong>enter the names of all the libraries</strong>. You can edit this file manually, that is, every time you install a library with pip, you also enter the name of the library in the requirements. Or you can use a <strong>useful pip command, to automatically enter all the libraries installed</strong> in your virtual environment directly into the requirements. Let’s see how to do this.</p>
+<p>If you run the following command</p>
+<pre><code>pip freeze</code></pre>
+<p>you will see a list of all installed libraries appear in the terminal. Now just use a terminal trick to redirect the output of this command to the requirements.txt file instead of the terminal display.</p>
+<pre><code>pip freeze &gt; requirements.txt</code></pre>
+<p>If you check your requirements now you will see that they have updated automatically!</p>
+<p>If you want to automatically install all requirements in a new virtual environment you can run the following:</p>
+<pre><code>pip intall -r requirements.txt</code></pre>
+<h3>Format your code with Black</h3>
+<p>Many of the libraries I use in this article do much more than what I describe. But as I anticipated my purpose is solely to have some sort of routine to follow when I develop.</p>
+<blockquote><a class="linkcard" href="https://pypi.org/project/black/"><img class="lc-icon" src="images/favicons/pypi.org.png" alt=""><span class="lc-body"><span class="lc-title">black</span><span class="lc-domain">pypi.org</span></span></a></blockquote>
+<p><strong>I use Black to format code clearly</strong> and neatly. Here is the command you can use to run black:</p>
+<pre><code>find src -name '*.py' -exec black {} +</code></pre>
+<p>In the command, we specified to edit all <a href="https://towardsdatascience.com/tag/python/">Python</a> files (*.py) within the src directory.</p>
+<h3>Analyse your code with PyLint</h3>
+<p>PyLint is another extremely useful library that I suggest you start using.</p>
+<blockquote><a class="linkcard" href="https://pypi.org/project/pylint/"><img class="lc-icon" src="images/favicons/pypi.org.png" alt=""><span class="lc-body"><span class="lc-title">pylint</span><span class="lc-domain">pypi.org</span></span></a></blockquote>
+<p><strong>PyLint automatically checks for errors in your code, forces the use of standards, and also checks for code smells</strong>, such as imports that have never been used. PyLint also assigns a score from 1 to 10 to the quality of your code.</p>
+<pre><code>pylint --disable=R,C src/*.py</code></pre>
+<p>You will notice that I have modified the command, disabling two flags (R, and C). In this way, PyLint will not issue warnings or alerts for problems related to refactoring and conventions.</p>
+<p>The output should look like this:</p>
+<figure>
+  <img class="wide" src="images/a-simple-ci-cd-setup-for-ml-projects/img-02.png" alt="">
+</figure>
+<h3>Run Tests, make sure your code is working</h3>
+<p><strong>How do you know your code always works if you don’t use tests?</strong> Get in the <strong>habit of creating simple unit tests</strong>, which you can always extend when you write some function. A unit test is nothing more than another function that will pass a sequence of inputs to the function you want to test and see if the output is as expected.</p>
+<p>You can implement unit tests in a variety of ways; a widely used library in Python is <a href="https://docs.pytest.org/en/7.4.x/">PyTest</a>.</p>
+<blockquote><p>pytest: helps you write better programs</p><footer>— pytest documentation</footer></blockquote>
+<p>I usually create a <em>src</em> sister folder, called <em>test</em>, in which I collect all my unit tests.</p>
+<p>To launch all the automatically written tests we run the following</p>
+<pre><code>python -m pytest -vv --cov=test</code></pre>
+<h3>I am lazy, I’ll use a Makefile</h3>
+<p>At this point, we have seen many files and many commands launch it. I would say that as a routine it is a bit heavy. I would like something simpler, I don’t have a very good memory😅</p>
+<p>Well, then we can create a <strong>Makefile, which is a file in which we write some instructions</strong>, and <strong>this will launch the commands previously seen for us</strong>. In the Makefile I want to write instructions to <strong>install requirements, format code with black, check code smells with PyLint, and launch tests with PyTest</strong>. Here then is what our Makefile will look like:</p>
+<pre><code>install:
+ #install
+ pip install --upgrade pip&amp;amp;&amp;amp;
+  pip install -r requirements.txt
+format:
+ #format
+ find src -name '*.py' -exec black {} +
+lint:
+ #lint
+ pylint --disable=R,C src/*.py
+test:
+ #test
+ python -m pytest -vv --cov=test</code></pre>
+<p>In this way every time we use this command from the terminal:</p>
+<pre><code>make test</code></pre>
+<p>It will actually be run</p>
+<pre><code>python -m pytest -vv --cov=test</code></pre>
+<p>And the same thing applies to all the other commands of course in the same way.</p>
+<p>Now our repo already looks much more professional!</p>
+<h3>Run Everything at every push with GitHub Actions</h3>
+<p>I hope everything is clear so far. At this point whenever we want to make changes to our code before we commit and push to GitHub we’ll run the following commands to make sure everything works as smoothly as possible: <em>make install, make format, make lint, make test.</em></p>
+<p>But developers like to automate everything. So, <strong>isn’t there a way that automatically runs this entire process on every git push?</strong> Well yes, there is, just make use of <strong>GitHub Actions</strong>!</p>
+<p>With GitHub actions, we can <strong>set triggers</strong>, that is, specify events that will trigger commands, and the commands in our case are all in the Makefile.</p>
+<p>To create GitHub actions, we need to <strong>create the .github/workflows folder</strong> in our working directory. Within this new directory, we <strong>create a YML file</strong> that we can for example name <strong>mlops.yml</strong>.</p>
+<p>In this file, we can specify several things. First of all, any name we want.</p>
+<p>After that, we specify the event (or events) that will trigger the commands, in this case [push]. Then, we deal with the <em>steps</em> (of which the first part I don’t even remember exactly what is, but fortunately there is Google and ChatGPT from which we can copy and paste 😅 ).</p>
+<pre><code>name: Python application with Github Actions
+
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          make install
+
+      - name: Lint with pyLint
+        run: |
+          make lint
+
+      - name: Test with pytest
+        run: |
+          make test
+
+      - name: Format code
+        run: |
+          make format
+
+      - name: Build container
+        run: |
+          make build</code></pre>
+<p>This should be the code structure of the entire project</p>
+<pre><code>-.github/workflows
+  - mlops.yml
+-.venv
+-src
+-test
+-requirements.txt
+-Makefile
+-Readme.md</code></pre>
+<p>That’s it!</p>
+<p>Now you should be able to check on GitHub all the commands running at every push on the <em>actions</em> tab.</p>
+<figure>
+  <img class="wide" src="images/a-simple-ci-cd-setup-for-ml-projects/img-03.png" alt="">
+</figure>
+<h2><strong>Final Thoughts</strong></h2>
+<p>In this article, I have shown you some best practices that I use when developing projects in Python to ensure some quality in the code and protect my GitHub repository from not very functional commits. Each of these topics can still be delved into tremendously, however being able to at least somewhat structure your code quickly and easily I think can be a great help in improving your work!</p>
+<p>If you are interested in this article follow me on Medium! 😁</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://twitter.com/_March08_">Twitter</a> | <a href="https://emojiterra.com/laptop-computer/">💻 </a><a href="https://marcello-politi.super.site/">Website</a></p>
+<p>You can find this article also on <a href="https://towardsdatascience.com/a-simple-ci-cd-setup-for-ml-projects-604de7fd64cd/">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

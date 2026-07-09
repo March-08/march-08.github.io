@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Rule-based Matching for Information Extraction with SpaCy — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Rule-based Matching for Information Extraction with SpaCy</h1>
+    <p class="subtitle">Mastering NLP with spaCy — Part 3.</p>
+    <p class="postdate">September 14, 2025 · NLP, SpaCy</p>
+<figure>
+  <img class="wide" src="images/rule-based-matching-for-information-extraction-with-spacy/img-01.jpg" alt="Photo by Javardh on Unsplash">
+  <figcaption>Photo by <a href="https://unsplash.com/@javardh?utm_source=medium&amp;amp;utm_medium=referral">Javardh</a> on <a href="https://unsplash.com/?utm_source=medium&amp;amp;utm_medium=referral">Unsplash</a></figcaption>
+</figure>
+<h3>Introduction</h3>
+<p>It is important to understand how to use spaCy rules to identify patterns within some text. There are entities like times, dates, IBANs and emails that follow a strict structure, so it is possible to identify them with deterministic rules, for example, by using <strong>regular expressions</strong> ( <strong>regexes</strong>).</p>
+<p>SpaCy simplifies the usage of regexes by making them more human-readable, so instead of weird symbols, you will use actual descriptions using the Matcher class.</p>
+<h3>Token-based matching</h3>
+<p>A regex is a sequence of characters that specifies a search pattern. There is a Python built-in library to work with regexes called <strong>re</strong>: <a href="https://docs.python.org/3/library/re.html">https://docs.python.org/3/library/re.html</a></p>
+<p>Let’s see an example.</p>
+<pre><code>"Marcello Politi"
+"Marcello   Politi"
+"Marcello Danilo Politi"
+
+reg = r"Marcello\\s(Danilo\\a)?Politi"</code></pre>
+<p>The problem with regexes, and the reason why many programmers don’t love them, is that they’re difficult to read. This is why spaCy provides a clean and production-level alternative with the <strong>Matcher class</strong>.</p>
+<p>Let’s import the class and see how we can use it. (I will explain what Span is later).</p>
+<pre><code>import spacy
+from spacy.matcher import Matcher
+from spacy.tokens import Span
+nlp = spacy.load("en_core_web_sm")</code></pre>
+<p>Now we can define a pattern that matches some morning greetings, and we label this pattern “morningGreeting”. Defining a pattern with Matcher is straightforward. In this pattern, we expect a word that, when converted to lower case, matches the word “good”, then the same for “morning”, and then we accept so punctuation at the end.</p>
+<pre><code>matcher = Matcher(nlp.vocab)
+pattern = [
+    {"LOWER": "good"},
+    {"LOWER": "morning"},
+    {"IS_PUNCT": True},
+]
+matcher.add("monrningGreeting", [pattern])</code></pre>
+<p>A Span is a singular sentence, so the Matcher can find the starting and ending point of multiple spans that we iterate over with a for loop.</p>
+<p>We add all the spans in a list and assign the list to the doc.spans[“sc”]. Then we can use displacy to visualise the span</p>
+<pre><code>doc = nlp("Good morning, My name is Marcello Politi!")
+matches = matcher(doc)
+spans = []
+
+for match_id, start, end in matches:
+  spans.append(
+      Span(doc, start, end, nlp.vocab.strings[match_id])
+  )
+
+doc.spans["sc"] = spans</code></pre>
+<pre><code>from spacy import displacy
+
+displacy.render(doc, style = "span")</code></pre>
+<figure>
+  <img class="wide" src="images/rule-based-matching-for-information-extraction-with-spacy/img-02.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p><strong>A Matcher object accepts more than one pattern at a time!</strong></p>
+<p>Let’s define a morningGreeting and a eveningGreeting.</p>
+<pre><code>pattern1 = [
+    {"LOWER": "good"},
+    {"LOWER": "morning"},
+    {"IS_PUNCT": True},
+]
+
+pattern2 = [
+    {"LOWER": "good"},
+    {"LOWER": "evening"},
+    {"IS_PUNCT": True},
+]</code></pre>
+<p>Then we add these patterns to the Matcher.</p>
+<pre><code>doc = nlp("Good morning, I want to attend the lecture. I will then say good evening!")
+matcher = Matcher(nlp.vocab)
+
+matcher.add("morningGreetings", [pattern1])
+matcher.add("eveningGreetings", [pattern2])
+
+matches = matcher(doc)</code></pre>
+<p>As before, we iterate over the spans and display them.</p>
+<pre><code>spans = []
+
+for match_id, start, end in matches:
+  spans.append(
+      Span(doc, start, end, nlp.vocab.strings[match_id])
+  )
+
+doc.spans["sc"] = spans</code></pre>
+<pre><code>from spacy import displacy
+
+displacy.render(doc, style = "span")</code></pre>
+<figure>
+  <img class="wide" src="images/rule-based-matching-for-information-extraction-with-spacy/img-03.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>The syntax supported by spaCy is huge. Here I report some of the most common patterns.</p>
+<h3>Text-based attributes</h3>
+<figure>
+  <img class="med" src="images/rule-based-matching-for-information-extraction-with-spacy/img-04.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<h3>Linguistic features</h3>
+<figure>
+  <img class="wide" src="images/rule-based-matching-for-information-extraction-with-spacy/img-05.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<h3>Boolean flags</h3>
+<figure>
+  <img class="portrait" src="images/rule-based-matching-for-information-extraction-with-spacy/img-06.png" alt="Image By Author">
+  <figcaption>Image By Author</figcaption>
+</figure>
+<h3>Operators</h3>
+<p>Used to repeat or make patterns optional:</p>
+<figure>
+  <img class="wide" src="images/rule-based-matching-for-information-extraction-with-spacy/img-07.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>Example:</p>
+<p>What is a pattern that matches a string like: <em>“I have 2 red apples”, “We bought 5 green bananas”, or “They found 3 ripe oranges”</em> ?</p>
+<p><strong>Pattern Requirements:</strong></p>
+<ul>
+  <li>Subject pronoun (e.g., “I”, “we”, “they”)</li>
+  <li>A verb (e.g., “have”, “bought”, “found”)</li>
+  <li>A number (digit or written, like “2”, “five”)</li>
+  <li>An optional adjective (e.g., “red”, “ripe”)</li>
+  <li>A plural noun (fruit, for example)</li>
+</ul>
+<pre><code>pattern = [
+    {"POS": "PRON"},                               # Subject pronoun: I, we, they
+    {"POS": "VERB"},                               # Verb: have, bought, found
+    {"LIKE_NUM": True},                            # Number: 2, five
+    {"POS": "ADJ", "OP": "?"},                     # Optional adjective: red, ripe
+    {"POS": "NOUN", "TAG": "NNS"}                  # Plural noun: apples, bananas
+]</code></pre>
+<h3>Patterns with PhraseMatcher</h3>
+<p>We we work in a vertical domain, like medical or scientific, we usually have a set of words that spaCy might not be aware of, and we want to find them in some text.</p>
+<p>The PhraseMatcher class is the spaCy solution for <strong>comparing text against long dictionaries</strong>. The usage is quite similar to the Matcher class, but in addition, we need to define the list of important terms we want to track. Let’s start with the imports.</p>
+<pre><code>import spacy
+from spacy.tokens import Span
+from spacy.matcher import PhraseMatcher
+from spacy import displacy
+nlp = spacy.load("en_core_web_sm")</code></pre>
+<p>Now we define our matcher and our list of words, and tell Spacy to create a pattern just to recognise that list. Here, I want to identify the names of tech leaders and places.</p>
+<pre><code>terms = ["Sundar Pichai", "Tim Cook", "Silicon Valley"]
+matcher = PhraseMatcher(nlp.vocab)
+patterns = [nlp.make_doc(text) for text in terms]
+matcher.add("TechLeadersAndPlaces", patterns)</code></pre>
+<p>Finally, check the matches.</p>
+<pre><code>doc = nlp("Tech CEOs like Sundar Pichai and Tim Cook met in Silicon Valley to discdoc = nlp("Tech CEOs like Sundar Pichai and Tim Cook met in Silicon Valley to discuss AI regulation.")
+matches = matcher(doc)
+spans= []
+
+for match_id, start, end in matches:
+  pattern_name = nlp.vocab.strings[match_id]
+  spans.append(Span(doc, start, end, pattern_name))
+
+doc.spans["sc"] = spans
+displacy.render(doc, style = "span")</code></pre>
+<figure>
+  <img class="wide" src="images/rule-based-matching-for-information-extraction-with-spacy/img-08.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>We can enhance the capabilities of the PhraseMatcher by adding some attributes. For example, if we need to cach IP addresses in a text, maybe in some logs, we cannot write all the possible combinations of IP addresses, that would be crazy. But we can ask Spacy to catch the shape of some IP strings, and check for the same shape in a text.</p>
+<pre><code>matcher = PhraseMatcher(nlp.vocab, attr= "SHAPE")
+
+ips  = ["127.0.0.0", "127.256.0.0"]
+patterns = [nlp.make_doc(ip) for ip in ips]
+matcher.add("IP-pattern", patterns)</code></pre>
+<pre><code>doc = nlp("This fastAPI server can run on 192.1.1.1 or on 192.170.1.1")
+matches = matcher(doc)
+spans= []
+
+for match_id, start, end in matches:
+  pattern_name = nlp.vocab.strings[match_id]
+  spans.append(Span(doc, start, end, pattern_name))
+
+doc.spans["sc"] = spans
+displacy.render(doc, style = "span")</code></pre>
+<figure>
+  <img class="wide" src="images/rule-based-matching-for-information-extraction-with-spacy/img-09.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<h3>IBAN Extraction</h3>
+<p>The IBAN is an important information that we often need to extract when working in the financial fields, for example if are analysing invoices or transactions. But how can we do that?</p>
+<p>Each IBAN has a fixed international number format, starting with two letters to identify the country.</p>
+<p>We are sure that each IBAN starts with two capital letters XX followed by at least two digits dd. So we can write a pattern to identify this first part of the IBAN.</p>
+<pre><code>{"SHAPE":"XXdd"}</code></pre>
+<p>It’s not done yet. For the rest of the block we might have from 1 to 4 digits that we can express with the symbol “d{1,4}”.</p>
+<pre><code>{"TEXT":{"REGEX:"\\d{1,4"}}</code></pre>
+<p>We can have one or more of these blocks, so we can use the “+” operator to identify all of them.</p>
+<pre><code>{"TEXT":{"REGEX":"\\d{1,4}, "OP":"+"}</code></pre>
+<p>Now we can combine the shape with the blocks identification.</p>
+<pre><code>pattern =[
+   {"SHAPE":"XXdd"},
+   {"TEXT":{"REGEX":"\\d{1,4}", "OP":"+"}
+   ]
+
+matcher = Matcher(nlp.vocab)
+matcher.add("IBAN", [patttern])</code></pre>
+<p>Now let’s use this!</p>
+<pre><code>text = "Please transfer the money to the following account: DE44 5001 0517 5407 3249 31 by Monday."
+doc = nlp(text)
+
+matches = matcher(doc)
+spans = []
+
+for match_id, start, end in matches:
+    span = Span(doc, start, end, label=nlp.vocab.strings[match_id])
+    spans.append(span)
+
+doc.spans["sc"] = spans
+displacy.render(doc, style="span")</code></pre>
+<figure>
+  <img class="wide" src="images/rule-based-matching-for-information-extraction-with-spacy/img-10.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<h3>Final Thoughts</h3>
+<p>I hope this article helped you to see how much we can do in NLP without always using huge models. Many times, we just need to find things that follow rules — like dates, IBANs, names or greetings — and for that, spaCy gives us great tools like <code>Matcher</code> and <code>PhraseMatcher</code>.</p>
+<p>In my opinion, working with patterns like these is a good way to better understand how text is structured. Also, it makes your work more efficient when you don’t want to waste resources on something simple.</p>
+<p>I still think regex is powerful, but sometimes hard to read and debug. With spaCy, things look clearer and easier to maintain in a real project.</p>
+<a class="linkcard" href="https://www.linkedin.com/in/marcello-politi/"><img class="lc-icon" src="images/favicons/linkedin.com.png" alt=""><span class="lc-body"><span class="lc-title">Linkedin ️| X (Twitter) | Website</span><span class="lc-domain">linkedin.com</span></span></a>
+<h3>Resources</h3>
+<ul>
+  <li><a href="https://spacy.io/api">https://spacy.io/api</a></li>
+  <li><a href="https://github.com/PacktPublishing/Mastering-spaCy-Second-Edition?tab=readme-ov-file">https://github.com/PacktPublishing/Mastering-spaCy-Second-Edition?tab=readme-ov-file</a></li>
+</ul>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Visualized Linear Algebra to Get Started with Machine Learning: Part 1 — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Visualized Linear Algebra to Get Started with Machine Learning: Part 1</h1>
+    <p class="subtitle">Master elements of linear algebra, start with simple and visual explanations of basic concepts.</p>
+    <p class="postdate">September 27, 2024 · Linear Algebra</p>
+<figure>
+  <img class="med" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-01.webp" alt="">
+</figure>
+<p>Often the main difficulty one faces when one wants to begin one’s journey into the world of machine learning is having to understand math concepts. Sometimes this can be difficult if you do not have a solid background in subjects such as linear algebra, statistics, probability, optimization theory, or others. 🤔💭🔢✖️🧮</p>
+<p>In this article then, I would like to start by giving<strong> intuitive explanations of basic linear algebra concepts </strong>that are essential before delving into the world of Machine Learning. Obviously, this article is not meant to be exhaustive there is a lot to know about this subject, but maybe it can be a first approach to tackling this subject!</p>
+<ul>
+  <li>Introduction</li>
+  <li>What is a vector?</li>
+  <li>Simple Vector Operations</li>
+  <li>Projections</li>
+  <li>Basis, Vector Space and Linear Indipendence</li>
+  <li>Matrices and Solving Equations</li>
+</ul>
+<h2><strong>Introduction</strong></h2>
+<p><strong>Why Linear Algebra is important for Data Science?</strong></p>
+<p><strong>Linear algebra </strong>allows us to <strong>solve real-life problems</strong>, especially problems that are very common in data science.</p>
+<p>Assume we go to the market to buy 3 avocados, and 4 broccoli and pay 8. The next day we buy 11 avocados and 2 broccoli and pay12.</p>
+<p>Now we want to find out how much a single avocado and a single broccoli cost. We have to solve the following expressions simultaneously.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-02.png" alt="">
+
+  <figcaption>Linear Algebra Problem (Image By Author)</figcaption>
+</figure>
+<p>Another typical problem is to <strong>find the best parameters of a function</strong> for it <strong>to fit the data we have collected</strong>. So suppose we already know what kind of function we need to use, but this <strong>function can change its form since it depends on some parameters</strong>. We want to <strong>find the best form and therefore the best parameters</strong>.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-03.png" alt="">
+
+  <figcaption>Fitting Data (Image By Author)</figcaption>
+</figure>
+<p>Let’s for example call <strong><em>µ</strong> = param1 </em>and <strong><em>θ</strong> = param2</em>.</p>
+<p>Usually, in Machine Learning, we want to <strong>iteratively update bot [µ, θ]</strong> to find at the end some good curve that fits our data.</p>
+<p>Let’s say that <strong>a curve far away from the optimal green curve has a high error</strong>, while <strong>a curve similar to the green one has a low error</strong>. We usually say that we want to find those parameters [µ, θ] in order to <strong>minimize the error</strong>, so find the curve which is as closest as possible to the green one.</p>
+<p>Let’s see how linear algebra can help us with these problems!</p>
+<h2><strong>What is a vector?</strong></h2>
+<p>A <strong>vector </strong>in physics is a <strong>mathematical entity </strong>that has a direction a sign and a magnitude. So it is commonly represented visually with an arrow.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-04.png" alt="">
+
+  <figcaption>Vector (Image By Author)</figcaption>
+</figure>
+<p>Often in <strong>computer science, the concept of vector is generalized</strong>. In fact, you will hear many times the term list instead of vector. In this conception, the vector is nothing more than a <strong>list of properties </strong>that we can use to represent anything.</p>
+<p>Suppose we want to represent houses according to 3 of their properties:</p>
+<p>1. The number of rooms</p>
+<p>2. The number of bathrooms</p>
+<p>3. Square meters</p>
+<figure>
+  <img class="med" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-05.png" alt="">
+
+  <figcaption>Lists (Image By Author)</figcaption>
+</figure>
+<p>For example, in the image above we have two vectors. The first represents a house with 4 bedrooms, 2 bathrooms and 85 square meters. The second, on the other hand, represents a house with 3 rooms, 1 bathroom and 60 square meters.</p>
+<p>Of course, if we are interested in other properties of the house we can create a much longer vector. In this case, we will say that the vector instead of having 3 dimensions will have <em>n dimensions.<strong></em> In machine learning, we can often have hundreds or thousands of dimensions</strong>!</p>
+<h2><strong>Simple Vector Operations</strong></h2>
+<p>There are operations we can perform with vectors, the simplest of which are certainly addition between two vectors, and multiplication of a vector by a <strong>scalar </strong>(<strong>i.e., a simple number</strong>).</p>
+<p>To <strong>add 2 vectors you can use the parallelogram rule</strong>. That is, you draw vectors parallel to those we want to add and then draw the diagonal. The diagonal will be the resulting vector of the addition. Believe me, it is much easier to understand this by looking directly at the following example.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-06.png" alt="">
+
+  <figcaption>Vector Addition (Image By Author)</figcaption>
+</figure>
+<p>While <strong>multiplication by a scalar stretches the vector by n units</strong>. See the following example.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-07.png" alt="">
+
+  <figcaption>Vector -Scala Multiplication (Image By Author)</figcaption>
+</figure>
+<h2><strong>Modulus and Inner Product</strong></h2>
+<p><strong>A vector is actually always expressed in terms of other vectors</strong>. For example, let us take as<strong> reference vectors, two vectors i and j both with length 1 and orthogonal to each other</strong>.</p>
+<figure>
+  <img class="med" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-08.png" alt="">
+
+  <figcaption>Unit Lenght Vectors (Image By Author)</figcaption>
+</figure>
+<p>Now we define a new vector <em>r</em>, which <strong>starts from the origin</strong>, that is, from the point where <em>i</em> and <em>j</em> meet, and which is <em>a</em> times longer than <em>i,</em> and <em>b</em> times longer than j.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-09.png" alt="">
+
+  <figcaption>A vector in Space (Image By Author)</figcaption>
+</figure>
+<p>More commonly <strong>we refer to a vector using its coordinates r = [a,b]</strong>, in this way we can identify various vectors in a <strong>vector space</strong>.</p>
+<p>Now we are ready to define a new operation, the <strong>modulus of a vector</strong>,<strong> that is, its length </strong>can be derived from its coordinates and is defined as follows.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-10.png" alt="">
+
+  <figcaption>Vector Modulus (Image by Author)</figcaption>
+</figure>
+<p>The <strong>Inner Product </strong>on the other hand is another operation with which given two vectors, it multiplies all their components and returns the sum.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-11.png" alt="">
+
+  <figcaption>Inner (dot) Product (Image By Author)</figcaption>
+</figure>
+<p>The inner product has some properties that may be useful in some cases :</p>
+<ul>
+  <li>commutative: <em>r</em>s = s<em>r</em></li>
+  <li>distributive over addition: <em>r</em>(s<em>t) = r</em>s + r<em>t</em></li>
+  <li>associative over scalar multiplication: <em>r</em>(a<em>s) = a</em>(r<em>s) where a is a scalar</em></li>
+</ul>
+<p>Notice that if you compute the inner product of a vector per itself, you will get its modulus squared!</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-12.png" alt="">
+
+  <figcaption>Inner (dot) Product (Image by Author)</figcaption>
+</figure>
+<h2><strong>Cosine (dot) Product</strong></h2>
+<p>So far we have only seen a mathematical definition of the inner product based on the coordinates of vectors. Now let us <strong>see a geometric interpretation </strong>of it. Let us create 3 vectors <em>r, s</em> and their difference <em>r-s</em>, so as to form a triangle with 3 sides <em>a,b,c</em>.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-13.png" alt="">
+
+  <figcaption>Triangle (Image By Autor)</figcaption>
+</figure>
+<p>We know from our high school days that <strong>we can derive c using a simple rule of trigonometry</strong>.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-14.png" alt="">
+
+  <figcaption>Trigonometry (Image By Author)</figcaption>
+</figure>
+<p>But then we can derive from the above that:</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-15.png" alt="">
+
+  <figcaption><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">Image By Author</span></figcaption>
+</figure>
+<p>So the comprised angle has a strong effect on the result of this operation. In fact in some special cases where the angle is 0°, 90°, and 180° we will have that the cosine will be 0,1,-1 respectively. And so we will have special effects on this operation. So for example,<strong> 2 vectors that are 90 degrees to each other will always have a dot product = 0</strong>.</p>
+<h2><strong>Projection</strong></h2>
+<p>Let’s consider two vectors r and s. These two vectors are close to each other from one side and make an angle <em>θ</em> in between them. <strong>Let’s put a torch on top of <em>s</em>, and we’ll see a shadow of <em>s</em> on <em>r</strong></em>. <strong>That’s the projection of <em>s </em>on <em>r</em>.</strong></p>
+<figure>
+  <img class="med" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-16.png" alt="">
+
+  <figcaption>Projection (Image By Author)</figcaption>
+</figure>
+<p>There are 2 basics projection operations:</p>
+<ul>
+  <li><strong>Scalar Projection</strong>: gives us the magnitude of the projection</li>
+  <li><strong>Vector Projections</strong>: gives us the projection vector itself</li>
+</ul>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-17.png" alt="">
+
+  <figcaption>Projections (Image By Author)</figcaption>
+</figure>
+<h2><strong>Changing Basis</strong></h2>
+<p>Changing basis in linear algebra refers to the <strong>process of expressing a vector in a different set of coordinates</strong>, <strong>called a basis</strong>. A <strong>basis is a set of linearly independent vectors that can be used to express any vector in a vector space.</strong> <strong>When a vector is expressed on a different basis, its coordinates change.</strong></p>
+<p>We have seen, for example, that in two dimensions each vector can be represented as a sum of two basis vectors [0,1] and [1,0]. These two vectors are the basis of our space. But <strong>can we use two other vectors as the basis and not just these two? Certainly but in this case the coordinates of each vector in our space will change</strong>. Let’s see how.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-18.png" alt="">
+
+  <figcaption>New basis (Image by Author)</figcaption>
+</figure>
+<p>In the image above, I have two bases. The base (e1, e2), and the base (b1,b2). In addition, I have a vector r (in red). This vector has coordinates [3,4] when expressed in terms of (e1,e2) which is the base we’ve always used by default. But how do its coordinates become when expressed in terms of (b1,b2)?</p>
+<p>To find these coordinates we need to go by steps. First, we need to find the projections of the vector r onto the vectors of the new base (b1,b2).</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-19.png" alt="">
+
+  <figcaption>Changing Basis (Image By Author)</figcaption>
+</figure>
+<p>It’s easy to see that the sum of these projections we created is just r.</p>
+<p>r = p1 + p2.</p>
+<p>Furthermore, in order to change the basis, <strong>I have to check that the new basis is also orthogonal</strong>, meaning that the vectors are at 90 degrees to each other, so they can define the whole space.</p>
+<p><strong>To check this just see if the cosine of the angle is 0 which means an angle of 90 degrees.</strong></p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-20.png" alt="">
+
+  <figcaption>Check orthonormal basis (Image by Author)</figcaption>
+</figure>
+<p>Now we go on to <strong>calculate the vector projections of r on the vectors (b1,b2)</strong>, with the formula we saw in the previous chapter.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-21.png" alt="">
+
+  <figcaption>Vector Projection (Image By Author)</figcaption>
+</figure>
+<p>The value circled in red in the vector projection will give us the coordinate of the new vector r expressed in base b : (b1,b2) instead of e : (e1,e2).</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-22.png" alt="">
+
+  <figcaption>Vector r in new basis b (Image by Author)</figcaption>
+</figure>
+<p>To check that the calculations are right we need to check that the sum of the projections is just r in base e:(e1,e2).</p>
+<p><strong>[4,2] + [-1,2] = [3,4]</strong></p>
+<h2><strong>Basis, Vector Space and Linear Indipendence</strong></h2>
+<p>We have already seen and talked about basis. But let’s define more precisely what a vector basis is in a vector space.</p>
+<p><strong>A basis is a set of n vectors</strong> that:</p>
+<ul>
+  <li><strong>are not linear combinations of each other</strong> (linearly independent)</li>
+  <li><strong>span the space</strong>: the space is n-dimensional</li>
+</ul>
+<p>The first point means that if, for example, I have 3 vectors <em>a,b,c </em>forming a basis, that means there is no way to add these vectors together and multiply them by scalars and get zero!</p>
+<p>If I denote by <em>x y </em>and <em>z</em> any three scalars (two numbers), it means that :</p>
+<p><strong><em>xa + yb +zc != 0</strong></em></p>
+<p>(obviously excluding the trivial case where x = y = z = 0). In this case, we will say that the vectors are linearly independent.</p>
+<p>This means, for example, that <strong>there is no way to multiply by scalars and add <em>a</em> and <em>b</em> together to get <em>c</strong></em>. It means that <strong>if<em> a</em> and <em>b </em>lie in space in two dimensions c lies in a third dimension instead</strong>.</p>
+<p>While the second point means that I can multiply these vectors by scalars and sum them together to get any possible vectors in a 3-dimensional space. <strong>So these 3 basis vectors are enough for me to define the whole space of dimension n=3</strong>.</p>
+<h2><strong>Matrices and solving simultaneous equations</strong></h2>
+<p>By now you should be pretty good at handling vectors and doing operations with them. But what are they used for in real life? We saw in the beginning that one of our goals was to solve multiple equations together simultaneously, for example, to figure out the prices of vegetables at the supermarket.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-23.png" alt="">
+
+  <figcaption>Simultaneous Equations (Image By Author)</figcaption>
+</figure>
+<p>But now that we know the vectors we can rewrite these equations in a simpler way. We put the vectors of coefficients [2,10] and [3,1] next to each other in forming a matrix (set of vectors). Then we will have the vector of unknowns [a,b] and finally the result [8,3].</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-24.png" alt="">
+
+  <figcaption>Vectorized Form (Image By Author)</figcaption>
+</figure>
+<p>Now you may ask whether this new form of writing the problem is really better or not. <strong>How do you do multiplication between a matrix and a vector?</strong> It is very simple. Just multiply each row of the matrix by the vector. In case we had a multiplication between two matrices we would have to multiply each row of the first matrix by each column of the second matrix.</p>
+<p><strong>So by applying this rule rows by columns we should regain the original shape.</strong></p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-25.png" alt="">
+
+  <figcaption>Matrix Multiplication (Image By Author)</figcaption>
+</figure>
+<p><strong>This form, however, has other advantages as well. It gives us a geometric interpretation of what is happening. Every matrix defines a transformation in space. So if I have a point in a space and I apply a matrix, my point will move in some way.</strong></p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-26.png" alt="">
+
+  <figcaption>Matrix Transformation (Image By Author)</figcaption>
+</figure>
+<p>But then we can also say that<strong> a matrix is nothing more than a function that takes a point as input and generates a new one as output.</strong></p>
+<p>So our initial problem can be interpreted as follows, “What is the original vector [a,b] on which the transformation results in [8,3]?”</p>
+<p>In this way, <strong>you can think about solving simultaneous equations as transformations over vectors in a vector space</strong>. Plus operations with matrices have the following properties that can be very useful.</p>
+<p>Given A(r) = r2 where A is a matrix and r, r2 are both scalar:</p>
+<ul>
+  <li><em>A(nr) = ns </em>where <em>n</em> is a scalar</li>
+  <li><em>A(r+s) = A(r) + A(s)</em> where <em>s </em>is a vector</li>
+</ul>
+<h2><strong>Matrices and space transformations</strong></h2>
+<p>To understand the effects of a matrix then we can see how they transform the vectors to which they are applied. In particular, we might see what is the impact of a matrix when applied on the eigenbasis.</p>
+<p>If we have a 2x2 matrix and we are in a space in two dimensions, the first column of the matrix will tell us what the effect will be on the vector e1 = [1,0] and the second column instead will tell us what the effect will be on the vector e1 = [0,2].</p>
+<p>We then see the effect of some known matrices. These transformations are often useful in Machine Learning for data augmentation on images, you can stretch or shrink those images for example.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-1/img-27.png" alt="">
+
+  <figcaption>Matrix transformations (Image By Author)</figcaption>
+</figure>
+<p><strong>We can also apply multiple consecutive transformations to a vector</strong>. So if we have two transformations represented by the matrices A1 and A2 we can apply them consecutively A2(A1(vector)).</p>
+<p>But this is different from applying them inversely i.e. A1(A2(vector)). That is why<strong> the product between matrices does not enjoy the commutative property.</strong></p>
+<h2><strong>Final Thoughts</strong></h2>
+<p>In this first part of my articles on linear algebra, you should have understood why this subject is so important for Machine Learning and perhaps you have learned basic concepts quickly and intuitively.</p>
+<p>You know what a vector and a matrix are, how to represent these entities in a vector space and how to do operations with these elements. Follow along so you don’t miss the continuation of this article! <a href="https://emojipedia.org/smiling-face-with-smiling-eyes/">😊</a></p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://march-08.github.io/digital-cv/">CV</a></p>
+<p>This article was published on <a href="https://medium.com/data-science/visualized-linear-algebra-to-get-started-with-machine-learning-part-1-245c2b6487f0">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Fine-tune a Large Language Model with Python — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Fine-tune a Large Language Model with Python</h1>
+    <p class="subtitle">Learn how to fine-tune a BERT from scratch on a custom dataset.</p>
+    <p class="postdate">August 13, 2024 · Fine-tuning, Llama, Python, Label Scarcity</p>
+<figure>
+  <img class="wide" src="images/fine-tune-a-large-language-model-with-python/img-01.webp" alt="">
+</figure>
+<p>In this article, we will deal with the <strong>fine-tuning of BERT for sentiment classification</strong> using PyTorch. BERT is a large language model that offers a good balance between popularity and model size, which can be fine-tuned <strong>using a simple GPU</strong>. We can download a <strong>pre-trained BERT from Hugging Face (HF)</strong>, so there is no need to train it from scratch. In particular, we will use the distilled (smaller) version of BERT, called <strong>Distil-BERT.</strong></p>
+<p><a href="https://huggingface.co/docs/transformers/model_doc/distilbert#:~:text=DistilBERT%20is%20a%20small%2C%20fast,the%20GLUE%20language%20understanding%20benchmark.">Distil-BERT</a> is widely used in production since it has <strong>40% fewer parameters</strong> than BERT uncased. It runs <strong>60% faster and retains 95% performance</strong> in the <a href="https://arxiv.org/abs/1804.07461">GLUE</a> language comprehension benchmark.</p>
+<p>We start by installing all the necessary libraries. The first line is to capture the output of the installation and keep your notebook clean.</p>
+<p>I will use Deepnote to run the code in this article but you also use Google Colab if you prefer.</p>
+<pre><code class="language-python">!pip install transformers &gt; None
+import gzip 
+import shutil
+import time
+
+import pandas as pd
+import requests
+import torch
+import torch.nn.functional as F
+import torchtext
+
+import transformers
+from transformers import DistilBertTokenizerFast
+from transformers import DistilBertForSequenceClassification</code></pre>
+<p>You can also check the version of the libraries you are using with the following line of code.</p>
+<pre><code class="language-python">#check installation
+transformers.__version__</code></pre>
+<p>Now you need to specify some general setups, including the number of epochs and device hardware. We set a fixed random seed which helps for the reproducibility of the experiment.</p>
+<pre><code class="language-python">torch.backends.cudnn.deterministic = True #used for Reproducibility (https://pytorch.org/docs/stable/notes/randomness.html)
+RANDOM_SEED = 42
+torch.manual_seed(RANDOM_SEED)
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+N_EPOCHS = 3</code></pre>
+<h2><strong>Loading the IMDb movie review dataset</strong></h2>
+<p>Let’s see how to prepare and tokenize the IMDb movie review dataset and fine-tune Distilled BERT. Fetch the compressed data and unzip it.</p>
+<pre><code class="language-python">url =  ('https://github.com/rasbt/machine-learning-book/raw/main/ch08/movie_data.csv.gz')
+filename = url.split('/')[-1]
+
+with open(filename, "wb") as f:
+  r = requests.get(url)
+  f.write(r.content)
+
+with gzip.open('movie_data.csv.gz', 'rb') as f_in:
+  with open('movie_data.csv', 'wb') as f_out:
+    shutil.copyfileobj(f_in, f_out)</code></pre>
+<pre><code class="language-python">df = pd.read_csv('movie_data.csv')
+df.head(3)</code></pre>
+<p>As usual, we need to split the data into training, validation, and test sets.</p>
+<pre><code class="language-python">train_texts = df.iloc[:35_000]['review'].values
+train_labels = df.iloc[:35_000]['sentiment'].values
+
+valid_texts = df.iloc[35_000:40_000]['review'].values
+valid_labels = df.iloc[35_000:40_000]['sentiment'].values
+
+test_texts = df.iloc[40_000:]['review'].values
+test_labels = df.iloc[40_000:]['sentiment'].values</code></pre>
+<h2><strong>Tokenize the dataset</strong></h2>
+<p>Let’s <strong>tokenize the texts into individual word tokens</strong> using the tokenizer implementation inherited from the pre-trained model class.</p>
+<blockquote><p>Tokenization is used in natural language processing to split paragraphs and sentences into smaller units that can be more easily assigned meaning.</p></blockquote>
+<p><strong>With Hugging Face you will always find a tokenizer associated with each model</strong>. If you are not doing research or experiments on tokenizers it’s always preferable to use the standard tokenizers.</p>
+<p><strong>Padding</strong> is a strategy for ensuring tensors are rectangular by adding a special padding token to shorter sentences. On the other, sometimes a sequence may be too long for a model to handle. In this case, you’ll need to truncate the sequence to a shorter length.</p>
+<pre><code class="language-python">tokenizer = DistilBertTokenizerFast.from_pretrained(
+    'distilbert-base-uncased'
+)
+
+train_encodings = tokenizer(list(train_texts), truncation = True, padding = True)
+valid_encodings = tokenizer(list(valid_texts), truncation = True, padding = True)
+test_encodings = tokenizer(list(test_texts), truncation = True, padding = True)</code></pre>
+<p>Let’s pack everything into a Python class that we are going to name IMDbDataset. We are also going to use this custom dataset to create the corresponding dataloaders.</p>
+<p>The encodings variable stores a lot of information about the tokenized text. We can extract only the most relevant information via dictionary comprehension. The dictionary contains:</p>
+<ul>
+  <li><strong>input_ids</strong>: are the indices corresponding to each token in the sentence.</li>
+  <li><strong>labels</strong>: classes labels</li>
+  <li><strong>attention_mask</strong>: indicates whether a token should be attended to or not (for example padding tokens will not be attended).</li>
+</ul>
+<pre><code class="language-python">class IMDbDataset(torch.utils.data.Dataset):
+  def __init__(self, encodings, labels):
+    self.encodings = encodings
+    self.labels = labels
+
+  def __getitem__(self, idx):
+    '''
+    encoding.items() -&gt; 
+      -&gt; input_ids : [1,34, 32, 67,...]
+      -&gt; attention_mask : [1,1,1,1,1,....]
+    '''
+    item = {key:torch.tensor(val[idx]) for key, val in self.encodings.items()}
+    item['labels'] = torch.tensor(self.labels[idx])
+    return item
+
+  def __len__(self):
+    return len((self.labels))
+    </code></pre>
+<p>Let’s construct datasets and corresponding dataloaders.</p>
+<pre><code class="language-python">#datasets
+train_dataset = IMDbDataset(train_encodings, train_labels)
+valid_dataset = IMDbDataset(valid_encodings, valid_labels)
+test_dataset = IMDbDataset(test_encodings, test_labels)
+
+#dataloaders
+bs = 8
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size = bs, shuffle = bs)
+valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size = bs, shuffle = bs)
+test_loader = torch.utils.data.DataLoader(test_dataset, batch_size = bs, shuffle = bs)</code></pre>
+<h2><strong>Loading and fine-tuning BERT</strong></h2>
+<p>Finally, we are done with the data preprocessing, and we can start fine-tuning our model. Let’s define a model and an optimization algorithm, Adam in this case.</p>
+<pre><code class="language-python">model = DistilBertForSequenceClassification.from_pretrained(
+    'distilbert-base-uncased'
+)
+model.to(device)
+model.train()
+
+optim = torch.optim.Adam(model.parameters(), lr = 5e-5)</code></pre>
+<p><em>DistilbertForSequenceCLassification</em> specifies the downstream task we want to fine-tune the model on, which is sequence classification in this case. Note that “uncased” means that the model does not distinguish between upper and lower case letters.</p>
+<p>Before training the model, we need to define some metrics to compare the model improvements. In this simple case, we can use conventional accuracy for classification. Notice that this function is quite long because we are loading the dataset batch by batch to work around ram and GPU limitations. Usually, these resources are never enough when fine-tuning huge datasets.</p>
+<pre><code class="language-python">def compute_accuracy(model, data_loader, device):
+  with torch.no_grad():
+    correct_pred, num_examples = 0,0
+    for batch_idx, batch in enumerate(data_loader):
+      ## prepare data
+      input_ids = batch['input_ids'].to(device)
+      attention_mask = batch['attention_mask'].to(device)
+      labels = batch['labels'].to(device)
+      outputs = model(input_ids, attention_mask = attention_mask)
+      logits = outputs['logits']
+      predicted_labels = torch.argmax(logits, 1)
+      num_examples += labels.size(0)
+      correct_pred += (predicted_labels == labels).sum()
+  return correct_pred.float()/num_examples * 100</code></pre>
+<p>In the compute_accuracy function, we load a given batch and then take the predicted labels from the outputs. While doing this, we keep track of the total number of examples via the variable num_examples. In the same way, we keep track of the number of correct predictions via the correct_pred variable. After we have iterated over the complete dataloader, we can compute the accuracy by the last division.</p>
+<p>You can also notice how to use the model in the compute_accuracy function. We feed the model with input_ids along with the attention_mask information that denotes whether a token is an actual text token or padding. The model returns a SequenceClassificatierOutput object from which we get the logits and convert them into a class using the argmax function.</p>
+<h2><strong>Training (fine-tuning) loop</strong></h2>
+<p>If you know how to code a training loop in PyTorch you won't have any issues understanding this fine-tuning loop. As in any neural network, we give inputs to the network, calculate the output, compute the loss, and do parameter updates based on this loss.</p>
+<p>Every few epochs we print the training progress to get feedback.</p>
+<pre><code class="language-python">start_time = time.time()
+
+for epoch in range(N_EPOCHS):
+  model.train()
+
+  for batch_idx, batch in enumerate(train_loader):
+
+    ## prepare data
+    input_ids = batch['input_ids'].to(device)
+    attention_mask = batch['attention_mask'].to(device)
+    labels = batch['labels'].to(device)
+
+    ## forward pass
+    outputs = model(input_ids, attention_mask = attention_mask, labels = labels)
+    loss, logits = outputs['loss'], outputs['logits']
+
+    ## backward pass
+    optim.zero_grad()
+    loss.backward()
+    optim.step()
+
+    ## logging
+    if not batch_idx % 250:
+      print(f'Epoch : {epoch+1}/{N_EPOCHS:04d}'
+            f' | Batch'
+            f'{batch_idx:04d}/'
+            f'{len(train_loader):04d} |'
+            f'Loss: {loss:.4f}')
+    
+    model.eval()
+
+    with torch.set_grad_enabled(False):
+      print(f'Training accuracy: '
+            f'{compute_accuracy(model, train_loader, device):.2f}%'
+            f'\
+Valid accuracy: '
+            f'{compute_accuracy(model, valid_loader, device):.2f}%')
+    
+  print(f'Time elapsed: {(time.time() -start_time) / 60:.2f} min')
+print(f'Total Training Time: {(time.time() - start_time)/60:.2f} min')
+print(f'Test Accuracy: {compute_accuracy(model, test_loader, device):.2f}%')</code></pre>
+<h2><strong>Final Thoughts</strong></h2>
+<p>In this article, we have seen how to perform fine-tuning of a Large Language Model such as BERT by using PyTorch exclusively. Actually, there is a much faster and even smarter way to do this using the Transformers library from Hugging Face. This library allows us to create a Trainer object for fine-tuning where we can specify parameters such as the number of epochs and more in just a few lines of code. Follow me if you are curious to see how to do it in the next article! <a href="https://emojipedia.org/it/apple/ios-15.4/faccina-che-fa-l-occhiolino/">😉</a></p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>This article was published on <a href="https://medium.com/data-science/fine-tune-a-large-language-model-with-python-b1c09dbc58b2">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

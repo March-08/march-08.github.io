@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Understanding Einstein's Notation and einsum Multiplication — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Understanding Einstein's Notation and einsum Multiplication</h1>
+    <p class="subtitle">Perform higher-order tensor operations with string notation.</p>
+    <p class="postdate">January 31, 2025 · einsum multiplication</p>
+<figure>
+  <img class="wide" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>Machine Learning relies heavily on linear algebra operations, in particular, it is critical to understand well how multiplications between matrices (or more precisely between tensors) work.</p>
+<p>I have frequently noticed that those approaching the study of Machine Learning frameworks such as PyTorch or Tensorflow have many problems when bumping into errors concerning size mismatch between tensors. In this short article, I would like to shed some clarity on this and introduce the use of <a href="https://numpy.org/doc/stable/reference/generated/numpy.einsum.html">einsum</a>.</p>
+<h2><strong>From scalars to tensors</strong></h2>
+<p>In Machine Learning, we differentiate the data according to its dimension (dim). It is common to work with:</p>
+<ul>
+  <li>Scalars dim = 0</li>
+  <li>Vectors dim = 1</li>
+  <li>Matrices dim = 2</li>
+  <li>Tensors dim = 3 ( or more)</li>
+</ul>
+<figure>
+  <img class="med" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-02.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>In PyTorch we can very easily create these data types.</p>
+<pre><code>import torch
+
+# Create a scalar tensor
+scalar = torch.tensor(5.0)
+
+# Print the scalar
+print("Scalar:", scalar.item())</code></pre>
+<pre><code># Create a vector tensor
+vector = torch.tensor([1.0, 2.0, 3.0, 4.0])
+
+# Print the vector
+print("Vector:", vector)</code></pre>
+<pre><code># Create a matrix tensor
+matrix = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+
+# Print the matrix
+print("Matrix:\
+", matrix)</code></pre>
+<pre><code># Create a 3D tensor
+tensor_3d = torch.tensor([[[1.0, 2.0], [3.0, 4.0]], [[5.0, 6.0], [7.0, 8.0]]])
+
+# Print the 3D tensor
+print("3D Tensor:\
+", tensor_3d)</code></pre>
+<pre><code># Create a 4D tensor
+tensor_4d = torch.tensor([[[[1.0, 2.0], [3.0, 4.0]], [[5.0, 6.0], [7.0, 8.0]]]])
+
+# Print the 4D tensor
+print("4D Tensor:\
+", tensor_4d)</code></pre>
+<p>⚠ Beware that when we discuss vectors, math books emphasize a lot the difference between row vectors and column vectors. A vector that is either a row or column has only one dimension d. For example, a row or column vector of dimension d = 4 will be represented in the following way.</p>
+<figure>
+  <img class="wide" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-03.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>In coding frameworks, however, vectors are represented in two dimensions. A row vector will have a dimension (1,d) and a column vector dimension (d,1), which is quite different from having a single dimension d.</p>
+<p>This often leads to errors at broadcasting time. Broadcasting is an automatic operation performed by libraries such as Numpy and PyTorch to try to match the size of two tensors and perform an algelbrical operation.</p>
+<p>For example, if you try in PyTorch to perform a sum between an array of dimension (4,1) and one of dimension (1,4) you will see that the result counterintuitively will have dimension (4,4).</p>
+<figure>
+  <img class="wide" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-04.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<pre><code>x = torch.randn((4,1))
+x</code></pre>
+<pre><code>y = torch.ones((4,))
+y</code></pre>
+<pre><code>print((x+y).shape)
+print((x+y))</code></pre>
+<p>For more information about broadcasting, I suggest you read the next article.</p>
+<a class="linkcard" href="https://medium.com/@krinaljoshi/broadcasting-in-pytorch-fc438ee04cc5?source=post_page-----a690bd4da0b2---------------------------------------"><img class="lc-icon" src="images/favicons/medium.com.png" alt=""><span class="lc-body"><span class="lc-title">Broadcasting in pytorchUnderstanding the broadcasting process in tensorsmedium.com</span><span class="lc-domain">medium.com</span></span></a>
+<h2><strong>Slice Tensors</strong></h2>
+<p>Let us consider tensors of 3 dimensions. Such a tensor we can represent with the following notation: X ~ (a,b,c)</p>
+<p>Thus a tensor of the type X ~ (2,3,2) stands for the fact that we have two matrices of size 3x2.</p>
+<p>In fact, the first number indicates the number of batches, the second the number of rows, and the third the number of columns.</p>
+<figure>
+  <img class="wide" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-05.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>We can now use subscripts to select a subset of the tensor. For example, to identify a single scalar we can use <em>X_122</em>, which indicates the 1st matrix, 2nd row and 2nd column.</p>
+<figure>
+  <img class="wide" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-06.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>Let’s take another example. With a tensor of size X ~ (a,b,c) = (2,3,2), we can use a single subscript to indicate a slice (b,c), which means an entire matrix.</p>
+<figure>
+  <img class="wide" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-07.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>We can use more complex notation to denote a subset of a slice.</p>
+<figure>
+  <img class="wide" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-08.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<h2><strong>Higher order operations</strong></h2>
+<p>I assume here that you know how to do a simple matrix product. The following animation clearly summarizes this operation.</p>
+<figure>
+  <img class="wide" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-09.png" alt="src: https://en.wikipedia.org/wiki/Matrix_%28mathematics%29#/media/File:MatrixMultiplication.png">
+  <figcaption><a href="https://en.wikipedia.org/wiki/Matrix_%28mathematics%29#/media/File:MatrixMultiplication.png">Source ↗</a></figcaption>
+</figure>
+<p>The simple matrix product can be generalized to multiple batches (when we work with tensors). Most frameworks such as PyTorch for example support <a href="https://pytorch.org/docs/stable/generated/torch.bmm.html">Batched Matrix Multiplication</a> (BMM).</p>
+<p>If we have 2 matrices X ~ (n,a,b) and Y~ (n,b,c)</p>
+<p>thenwe compute the BMM as [BMM(X,Y)]_i = X_i*Y_i ~ (n,a,c)</p>
+<p>Visually it means multiplying the corresponding matrices of each batch.</p>
+<figure>
+  <img class="med" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-10.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<h2><strong>Einstein’s notation and einsum</strong></h2>
+<p>Einsum is a string-based notation for specifying operations between tensors in Machine Learning frameworks.</p>
+<p>Let us take the BMM formula and rewrite it in the form of a summation.</p>
+<figure>
+  <img class="wide" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-11.png" alt="Image By Author">
+  <figcaption>Image By Author</figcaption>
+</figure>
+<p><strong>How It Works</strong>:</p>
+<p>1. <strong>Batch Dimension.</strong> For each batch i, you perform matrix multiplication.</p>
+<p><strong>2. Matrix Multiplication. </strong>For each element M_ijk in the resulting tensor M:</p>
+<ul>
+  <li>A_ijz refers to an element in the i-th batch, j-th row, and z-th column of A.</li>
+  <li>B_izk refers to an element in the i-th batch, z-th row, and k-th column of B.</li>
+</ul>
+<p><strong>3. Summation.</strong></p>
+<ul>
+  <li>Multiply corresponding elements A_ijz and B_izk for all z (which spans the shared dimension of A and B).</li>
+  <li>Sum these products to get the value of M_ijk</li>
+</ul>
+<p>Einstein’s notation tries to simplify the notation by making the assumption that any index appearing on the right but not on the left is summed over.</p>
+<figure>
+  <img class="wide" src="images/understanding-einsteins-notation-and-einsum-multiplication/img-12.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>So we can take the subscripts in the reverse order and use them in our string notation in the einsum.</p>
+<p>“<strong><em>ijz,izk-&gt;ijk</strong></em>” and the framework will understand how you want to compute your multiplication and summation.</p>
+<p>Working with the transposed axes becomes simple, it only takes to switch axes in the einsum definition : “<strong><em>ijz,ikz-&gt;ijk</strong></em>”</p>
+<p>The actual PyTorch code to perform this is</p>
+<pre><code>torch.einsum("ijz,izk-&gt;ijk",x,y)</code></pre>
+<p>Which should return the same result as the simple dot product</p>
+<pre><code>x@y</code></pre>
+<p>The advantage of using this notation is that we do not need to remember how the API framework works, or how broadcasting can affect our multiplication because by specifying the input and output shape in the einsum the framework will be smart enough to understand what we want to do.</p>
+<p>More resources to learn about einsum:</p>
+<a class="linkcard" href="https://rockt.github.io/2018/04/30/einsum?source=post_page-----a690bd4da0b2---------------------------------------"><span class="lc-icon lc-icon-blank"></span><span class="lc-body"><span class="lc-title">Tim RocktäschelTim Rocktäschel, 30/04/2018 - updated 02/05/2018 When talking to colleagues I realized that not everyone knows about…rockt.github.io</span><span class="lc-domain">rockt.github.io</span></span></a>
+<a class="linkcard" href="https://stackoverflow.com/questions/26089893/understanding-numpys-einsum?source=post_page-----a690bd4da0b2---------------------------------------"><img class="lc-icon" src="images/favicons/stackoverflow.com.png" alt=""><span class="lc-body"><span class="lc-title">Understanding NumPy's einsumHow does np.einsum work? Given arrays A and B, their matrix multiplication followed by transpose is computed using (A @…stackoverflow.com</span><span class="lc-domain">stackoverflow.com</span></span></a>
+<h2><strong>Final Thoughts</strong></h2>
+<p>In this article, we have seen how to use scalars, vectors, matrices, and tensors. In particular, we focused on tensors that are well suited to a massive parallel implementation, such as using GPUs or more specialized hardware (e.g. TPUs, IPUs).</p>
+<p>Very often those who approach the world of machine learning immediately encounter an initial obstacle in understanding the notation that can at first glance be very complex, especially in the study of neural networks. I hope this article has brought some clarity and made you better understand the use and potential of einsum which is often used in codebases in the implementations of Deep Learning model architectures such as modern LLMs.</p>
+<p>Follow me on <a href="https://medium.com/@marcellopoliti">Medium</a> if you like this article! 😁</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://twitter.com/_March08_">X (Twitter)</a> | <a href="https://emojiterra.com/laptop-computer/">💻</a> <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>This article has been published on <a href="https://medium.com/data-science/understanding-einsteins-notation-and-einsum-multiplication-a690bd4da0b2">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

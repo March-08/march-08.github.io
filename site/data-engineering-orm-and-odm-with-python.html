@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Data Engineering — ORM and ODM with Python — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Data Engineering — ORM and ODM with Python</h1>
+    <p class="subtitle">Manipulate database data leveraging an object-oriented programming paradigm.</p>
+    <p class="postdate">March 17, 2025 · Data Engineering, Python</p>
+<figure>
+  <img class="wide" src="images/data-engineering-orm-and-odm-with-python/img-01.webp" alt="">
+</figure>
+<h3>Introduction</h3>
+<p>When working on data science projects, one fundamental pipeline to set up is the one regarding data collection. Real-world Machine Learning mainly differs from Kaggle-like problems because data is not static. We need to scrape websites, gather data from APIs, and so on. This way of collecting data might look chaotic, and it is! That’s why we need to structure our code following best practices to bring some sort of order to all this mess.</p>
+<h2><strong>The ORM software pattern</strong></h2>
+<p>Once you identified the sources from which you want to gather your data, you need to collect them in a structured way to store those in your database. For example, you might decide that in order to train your LLM what you need are data sources which contain 3 fields: <em>author, content, </em>and<em> link.</em></p>
+<p>What you could do is to download the data, and then write SQL queries to store and retrieve data from your database. More commonly you might want to implement all the queries to perform <strong>CRUD</strong> operations. CRUD stands for create, read, update, and delete. These are the four basic functions of persistent storage.</p>
+<p>Now, what you can do is encapsulate the complexity of writing SQL queries into an ORM (<strong>object-relational mapping</strong>) class that handles all the database operations. The ORM will be capable of interacting with SQL databases such as MySQL or PostgreSQL.</p>
+<h2><strong>Let’ code</strong></h2>
+<p>To start with, we need to import the necessary libraries and define a base class for all the ORM models.</p>
+<pre><code>from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+# Define the base class for the ORM models
+Base = declarative_base()</code></pre>
+<p>We are ready now to define a model. A model represents a table in our database. Here I am interested in building a <em>document </em>class to store my data. We need a user ID which will be our primary key for this model. If you are familiar with SQL, you should be familiar with this. In the model class, we also need to specify the table name to which the Python class will be associated. Let’s also rewrite the magic method __repr__ to be sure our objects will be represented and printed in a good way.</p>
+<pre><code># Define the Document model
+class Document(Base):
+    __tablename__ = 'documents'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    author = Column(String, nullable=False)
+    content = Column(String, nullable=False)
+    link = Column(String, nullable=False)
+
+    def __repr__(self):
+        return f"&lt;Document(id={self.id}, author='{self.author}', content='{self.content}', link='{self.link}')&gt;"</code></pre>
+<p>Let’s define a SQLite database</p>
+<pre><code>engine = create_engine('sqlite:///documents.db', echo=True)
+Base.metadata.create_all(engine)</code></pre>
+<p>It is also important to initialize a session with which we will actually be able to perform operations over our database.</p>
+<pre><code># Create a session factory
+Session = sessionmaker(bind=engine)
+session = Session()</code></pre>
+<p>We can add data to our database using Python!</p>
+<pre><code># Add some documents to the database
+def seed_data():
+    doc1 = Document(author='John Doe', content='This is a sample document about SQLAlchemy.', link='http://example.com/doc1')
+    doc2 = Document(author='Jane Smith', content='Understanding relationships in SQLAlchemy.', link='http://example.com/doc2')
+    doc3 = Document(author='Alice Johnson', content='An introduction to Python ORM.', link='http://example.com/doc3')
+
+    session.add_all([doc1, doc2, doc3])
+    session.commit()</code></pre>
+<p>Same for querying the DB. We can also filter based on some attributes like the author's name.</p>
+<pre><code># Query the database
+def query_data(author:str = None):
+
+    if not author:
+      print("\
+Documents:")
+      for document in session.query(Document).all():
+          print(document)
+
+    print(f"\
+Documents by {author}:")
+    john_doe_docs = session.query(Document).filter(Document.author == author).all()
+    for document in john_doe_docs:
+        print(document)</code></pre>
+<p>Check this <a href="https://docs.sqlalchemy.org/en/20/orm/">link</a> to learn more about SQLAlchemy ORM.</p>
+<h2><strong>The ODM software pattern</strong></h2>
+<p>The ODM pattern which stands for <strong>object document mapping</strong> is extremely similar to the ORM pattern, but instead of working with relational databases, we work with NoSQL databases such as <a href="https://www.mongodb.com/">MongoDB</a>.</p>
+<p>ODM maps object-oriented code to JSON-like documents and stores them in the database.</p>
+<p>This means that the class we are going to build will shape how the JSON data is represented in the DB. For this reason, we will adopt Pydantic, which provides:</p>
+<ul>
+  <li><strong>validation</strong>: automatically checks if the input data matches the expected types and constraints</li>
+  <li><strong>serialization</strong>.: converts Python objects to and from formats like JSON or dictionaries.</li>
+</ul>
+<h2><strong>Let’ code</strong></h2>
+<p>We start with the imports as usual.</p>
+<pre><code>from pydantic import BaseModel, Field
+from uuid import UUID, uuid4
+from typing import Any, Dict
+from pymongo import MongoClient</code></pre>
+<p>The class we are going to build will inherit from Pydantic <strong>BaseModel</strong> to use Pydantics features.</p>
+<p>The type UUID is used to specify that the id variable should be a universally unique identifier. The Field class is provided by Pydantic to add constraints to variables (for validation) or to add some metadata. <em>default_factory=uuid4 </em>means that when a document is created without an ID the method uuid4() is automatically called to create an ID. uuid4() generates a random number.</p>
+<pre><code>class Document(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    author: str
+    content: str
+    link: str</code></pre>
+<p>Now I want to define a method to generate an instance of the class starting from a dictionary object.</p>
+<p>This will be a class method. In this way, we have a reference to the class (cls) and can leverage this to use the <a href="https://docs.pydantic.dev/latest/">Pydantic</a> feature to automatically convert a JSON-like object into a class instance.</p>
+<p>The type returned is therefore a Document. We need to use the apexes ‘Document’ to return the type of the class we are implementing in the class itself.</p>
+<pre><code>    @classmethod
+    def from_mongo(cls, data: Dict[str, Any]) -&gt; 'Document':
+        """
+        Convert a MongoDB document to a Document instance.
+        This ensures the MongoDB '_id' field is mapped to 'id'.
+        """
+        if '_id' in data:
+            data['id'] = data.pop('_id')
+        return cls(**data)</code></pre>
+<p>In a similar way we implement the to_mongo() method.</p>
+<pre><code>
+    def to_mongo(self) -&gt; Dict[str, Any]:
+        """
+        Convert a Document instance to a MongoDB document.
+        This ensures the 'id' field is mapped to '_id'.
+        """
+        data = self.dict()
+        data['_id'] = data.pop('id')
+        return data</code></pre>
+<p>The entire class then would be the following:</p>
+<pre><code>class Document(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    author: str
+    content: str
+    link: str
+
+    @classmethod
+    def from_mongo(cls, data: Dict[str, Any]) -&gt; 'Document':
+        """
+        Convert a MongoDB document to a Document instance.
+        This ensures the MongoDB '_id' field is mapped to 'id'.
+        """
+        if '_id' in data:
+            data['id'] = data.pop('_id')
+        return cls(**data)
+
+    def to_mongo(self) -&gt; Dict[str, Any]:
+        """
+        Convert a Document instance to a MongoDB document.
+        This ensures the 'id' field is mapped to '_id'.
+        """
+        data = self.dict()
+        data['_id'] = data.pop('id')
+        return data</code></pre>
+<p>We can instantiate a MongoDB connection and use these methods to insert and fetch data easily to and from Mongo.</p>
+<pre><code># Example usage with MongoDB
+def main():
+    # Connect to the local MongoDB instance
+    client = MongoClient("mongodb://localhost:27017/")
+    db = client.test_database
+    collection = db.documents
+
+    # Create a new document instance
+    new_document = Document(author="Jane Doe", content="Learning MongoDB with Pydantic.", link="http://example.com/doc2")
+
+    # Insert the document into MongoDB
+    inserted_id = collection.insert_one(new_document.to_mongo()).inserted_id
+    print(f"Inserted document with _id: {inserted_id}")
+
+    # Fetch the document back from MongoDB
+    mongo_document = collection.find_one({"_id": inserted_id})
+
+    # Convert the MongoDB document to a Document instance
+    document_instance = Document.from_mongo(mongo_document)
+    print("Fetched and converted to Document instance:", document_instance)
+
+    # Clean up (delete the inserted document)
+    collection.delete_one({"_id": inserted_id})
+    print("Deleted the inserted document.")
+
+# Run the example
+main()</code></pre>
+<p>Done!</p>
+<p>This is a very simple example. You might consider implementing some other methods to streamline the interaction with Mongo. For example, some methods you could implement are:</p>
+<ul>
+  <li>save(): to allow an instance of the model to be inserted into the database</li>
+  <li>get_or_create(): method which attempts to find a document in a database, if not existing it is created.</li>
+  <li>bulk_insert(): to insert multiple documents in the database</li>
+  <li>find(): search in the database using advanced filters</li>
+  <li>bulk_find(): find multiple documents</li>
+  <li>get_collection_name(): determines the name of the MongoDB collection</li>
+</ul>
+<h2><strong>Final Thoughts</strong></h2>
+<p>In this article, I described how to implement the ORM and ODM paradigms to streamline the work with relational and document-based databases. These approaches abstract the complexity of managing the database and writing SQL queries by writing clean and maintainable code.</p>
+<p>Follow me on <a href="https://medium.com/@marcellopoliti">Medium</a> if you like this article! 😁</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://x.com/Marcello_AI">X (Twitter)</a> | <a href="https://emojiterra.com/laptop-computer/">💻</a> <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>This article has been published on <a href="https://medium.com/data-science/data-engineering-orm-and-odm-with-python-cff97532e464">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

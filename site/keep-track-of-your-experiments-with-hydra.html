@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Keep Track of Your Experiments with Hydra — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Keep Track of Your Experiments with Hydra</h1>
+    <p class="subtitle">Configure hyperparameters using YAML files and speed up your research!.</p>
+    <p class="postdate">June 11, 2024 · Hydra, MLOps</p>
+<figure>
+  <img class="wide" src="images/keep-track-of-your-experiments-with-hydra/img-01.webp" alt="">
+</figure>
+<h3>Introduction</h3>
+<p>In the same way that it is impossible to write code that does not contain a bug within it on the first try, it is impossible to train a model that is the right one on the first try.</p>
+<p>Those who have some experience in Machine Learning and <a href="https://towardsdatascience.com/tag/deep-learning/">Deep Learning</a> know that you often have to <strong>spend a lot of time choosing the right hyperparameters of models</strong>. These hyperparameters are for example learning rate, batch size, and number of classes in output, but these are just some of the most common, a project can have hundreds of such parameters.</p>
+<p>By changing the hyperparameters we could get different results (better or worse), and at some point <strong>keeping track of all the tests done is very hard</strong>.</p>
+<p>Here’s what I did for a very long time: I used to write down all these hyperparameters by hand in an Excel sheet and write next to it the result of each experiment, the loss value for example. Later I "evolved" and started writing configuration files for the hyperparameters, in which I put various values that I wanted to test. I used to write custom Python functions that would read those values and put them into the training function. A YAML file is basically a hierarchically constructed file where you can insert keys and values like the following:</p>
+<pre><code class="language-yaml">data:
+  path: "data/ESC-50"
+  sample_rate: 8000
+  train_folds: [1, 2, 3]
+  val_folds: [4]
+  test_folds: [5]
+  batch_size: 8
+
+model:
+  base_filters: 32
+  num_classes: 50
+  optim:
+    lr: 3e-4
+
+seed: 0
+
+trainer:
+  max_epochs: 10</code></pre>
+<p>I later discovered <a href="https://hydra.cc/docs/intro/">Hydra</a>, an open-source framework which made this whole process easier and even faster.</p>
+<h3>Let’s get started!</h3>
+<p>Suppose we are developing a simple <a href="https://towardsdatascience.com/tag/machine-learning/">Machine Learning</a> project using PyTorch. As usual, we create a class for the dataset, instantiate the dataloaders, create the model and train. In this example, I will use PyTorch <a href="https://www.pytorchlightning.ai/index.html">Lightning</a> to better organize the code, in which we have a Trainer object, similar to what you do in Keras. If you are used to PyTorch you will also understand Lightning in no time.</p>
+<p>For our example, we could use the famous ESC50 dataset that you can find for free <a href="https://github.com/karolpiczak/ESC-50">here</a>.</p>
+<p>First, we import all the libraries we will need. I will run the code using Deepnote.</p>
+<p>As usual, we implement a PyTorch class to manage the dataset.</p>
+<p>We implement the model using Lightning. I won’t describe the model, because that’s not what’s important, it’s not even important if you don’t have experience with audio-related tasks, what’s important is just how to structure and use Hydra to experiment.</p>
+<p>Finally, the train function.</p>
+<h3>Add Hydra configuration</h3>
+<p>In the above code, you see that there are many hard-coded parameters such as batch size, folds used for train-val-test split, number of epochs, and more.</p>
+<p>I want to find the best parameters and then launch various experiments and judge from the results. Hydra makes this very easy, let’s see, how to install and use this library.</p>
+<p>Now we create a configuration file called "default.yaml" in a new folder called configs.</p>
+<p>The file will contain key-value pairs with all the hyperparameters we want to test. Here is an example.</p>
+<pre><code class="language-yaml">data:
+  path: "data/ESC-50"
+  sample_rate: 8000
+  train_folds: [1, 2, 3]
+  val_folds: [4]
+  test_folds: [5]
+  batch_size: 8
+
+model:
+  base_filters: 32
+  num_classes: 50
+  optim:
+    lr: 3e-4
+
+seed: 0
+
+trainer:
+  max_epochs: 10</code></pre>
+<p>Now we want to <strong>pass these parameters dynamically to the train function</strong>. <strong>Hydra allows us to use a decorator to do this</strong>.</p>
+<p>As you can see the decorator defines the folder and file name to be used with the parameters. And the <strong>hard-coded values have been changed by going to take the file values and treating them in </strong><a href="https://towardsdatascience.com/tag/python/"><strong>Python</strong></a><strong> as a dictionary</strong>, very simple!</p>
+<p>You will notice, however, that in the Audionet Model the expected input has been changed so that it accepts a dictionary of parameters in the following way.</p>
+<p>Now everything is ready. Try running train() and Hydra will produce results that are organized and easy to verify.</p>
+<p>Here is an example of Hydra’s output in my case.</p>
+<figure>
+  <img class="med" src="images/keep-track-of-your-experiments-with-hydra/img-02.png" alt="">
+</figure>
+<p>As we see, Hydra provides us with a recap of the parameter configuration file, lightning logs regarding model training, and a CSV file to check metrics.</p>
+<p>All this, however, is only the basis of Hydra, which is a tool that allows you to do much more.</p>
+<p>One very nice feature is to run the script via the terminal and add or change file parameters from the command line.</p>
+<p>For example, if we want to change the seed quickly without tweaking the YAML file we can do that:</p>
+<pre><code class="language-shell">python my_app.py 'seed=1'</code></pre>
+<p>We can also add some keywords to the config file that is given as input to the Trainer in the line pl.Trainer(<em></em>cfg.trainer). To add a keyword we use the + command from the terminal.</p>
+<pre><code class="language-shell">python train.py +trainer.fast_dev_run = True</code></pre>
+<p>Sometimes you might want to save experiments in a folder other than the default one, and even this can be set up easily from the command line by going to override Hydra’s hydra.run.dir parameter.</p>
+<pre><code class="language-shell">python train.py data.sample_rate=4000 hydra.run.dir="outputs/sample_rate_4000"</code></pre>
+<h2>Final Thoughts</h2>
+<p>Hydra is a framework created on top of OmegaConf, which allows us to manage our experiments very easily. Once we have implemented the code and pipeline, our job will be to track the progress of the models and change the configuration as we see fit.</p>
+<p>In this article, we have seen a practical example of how to use Hydra, but there are many more advanced features that we have not covered for example launching multi-runs to run multiple experiments in parallel. And for that, I suggest you go read the documentation. If you were interested in this article follow me on Medium! 😄</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://twitter.com/_March08_">Twitter</a> | <a href="https://emojiterra.com/laptop-computer/">💻 </a><a href="https://marcello-politi.super.site/">Website</a></p>
+<p>This article was published by <a href="https://towardsdatascience.com/keep-track-of-your-experiments-with-hydra-b29937a99fc9/">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

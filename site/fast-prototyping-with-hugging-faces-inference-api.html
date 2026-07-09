@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Fast Prototyping with Hugging Face's Inference API — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Fast Prototyping with Hugging Face's Inference API</h1>
+    <p class="subtitle">Build AI-based applications with Hugging Face in a few minutes.</p>
+    <p class="postdate">August 4, 2024 · HuggingFace, Prototyping</p>
+<figure>
+  <img class="wide" src="images/fast-prototyping-with-hugging-faces-inference-api/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>The boom in Large Language Models has brought many people, not just data scientists, closer to the world of AI. Everyone is using these models in their applications, and <strong>you certainly don’t have to be a Machine Learning</strong> expert to do so, you just need to <strong>invoke APIs served by pre-trained models</strong> and get their output! So let’s see how to create and use APIs that are useful for doing real-time inference on real data created by experts and that can be integrated into more complex applications.</p>
+<p>LLMs are huge models that contain millions of parameters and have taken huge amounts of textual data (e.g., everything on the world wide web) and are able to process it and solve tasks. <strong>One of the most curious things about these models is that they generate emergent capabilities</strong>, on which they have never been trained. For example, they are able to solve small math or logic problems without having been specifically trained on them. Or they are able to interact with the user as in a chat room.</p>
+<p>Many realities are only recently approaching the world of AI and want to use Machine Learning capabilities to create products or offer new services. <strong>Often to create a valuable AI-based product, the speed with which you can launch it into the market is critical.</strong> So in this article, I want to talk about how to use Hugging Face for fast prototyping.</p>
+<h2><strong>Hugging Face</strong></h2>
+<p><strong>Hugging Face</strong> (HF) was established as a <strong>leading platform for research and development in Natural Language Processing</strong>. HF is based on an open and collaborative research approach, engaging developers and researchers from around the world. Users can share their projects, exchange ideas and collaborate to improve and develop new language models. This open and shared approach fosters growth and innovation in the field of artificial intelligence, accelerating progress and discovery.</p>
+<p>One of the most widely used services that HF provides is the API, this allows you to provide a way for developers to interact with the AI models you have developed.</p>
+<p>There are several models that solve different tasks whose APIs can be exposed. Let us look at some models and use cases:</p>
+<ul>
+  <li><strong>Classification Models</strong>: Spam detection, Sentiment analysis, Topic labelling</li>
+  <li><strong>Question &amp; Answer Models</strong>: Online help centres, Virtual customer assistance</li>
+  <li><strong>Conversational Agents Models</strong>: Interactive chat fiction, Voice assistant integration</li>
+  <li><strong>Image Caption Generation Models</strong>: Stock photo optimization, Content creation acceleration</li>
+  <li><strong>Speech Synthesis Models</strong>: IVR automation, Custom audiobooks/podcast narration</li>
+  <li><strong>Writing Generation Models</strong>: Personalized greeting cards, Email subject line optimization.</li>
+  <li><strong>Named Entity Recognition Models</strong>: News article tagging, CRM management, Social media monitoring</li>
+  <li><strong>Sentiment Analysis Models</strong>: Opinion mining for surveys, Customer service chatbots, Marketing campaign evaluation</li>
+  <li><strong>Machine Translation Models</strong>: Multilingual product descriptions, Foreign correspondence handling, Travel industry chatbots</li>
+  <li><strong>Chatbot Development Models</strong>: Intelligent virtual agents, Sales lead generation</li>
+</ul>
+<h2><strong>Hugging Face Inference API</strong></h2>
+<p>Let’s start by registering at the Hugging Face website.</p>
+<figure>
+  <img class="portrait" src="images/fast-prototyping-with-hugging-faces-inference-api/img-02.png" alt="">
+</figure>
+<p>In your account settings, you will see your API Token that you will need to use the template.</p>
+<figure>
+  <img class="wide" src="images/fast-prototyping-with-hugging-faces-inference-api/img-03.png" alt="">
+</figure>
+<p>Take a look at the token and save it.</p>
+<p>Then choose a model you want to use, depending on the problem you want to solve. For example, now I want to look for a Text Classification — Sentiment Analysis model.</p>
+<figure>
+  <img class="wide" src="images/fast-prototyping-with-hugging-faces-inference-api/img-04.png" alt="">
+</figure>
+<p>I now choose a model I am interested in from a list of models, there are so many of them!</p>
+<figure>
+  <img class="wide" src="images/fast-prototyping-with-hugging-faces-inference-api/img-05.png" alt="">
+</figure>
+<p>A <strong>model is always accompanied by a model card</strong>, which has sometimes is more or less detailed about the characteristics of the model and how it was trained etc..</p>
+<figure>
+  <img class="wide" src="images/fast-prototyping-with-hugging-faces-inference-api/img-06.gif" alt="">
+</figure>
+<p>If you click on the deploy button in the upper right-hand corner, a drop-down menu will appear, where you can select the <strong>Inference API</strong> item.</p>
+<figure>
+  <img class="wide" src="images/fast-prototyping-with-hugging-faces-inference-api/img-07.png" alt="">
+</figure>
+<p>Inference API will open a window for you where it will explain step by step how to use the model in inference. These APIs are very useful because they allow you to create prototypes if you are working on AI-based projects very quickly.</p>
+<figure>
+  <img class="wide" src="images/fast-prototyping-with-hugging-faces-inference-api/img-08.png" alt="">
+</figure>
+<p>So let’s try now to follow the directions in this window and run the code.</p>
+<pre><code>import requests
+
+API_URL = "https://api-inference.huggingface.co/models/cardiffnlp/twitter-roberta-base-sentiment"
+headers = {"Authorization": "Bearer API_TOKEN"}
+
+def query(payload):
+ response = requests.post(API_URL, headers=headers, json=payload)
+ return response.json()
+
+output = query({
+ "inputs": "Hey, dude! You're great!",
+})
+
+#OUTPUT
+'''
+[[{'label': 'LABEL_0', 'score': 0.002866477705538273},
+  {'label': 'LABEL_1', 'score': 0.018881773576140404},
+  {'label': 'LABEL_2', 'score': 0.9782518148422241}]]
+'''</code></pre>
+<p>As you can see by trying it, we get a result that is a score of whether the sentence is negative, neutral, or positive.</p>
+<p>Let’s look at another example with another model now. I would like to use a <strong>Question Answering model</strong> now, where we feed the model the context and a question, and the model will be able to answer the question by reading the context. First, we select the model.</p>
+<figure>
+  <img class="wide" src="images/fast-prototyping-with-hugging-faces-inference-api/img-09.png" alt="">
+</figure>
+<p>We now use the Inference API.</p>
+<pre><code>import requests
+
+API_URL = "https://api-inference.huggingface.co/models/valhalla/longformer-base-4096-finetuned-squadv1"
+headers = {"Authorization": "Bearer XXXXXXXXXXXXXXXXXX"}
+
+def query(payload):
+ response = requests.post(API_URL, headers=headers, json=payload)
+ return response.json()
+
+output = query({
+ "inputs": {
+  "question": "What's my name?",
+  "context": "My name is Marcello and I am an AI specialist. I love pizza and I am Italian."
+ },
+})
+
+# OUTPUT
+#{'score': 0.9990959763526917, 'start': 11, 'end': 19, 'answer': 'Marcello'}</code></pre>
+<p>Let us now try a <strong>summarization model</strong>. So as the name already suggests, the model will return the summary of a given text.</p>
+<pre><code>import requests
+
+API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
+headers = {"Authorization": "Bearer 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"}
+
+def query(payload):
+ response = requests.post(API_URL, headers=headers, json=payload)
+ return response.json()
+
+output = query({
+ "inputs": "The tower is 324 metres (1,063 ft) tall, about the same height as an 81-storey building, and the tallest structure in Paris. Its base is square, measuring 125 metres (410 ft) on each side. During its construction, the Eiffel Tower surpassed the Washington Monument to become the tallest man-made structure in the world, a title it held for 41 years until the Chrysler Building in New York City was finished in 1930. It was the first structure to reach a height of 300 metres. Due to the addition of a broadcasting aerial at the top of the tower in 1957, it is now taller than the Chrysler Building by 5.2 metres (17 ft). Excluding transmitters, the Eiffel Tower is the second tallest free-standing structure in France after the Millau Viaduct.",
+})</code></pre>
+<p>Output: <em>The tower is 324 metres (1,063 ft) tall, about the same height as an 81-storey building. Its base is square, measuring 125 metres (410 ft) on each side. During its construction, the Eiffel Tower surpassed the Washington Monument to become the tallest man-made structure in the world.</em></p>
+<h2><strong>Final Thoughts</strong></h2>
+<p>In these examples, I used mainly NLP models, which therefore work on language. HuggingFace to date provides models for all kinds of problems, from computer vision to reinforcement learning.</p>
+<p>Hugging Face’s Inference API if used well can be a very useful tool. Think for example if you are a startup, are working in Agile methodology, and need to create a prototype a fast way, to start collecting feedback on your product or to have a first MVP. The Inference API enables fast prototyping and will allow you to create an MVP in no time!</p>
+<p>Follow me if you want to read more articles like this! :)</p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>Check the article also <a href="https://medium.com/geekculture/fast-prototyping-with-hugging-faces-inference-api-3cd6c43ff1b4">here</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

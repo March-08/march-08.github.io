@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Design Patterns with Python for ML Engineers: Template Method — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Design Patterns with Python for ML Engineers: Template Method</h1>
+    <p class="subtitle">Learn how to use the Template design pattern to enhance your code.</p>
+    <p class="postdate">March 8, 2025 · Design Pattern, Python, Template Method</p>
+<figure>
+  <img class="wide" src="images/design-patterns-with-python-for-ml-engineers-template-method/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>Recently I’ve been working on the domain-specific fine-tuning of several LLMs. The first and maybe the most important part of this task is to collect, scrape, and clean textual data to feed the LLM. I noticed that my code was becoming messy with many repetitions, because for every identified source I was writing a script from scratch which had a lot of things in common with other scripts in my codebase. I was not following the “<strong><em>Don’t repeat yourself</strong></em>” (DRY) principle at all. This is why I decided to implement the Template Design Pattern and make my code base more elegant and efficient.</p>
+<h2><strong>The Template Design Pattern</strong></h2>
+<p>I won’t repeat here what a design pattern is and how we classify design patterns based on their functionalities, since I’ve written many articles on the subject. If you are interested in reading my previous articles on this topic I will leave some references at the end.</p>
+<p>In this article, I will show you an <strong>example related to data processing</strong>. Let’s say that in our project we have to deal with different kinds of data that we want to analyze. Some of these data are financial related that we gathered maybe from an external API. But we also have to analyze some surveys, and at the end provide a report to our boss.</p>
+<p>These two types of data are really different from one another, they represent different things, are formatted differently and so on. But even in this case, we need to perform similar operations on both of them.</p>
+<p>For sure we have to clean the data and transform them in a format which is more comfortable for us than analysing and saving our results.</p>
+<p>So even if each single step is ad hoc per data type, the steps (or the algorithm) are the same. So what we can do is to define a general abstract class that defines these steps at a high level.</p>
+<p>Creating an abstract class in Python is sufficient to inherit from ABC, and use the decorator @abstactmethod on the methods we want overridden in concrete subclasses.</p>
+<p>This class will have a general method named <code>process_data</code> where we define the above-mentioned steps. This method goes into the abstract class because it is something all the subclasses will have in common, so we avoid repeating it every time. The abstract methods instead will be re-implemented in each single subclass.</p>
+<pre><code>from abc import ABC, abstractmethod
+
+# The abstract class defines a template method and abstract steps.
+class DataProcessor(ABC):
+    def process_data(self, data):
+        """The template method defining the skeleton of data processing."""
+        cleaned_data = self.clean_data(data)
+        transformed_data = self.transform_data(cleaned_data)
+        analyzed_data = self.analyze_data(transformed_data)
+        self.save_results(analyzed_data)
+
+    @abstractmethod
+    def clean_data(self, data):
+        """Clean the raw data."""
+        pass
+
+    @abstractmethod
+    def transform_data(self, data):
+        """Transform the data into a useful format."""
+        pass
+
+    @abstractmethod
+    def analyze_data(self, data):
+        """Analyze the transformed data."""
+        pass
+
+    @abstractmethod
+    def save_results(self, results):
+        """Save the analysis results."""
+        pass</code></pre>
+<p>Now every time we want to create a subclass that deals with a specific data type, we only need to inherit the template class “DataProcessor” and implement each abstract method. Let’s do the class that handles the financial data.</p>
+<pre><code># Concrete class for processing financial data
+class FinancialDataProcessor(DataProcessor):
+    def clean_data(self, data):
+        print("Cleaning financial data...")
+        return [d.strip() for d in data if d.strip()]
+
+    def transform_data(self, data):
+        print("Transforming financial data...")
+        return [float(d) for d in data]
+
+    def analyze_data(self, data):
+        print("Analyzing financial data...")
+        return {
+            "total": sum(data),
+            "average": sum(data) / len(data),
+            "max": max(data),
+            "min": min(data)
+        }
+
+    def save_results(self, results):
+        print("Saving financial analysis results...")
+        with open("financial_results.txt", 'w') as file:
+            for key, value in results.items():
+                file.write(f"{key}: {value}\
+")
+        print("Results saved to financial_results.txt")
+</code></pre>
+<p>We can do the same for the survey data😀</p>
+<pre><code># Concrete class for processing survey data
+class SurveyDataProcessor(DataProcessor):
+    def clean_data(self, data):
+        print("Cleaning survey data...")
+        return [d for d in data if d.isdigit()]
+
+    def transform_data(self, data):
+        print("Transforming survey data...")
+        return [int(d) for d in data]
+
+    def analyze_data(self, data):
+        print("Analyzing survey data...")
+        from collections import Counter
+        return dict(Counter(data))
+
+    def save_results(self, results):
+        print("Saving survey analysis results...")
+        with open("survey_results.txt", 'w') as file:
+            for key, value in results.items():
+                file.write(f"{key}: {value}\
+")
+        print("Results saved to survey_results.txt")</code></pre>
+<p>That’s pretty much it!</p>
+<p>Now we can run our main.py (I’m using here some mock data):</p>
+<pre><code>print("Processing Financial Data:")
+financial_data = ["100", " 200 ", "300", "", "400"]
+financial_processor = FinancialDataProcessor()
+financial_processor.process_data(financial_data)
+
+print("\
+Processing Survey Data:")
+survey_data = ["5", "3", "4", "5", "2", "", "5", "3"]
+survey_processor = SurveyDataProcessor()
+survey_processor.process_data(survey_data)</code></pre>
+<p>Using this pattern we avoided having a lot of conditionals, which usually developers put there to redirect the data into the correct processor. Also, imagine you’re working in a big team, and at a certain point your boss wants you to handle a new type of data. A new developer just by following the first template (the abstract class) knows what he has to do. So having your code structured in this way is way more scalable avoiding technical debts in the future.</p>
+<p>Follow me on <a href="https://medium.com/@marcellopoliti">Medium</a> if you like this article! 😁</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://x.com/Marcello_AI">X (Twitter)</a> | <a href="https://emojiterra.com/laptop-computer/">💻</a> <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>Other design pattern-related articles</p>
+<ul>
+  <li><a href="https://towardsdatascience.com/design-patterns-with-python-for-machine-learning-engineers-builder-45b8e749f134?source=post_page-----a58c5ed9b829---------------------------------------"><strong>Design Patterns with Python for Machine Learning Engineers: BuilderLearn how to use the Builder design pattern to enhance your code</strong></a><a href="https://towardsdatascience.com/design-patterns-with-python-for-machine-learning-engineers-builder-45b8e749f134?source=post_page-----a58c5ed9b829---------------------------------------"><br></a></li>
+  <li><a href="https://towardsdatascience.com/design-patterns-with-python-for-machine-learning-engineers-prototype-fcc1358a862d?source=post_page-----a58c5ed9b829---------------------------------------"><strong>Design Patterns with Python for Machine Learning Engineers: PrototypeLearn how to use the Prototype design pattern to enhance your code</strong></a><a href="https://towardsdatascience.com/design-patterns-with-python-for-machine-learning-engineers-prototype-fcc1358a862d?source=post_page-----a58c5ed9b829---------------------------------------"><br></a></li>
+  <li><a href="https://towardsdatascience.com/design-patterns-with-python-for-machine-learning-engineers-observer-23cde7ecb2ed?source=post_page-----a58c5ed9b829---------------------------------------"><strong>Design Patterns with Python for Machine Learning Engineers: ObserverLearn how to use the Observer design pattern with an example based on Instagram</strong></a><a href="https://towardsdatascience.com/design-patterns-with-python-for-machine-learning-engineers-observer-23cde7ecb2ed?source=post_page-----a58c5ed9b829---------------------------------------"><br>towardsdatascience.com</a></li>
+  <li><a href="https://towardsdatascience.com/design-patterns-with-python-for-machine-learning-engineers-abstract-factory-f761f89a3c12?source=post_page-----a58c5ed9b829---------------------------------------"><strong>Design Patterns with Python for Machine Learning Engineers: Abstract FactoryLearn how you can structure your code by adopting design patterns</strong></a><a href="https://towardsdatascience.com/design-patterns-with-python-for-machine-learning-engineers-abstract-factory-f761f89a3c12?source=post_page-----a58c5ed9b829---------------------------------------"><br></a></li>
+</ul>
+<p>This article has been published on <a href="https://medium.com/data-science/design-patterns-with-python-for-machine-learning-engineers-template-method-a58c5ed9b829">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

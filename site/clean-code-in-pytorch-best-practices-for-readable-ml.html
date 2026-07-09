@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Clean Code in PyTorch: Best Practices for Readable ML — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Clean Code in PyTorch: Best Practices for Readable ML</h1>
+    <p class="subtitle">Five Tips for Writing Clean, Efficient and readable Code in PyTorch.</p>
+    <p class="postdate">September 9, 2024 · PyTorch, Best Practices</p>
+<figure>
+  <img class="med" src="images/clean-code-in-pytorch-best-practices-for-readable-ml/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>In the field of data science and programming in general, it is very important to be able to write code that is easy to read and maintain. Surely you too have had the experience of writing code that seemed to work fine and that was pretty clear, but then you reread it a day or a week later and it looked incomprehensible. Even more obvious is this difficulty when you have to review code written by other people.</p>
+<p>In AI, it is critically important to write clear and understandable code, because we often have to set up several experiments, and then try multiple models, multiple data, and a ton of hyperparameters.</p>
+<p>In this article, I share with you some tips that I use when programming with PyTorch that you can apply immediately and I hope they will help you become a little more efficient in your work as a data scientist.</p>
+<h2><strong>Create a DataModule class to manage your data</strong></h2>
+<p>In this example, I will be working with the well-known MNIST dataset. Although the practices I use may seem unnecessary in this case, since the various libraries already facilitate the use of such simple datasets, they can always come in handy when working with more complex datasets.</p>
+<p>Many times when working with nonstandard datasets we have to go through different steps, such as downloading the data, structuring folders and subfolders to split the data, creating a custom Dataset class, and much more. So it would be useful to create a DataModule class that takes care of everything there is to do within it and provides two functions that directly return the data loaders that we will use for training.</p>
+<p>Having such a class will allow us to have a cleaner and more scalable workflow on a large scale. Let’s look at a simple example.</p>
+<pre><code>import torch
+from torch.utils.data import Dataset
+from torchvision import datasets
+from torchvision.transforms import ToTensor
+
+
+class DataModule:
+    def __init__(self, bs = 64) -&gt; None:
+        self.bs = bs
+        self.training_data = datasets.FashionMNIST(
+            root="data",
+            train=True,
+            download=True,
+            transform=ToTensor()
+        )
+        self.valid_data = datasets.FashionMNIST(
+            root="data",
+            train=False,
+            download=True,
+            transform=ToTensor()
+        )
+
+    def train_dataloader(self):
+        return torch.utils.data.DataLoader(self.training_data, batch_size=self.bs, shuffle=True)
+
+    def val_dataloader(self):
+        return torch.utils.data.DataLoader(self.valid_data, batch_size=4 * self.bs, shuffle=False)</code></pre>
+<p>In this case, the DataModule class takes care of creating datasets and instantiating dataloaders using two functions. In this way, in the main function, I can simply call the train_dataloader() and val_dataloader() functions to access my data. In general, if you have some data retrieval tasks that you need to perform to collect your dataset, it’s a good practice to add them to the DataModule class, which can then be used to instantiate dataloaders. In this way, you can access the data in a straightforward manner.</p>
+<h2><strong>Let’s reproduce TensorFlow fit method</strong></h2>
+<p>I am not a big fan of TensorFlow, in fact, unless required I almost always work with PyTorch. Though, I find that the fit() method of TensorFlow is quite handy. In fact, after you have created a model you only need to call model.fit(data) to train it, somewhat like you do with models in scikit-learn.</p>
+<p>So why not recreate something similar in PyTorch as well?</p>
+<p>What we will do in the next example is to define a fit function that trains the network on the MNIST data by taking as input the DataModule created earlier. After that, we will make this function a method of our class that defines the model.</p>
+<p>This way whenever we want to create a different model, we could always associate it with the fit() function, which remains unchanged.</p>
+<pre><code>class MNISTNet(nn.Module):
+    def __init__(self) -&gt; None:
+        super(MNISTLogistic, self).__init__()
+        self.flatten = nn.Flatten()
+        self.lin = nn.Linear(784,10)
+
+    def forward(self, xb):
+        return self.lin(torch.flatten(xb,1))
+
+def fit(self: nn.Module, datamodule, epochs:int, loss_fn = nn.CrossEntropyLoss()):
+    train_dataloader = datamodule.train_dataloader()
+    val_dataloader = datamodule.val_dataloader()
+
+    opt = configure_optimizer(self)
+    train_dataloader = datamodule.train_dataloader()
+
+    for epoch in range(epochs):
+        self.train()
+        for xb, yb in train_dataloader:
+            pred = self(xb)
+            loss = loss_fn(pred, yb)
+            loss.backward()
+            opt.step()
+            opt.zero_grad()
+        self.eval()
+        with torch.no_grad():
+            valid_loss = sum(loss_fn(self(xb), yb) for xb, yb in val_dataloader)
+
+MNISTLogistic.fit = fit</code></pre>
+<p>Now we can use model.fit(datamodule = datamodule, epochs = 3) to run our training.</p>
+<h2><strong>Progress Bar</strong></h2>
+<p>During the model training, it is really annoying not to have hints about how long it will take to finish. But fortunately, it is possible to implement a progress bar in PyTorch in a really easy way.</p>
+<p>Just use the tqdm function and wrap the dataloader and explicitly state the total length of the dataloader with <em>len(dataloader)</em>.</p>
+<p>In this way, a progress bar will appear as if by magic, making the output much more visually appealing.</p>
+<pre><code>!pip install tqdm
+from tqdm import tqdm
+
+for index, (xb,yb) in tqdm(enumerate(train_loader), total = len(train_loader))
+  pred = self(xb)
+  loss = loss_fn(pred, yb)
+  loss.backward()
+  opt.step()
+  opt.zero_grad()</code></pre>
+<figure>
+  <img class="wide" src="images/clean-code-in-pytorch-best-practices-for-readable-ml/img-02.gif" alt="Source: https://github.com/tqdm/tqdm">
+  <figcaption>Source: <a href="https://github.com/tqdm/tqdm">https://github.com/tqdm/tqdm</a></figcaption>
+</figure>
+<h2><strong>Evaluation Metrics</strong></h2>
+<p>I don’t know why but when I read codes written in PyTorch I very frequently see people implementing common metrics by hand, such as precision, recall, accuracy…</p>
+<p>However, this is not the case when they work with other libraries such as scikit-learn. Implementing these metrics within the training function can make the function difficult to read, and perhaps bugs are inserted even more easily.</p>
+<p>My suggestion then is to use the metrics already found in libraries such as scikit-learn when working. This allows us to use code that is probably more robust but more importantly saves us time!</p>
+<p>Of course, the discussion is different if there is a need to implement custom metrics, so if you are doing research on, for example, new methods for model evaluation.</p>
+<p>Particularly when starting to develop a project and we want to use standard metrics to see if we are going in the right direction, I find it useful to use the classification_report function of scikit-learn. Let’s look at an example.</p>
+<pre><code>from sklearn.metrics import classification_report
+preds = [0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
+labels = [1, 0, 0, 1, 1, 1, 0, 0, 1, 1,]
+print(classification_report(labels, preds))</code></pre>
+<figure>
+  <img class="wide" src="images/clean-code-in-pytorch-best-practices-for-readable-ml/img-03.png" alt="">
+</figure>
+<p><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">Image By Author</span></p>
+<h2><strong>Final Thoughts</strong></h2>
+<p>As a developer, I always try to make my code clear and clean (and bug-free!<a href="https://emojipedia.org/it/apple/ios-15.4/faccina-che-fa-l-occhiolino/">😉</a>). I always try to keep in mind the fact that my code must be as understandable as possible even without the use of comments. Therefore, I love to learn easy-to-use tricks that I can implement immediately in my code.</p>
+<p>If this article was helpful to you follow me to read my next articles of this type! 😊</p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://march-08.github.io/digital-cv/">CV</a></p>
+<p>This article was published on <a href="https://medium.com/data-science/clean-code-in-pytorch-best-practices-for-readable-ml-adfd798bf6df">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

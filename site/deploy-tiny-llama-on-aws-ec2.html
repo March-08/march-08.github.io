@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Deploy Tiny-Llama on AWS EC2 — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Deploy Tiny-Llama on AWS EC2</h1>
+    <p class="subtitle">Learn how to deploy a real ML application using AWS and FastAPI.</p>
+    <p class="postdate">April 18, 2024 · MLOps, FastAPI, AWS-EC2, Llama</p>
+<figure>
+  <img class="med" src="images/deploy-tiny-llama-on-aws-ec2/img-01.webp" alt="">
+</figure>
+<h3>Introduction</h3>
+<p>I have always thought that even the best project in the world does not have much value if people cannot use it. That is why it is very important to learn how to deploy Machine Learning models. In this article we focus on deploying a small large language model, Tiny-Llama, on an AWS instance called EC2.</p>
+<p>List of tools I’ve used for this project:</p>
+<ul>
+  <li><a href="https://deepnote.com/">Deepnote</a>: is a cloud-based notebook that’s great for collaborative <a href="https://towardsdatascience.com/tag/data-science/">Data Science</a> projects, good for prototyping</li>
+  <li><a href="https://fastapi.tiangolo.com/">FastAPI</a>: a web framework for building APIs with Python</li>
+  <li><a href="https://aws.amazon.com/pm/ec2/?gclid=CjwKCAiAqNSsBhAvEiwAn_tmxcAUKn_yNi6eSU_EJAZAV5z3kUQ4SzQmrv-xK9Jj0xkFLd9ahM84ihoCljcQAvD_BwE&amp;amp;trk=be8ffa73-d198-48a9-8728-2fdd4b8a06a0&amp;amp;sc_channel=ps&amp;amp;ef_id=CjwKCAiAqNSsBhAvEiwAn_tmxcAUKn_yNi6eSU_EJAZAV5z3kUQ4SzQmrv-xK9Jj0xkFLd9ahM84ihoCljcQAvD_BwE:G:s&amp;amp;s_kwcid=AL!4422!3!494972673739!e!!g!!aws%20ec2!12196406589!115425120925">AWS EC2</a>: is a web service that provides sizable compute capacity in the cloud</li>
+  <li><a href="https://nginx.org/en/">Nginx</a>: is an HTTP and reverse proxy server. I use it to connect the FastAPI server to AWS</li>
+  <li><a href="https://github.com/">GitHub</a>: GitHub is a hosting service for software projects</li>
+  <li><a href="https://huggingface.co/">HuggingFace</a>: is a platform to host and collaborate on unlimited models, datasets, and applications.</li>
+</ul>
+<h3>About Tiny Llama</h3>
+<blockquote><p>GitHub – jzhang38/TinyLlama: The TinyLlama project is an open endeavor to pretrain a 1.1B Llama…</p></blockquote>
+<p><a href="https://github.com/jzhang38/TinyLlama">TinyLlama-1.1B</a> is a project aiming to pretrain a 1.1B Llama on 3 trillion tokens. It uses the same architecture as <a href="https://ai.meta.com/llama/">Llama2 </a>.</p>
+<p>Today’s <a href="https://towardsdatascience.com/tag/large-language-models/">Large Language Models</a> have impressive capabilities but are extremely expensive in terms of hardware. In many areas we have limited hardware: think smartphones or satellites. So there is a lot of research on creating smaller models so they can be deployed on edge.</p>
+<p>Here is a list of "small" models that are catching on:</p>
+<ul>
+  <li>Mobile VLM (Multimodal)</li>
+  <li>Phi-2</li>
+  <li>Obsidian (Multimodal)</li>
+</ul>
+<blockquote><p>GitHub – NousResearch/Obsidian: Maybe the new state of the art vision model? we’ll see 🤷‍♂️Ma_ybe the new state of the art vision model? we’ll see 🤷‍♂️ – GitHub – NousResearch/Obsidian: Maybe the new state of…git_hub.com<br><a href="https://www.microsoft.com/en-us/research/blog/phi-2-the-surprising-power-of-small-language-models/"><strong>Phi-2: The surprising power of small language models</strong></a><br><a href="https://arxiv.org/abs/2312.16886"><strong>MobileVLM : A Fast, Strong and Open Vision Language Assistant for Mobile Devices</strong></a></p></blockquote>
+<p>I will use Tiny-Llama because I do not have a GPU available for inference on AWS unless I want to pay for it, and a larger model would take too long to return an answer on the CPU.</p>
+<h3>Develop the FastAPI service</h3>
+<p>Before deploying our project of course we need to create it. If you prefer, you can directly use my <a href="https://github.com/March-08/tiny-llama-ec2">GitHub repo</a> and skip the first part of this article.</p>
+<p>So the first thing I do is go to GitHub and create a new repository that I’ll call tiny-llm-ec2 (sorry for the typo in the name in the image).</p>
+<figure>
+  <img class="portrait" src="images/deploy-tiny-llama-on-aws-ec2/img-02.png" alt="">
+</figure>
+<p>Now you can copy the HTTP connection URL, clone the repository and open it with your favourite IDE (VScode ❤️).</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-03.png" alt="">
+</figure>
+<p>Let’s create a requirements.txt file, and add there the following packages.</p>
+<pre><code>fastapi==0.108.0
+uvicorn==0.25.0
+transformers==4.36.2
+einops==0.7.0
+accelerate==0.25.0
+pydantic==2.5.3
+pydantic_core==2.14.6</code></pre>
+<p>To install all the packages simultaneously from the requirements file run this command on your terminal.</p>
+<pre><code class="language-shell">pip install -r requirements.txt</code></pre>
+<p>Great. Now we can start coding! 👨 ‍💻</p>
+<p>I want to instantiate the tiny-llama-1B model. The model and the <em>model card</em> can be easily found on <a href="https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0">HuggingFace(HF) at this link</a>.</p>
+<p>Model cards are very important because they help us users understand well how the model works and how to use it. That’s why I always doubt projects on HuggingFace that are not accompanied by good descriptions.</p>
+<p>Now, simply by following what the model card says on HF, I create a function that given an input query generates the answer. I do all this in a new file that I call <em>model.py</em></p>
+<p>The first time you use the model it will take a long time because it has to be downloaded from Hugging Face.</p>
+<p>Keep in mind that I run this model on CPU because we will be using in free instantiation of AWS which does not provide GPU access.</p>
+<pre><code class="language-python"># Install transformers from source - only needed for versions &lt;= v4.34
+# pip install git+https://github.com/huggingface/transformers.git
+# pip install accelerate
+
+import torch
+from transformers import pipeline
+
+def model_query(query: str):
+    pipe = pipeline(
+        "text-generation",
+        model="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        torch_dtype=torch.bfloat16,
+        device_map="cpu",
+    )
+
+    # We use the tokenizer's chat template to format each message - see https://huggingface.co/docs/transformers/main/en/chat_templating
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a friendly chatbot who always funny and interesting. You only reply with the actual answer without repeating my question.",
+        },
+        {"role": "user", "content": f"{query}"},
+    ]
+    prompt = pipe.tokenizer.apply_chat_template(
+        messages, tokenize=False, add_generation_prompt=True
+    )
+    outputs = pipe(
+        prompt,
+        max_new_tokens=256,
+        do_sample=True,
+        temperature=0.7,
+        top_k=50,
+        top_p=0.95,
+    )
+
+    output = outputs[0]["generated_text"]
+    return output
+
+if __name__ == "__main__":
+    print(model_query("tell me a joke about politicians"))</code></pre>
+<p>Perfect now we have our function. All we have to do is <strong>create a web service</strong> that allows you to use this function via <strong>API</strong>, so anyone can connect and use the model.</p>
+<p>There are several frameworks to do this, for example, <a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a>, and <a href="https://www.djangoproject.com/">Django</a>, but here I will use <a href="https://fastapi.tiangolo.com/">FastAPI</a>.</p>
+<p>I create a <em>main.py</em> file where I set up the endpoints of my API.</p>
+<pre><code class="language-python">from fastapi import FastAPI
+from model import model_query
+from pydantic import BaseModel
+
+class Query(BaseModel):
+    prompt: str
+
+app = FastAPI()
+
+@app.get("/")
+async def root():
+    return {"message": "Hello!"}
+
+@app.post("/query")
+async def root(query: Query):
+    res = model_query(query=query.prompt)
+    return {"message": f"{res}"}</code></pre>
+<p>You see that in this case, the most important API is the one under the "/query" route. It expects as input an object of the type Query defined above, basically a JSON object in which a prompt is defined, and returns a JSON containing the model message.</p>
+<p>To launch the FastAPI service, simply use the following terminal command.</p>
+<pre><code class="language-css">uvicorn main:app --reload</code></pre>
+<p>A link will appear that you can click on to access the service we just created in localhost.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-04.png" alt="">
+
+  <figcaption>FastAPI Service</figcaption>
+</figure>
+<p>If you click on that link you should see a screen with the messaging set on the main API at route "/".</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-05.png" alt="">
+</figure>
+<p>A very useful feature of FastAPI is that typing a <em>"/docs"</em> next to the URL will show us all the APIs developed, and allow us to use them, without using external services such as <a href="https://www.postman.com/">Postman</a>.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-06.png" alt="">
+</figure>
+<p>Let’s then try to use the <em>query API</em> from this interface, just click on it. Using it then is quite intuitive, we need to fill in the JSON field of the previously defined Query object.</p>
+<p>I will request the model to tell me a joke! <label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">Remember that the first time it will take a long time to download the model</span></p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-07.png" alt="">
+</figure>
+<p>And here is the model’s response.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-08.png" alt="">
+</figure>
+<p>You will notice that the model response is not very clean, as the input query is repeated. You can improve by processing the output further if you want and parse it, but that is not the purpose of this article so I don’t want to waste too much time on it now.</p>
+<p>The project is ready, now we need to save everything to GitHub. We use the following commands to push the code.</p>
+<pre><code class="language-shell">git add .
+git commit -m "feat: api endpoints for model query"
+git push origin main</code></pre>
+<p>Now check that the repo on GitHub is up to date, as in my case.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-09.png" alt="">
+
+  <figcaption>Pushed Code (Image By Author)</figcaption>
+</figure>
+<h3>Deploy on AWS EC2 Instance</h3>
+<p>It is very important to know the various options that exist for deploying your models. There are different providers, including Google, Microsft, and AWS. Each of these offers different solutions depending on the costs and requirements you need.</p>
+<p>I chose to write this article based on AWS not for any particular reason, but simply because it is very common and in demand in the business world. Although I think for personal or side projects with friends it is still costly.</p>
+<p>EC2 is a service that allows us to rent a virtual machine with certain resources (in terms, of RAM, CPU, GPU etc). Very easy to scale because with a few simple clicks, we can request more resources to scale. Once we create an instance, we have a terminal in which we can work normally as if we were on local, so it does not require special competencies.</p>
+<p>Let’s deploy!</p>
+<p>Of course, we will need to create an account (for free) on AWS and log into the basic console. You should see a screen like the following.</p>
+<p>Now click on the word EC2. If you do not see it you can search for it with the search bar.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-10.png" alt="">
+</figure>
+<p>In the following image, you can see how we can create a new instance for our project. Then click on the "launch instance" button.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-11.png" alt="">
+</figure>
+<p>Now we need to set some simple settings for our instance. Let’s start by defining a name. I’ll call it "fastapi_server." And then we set the OS image to Ubuntu.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-12.png" alt="">
+</figure>
+<p>Note that we use the instance type "t3_micro" which provides a free tier. So we can test the app for free. If we exceed the allowed limits we will pay based on usage. In case it does not support the model, we can easily use a slightly more powerful instance.</p>
+<p>Also, we need to create a key pair for the ssh connection. So let’s click on <em>create new key pair</em>.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-13.png" alt="">
+</figure>
+<p>You will get this screen, where you have to name the key pair. I will use the name "fastapi_ec2_pair." (It is in red because I had already created a key with that name). Let’s leave the rest of the default settings and generate the keys. You should see that the browser is downloading a file, which we will then need to use in the working directory.</p>
+<figure>
+  <img class="med" src="images/deploy-tiny-llama-on-aws-ec2/img-14.png" alt="">
+</figure>
+<p>Now we should enable traffic from each option SSH, HTTP and HTTPS. And finally, launch the instance.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-15.png" alt="">
+</figure>
+<p>Let’s visualize our instances, by clicking on the "view all instance".</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-16.png" alt="">
+</figure>
+<p>Here you can see my new instance! Let’s click on it to visualize the configurations.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-17.png" alt="">
+</figure>
+<p>The IP address of this instance to which people can connect all over the internet, is visible under the text "Public_IPv4_address". In my case is 13.48.46.248.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-18.png" alt="">
+</figure>
+<p>Let’s see what happens if we click on the generated IP. We do see an error, because our instance is empty there is no project inside.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-19.png" alt="">
+</figure>
+<p>In the previous screen, the one about our AWS instance, there was a tab in the upper right corner with the entry <em>connect</em>. If we click on it, it explains how to connect to the created instance via SSH connection.</p>
+<figure>
+  <img class="med" src="images/deploy-tiny-llama-on-aws-ec2/img-20.png" alt="">
+</figure>
+<p>For the next steps, we should use the terminal a bit. If you are unfamiliar with basic terminal commands you can <a href="https://www.freecodecamp.org/news/command-line-for-beginners/">consult this guide</a>.</p>
+<p>Create a folder in your laptop from where you want to connect via SSH to AWS. Paste the key you generated earlier into it.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-21.png" alt="">
+</figure>
+<p>Now open the terminal and locate it within this folder.</p>
+<p>We change the permissions of the file containing the key with the chmod command.</p>
+<pre><code class="language-shell">chmod 400 fastapi_ec2_key.pem</code></pre>
+<p>Copy the connection string you find in the AWS <em>connect screen</em> (two images above).</p>
+<p>In my case this is the string : ( type yes if it asks if you are sure to connect)</p>
+<pre><code class="language-shell">ssh -i "fastapi_ec2_key.pem" ubuntu@ec2-16-171-176-76.eu-north-1.compute.amazonaws.com</code></pre>
+<p>we are now entering the AWS instance, basically an empty Linux machine.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-22.png" alt="">
+</figure>
+<p>Let’s do an update of all repositories on the machine.</p>
+<pre><code class="language-shell">sudo apt-get update</code></pre>
+<p>We have to install pip and nginx. We need pip to be able to install all the Python libraries in our project. Whereas nginx in a nutshell is a service that allows us to connect our FastAPI service with the IP address generated by the AWS instance. So when people visit the IP address they will be redirected to FastAPI.</p>
+<pre><code class="language-typescript">sudo apt install -y python3-pip nginx</code></pre>
+<p>Make sure the installations are successful.</p>
+<p>Now we need to create a configuration file to configure nginx. So we create a new file using Vim.</p>
+<pre><code class="language-shell">sudo vim /etc/nginx/sites-enabled/fastapi_nginx</code></pre>
+<p>If you have never used VIM it might be a little tricky. Use "i" to switch to write mode and write whatever you want.</p>
+<p>To save and exit click "esc," then ":" and enter "wq" + enter, to save and exit.</p>
+<p>I leave here a <a href="https://github.com/iggredible/Learn-Vim?tab=readme-ov-file">repo for you to learn how to use VIM</a>.</p>
+<p>Within this file, we write the following settings</p>
+<pre><code class="language-shell">server {
+ listen 80;
+ server_name 16.171.176.76;
+  location / {
+  proxy_pass http://127.0.0.1:8000;
+ }
+}</code></pre>
+<p>Here is a screenshot of my terminal.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-23.png" alt="">
+</figure>
+<p>Now we need to restart the nginx service to load the new settings.</p>
+<pre><code class="language-shell">sudo service nginx restart</code></pre>
+<p>We’re almost there! Now within this instance, we can clone our GitHub project. To clone:</p>
+<pre><code class="language-shell">git clone http_link_of_yout_github_project</code></pre>
+<p>Enter the cloned project</p>
+<pre><code class="language-shell">cd tiny-llm-ec2/</code></pre>
+<p>And install the libraries we have included in the requirements.</p>
+<pre><code class="language-shell">pip install -r requirements.txt</code></pre>
+<h3>Installation Errors?</h3>
+<p>You may have errors due to the fact that we have few resources in our instance and the required libraries are too large. In this case, I suggest you install one library at a time using pip.</p>
+<p>Also since we only need PyTorch on the CPU we can install only the CPU version instead of installing torch entirely.</p>
+<p>That way you should be able to install everything.</p>
+<pre><code class="language-shell">pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu</code></pre>
+<pre><code class="language-shell">pip install uvicorn</code></pre>
+<pre><code class="language-shell">pip install fastapi</code></pre>
+<pre><code class="language-shell">pip install transformers</code></pre>
+<pre><code class="language-shell">pip install accelerate</code></pre>
+<p>Now we launch the web service, then the created API, using uvicorn.</p>
+<pre><code class="language-shell">python3 -m uvicorn main:app</code></pre>
+<p>If we access the IP address we will see a black screen. This is because in FastAPI we have not set the ability to access via HTTPs but only HTTP by default.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-24.png" alt="">
+
+  <figcaption>Then we change the URL to <a href="http://ip/"><em>http://ip</em></a></figcaption>
+</figure>
+<p>We should now see the initial FastAPI message. If we enter the URL <a href="http://ip/docs"><em>http://ip/docs</em></a> we can use the API.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-25.png" alt="">
+</figure>
+<p>If we use the query API, we see from the terminal that the model will be downloaded. At this point, you may have problems because the EC2 instance is too small and does not support the whole model in memory.</p>
+<h3>Memory Errors?</h3>
+<p>What we can do is change the instance and use a larger one. Stop your instance, then click on <strong>action -&gt; instance setting -&gt;change instance type</strong>.</p>
+<p>Choose a t3.medium instance, which grants you more memory, and save. Reactivate the instance.</p>
+<p>Now, however, the IP address will have changed, so re-modify the nginx settings with the new IP.</p>
+<pre><code class="language-shell">sudo vim /etc/nginx/sites-enabled/fastapi_nginx</code></pre>
+<p>After saving please do remember to restart nginx.</p>
+<pre><code class="language-shell">sudo service nginx restart</code></pre>
+<h3>Time-out error?</h3>
+<p>There is another error you might find. Since the server takes a long time to run because we are using an LLM on CPU, a timeout error might come back by default. Let’s change the nginx settings to change the maximum timeout and set it to 3 minutes.</p>
+<p>So once again we change the settings:</p>
+<pre><code class="language-shell">sudo vim /etc/nginx/sites-enabled/fastapi_nginx</code></pre>
+<p>Let’s change the previously written settings to the following, in which we specify to wait for a response for longer (be careful to write your IP and not mine).</p>
+<pre><code class="language-shell">server {
+    listen 80;
+    server_name 16.171.176.76;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 180s;  # Set to 3 minutes (180 seconds)
+    }
+}</code></pre>
+<pre><code class="language-shell">sudo service nginx restart</code></pre>
+<p>Now finally if we launch uvicorn everything should work perfectly!</p>
+<pre><code class="language-shell">python3 -m uvicorn main:app</code></pre>
+<p>And you will be able, by waiting a while, to use the API and get your model response!</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-26.png" alt="">
+</figure>
+<p>We finally did it!</p>
+<p>Deploying a model is never trivial but it is essential to create something that can be used. If you are not going to actually use this project, remember at the end to terminate your EC2 instance to avoid paying for unwanted things.</p>
+<figure>
+  <img class="wide" src="images/deploy-tiny-llama-on-aws-ec2/img-27.png" alt="">
+</figure>
+<h2>Final Thoughts</h2>
+<p>For years I thought the only interesting part of <a href="https://towardsdatascience.com/tag/machine-learning/">Machine Learning</a> was just the creation and training of the model. In real applications, though, it’s all useless if you don’t allow people, whether it’s a customer, or the general public, to use what you’ve built.</p>
+<p>Understanding how to deploy a model is a key part of the pipeline, requiring specific skills that are absolutely nontrivial. I hope this article has helped you understand how to set up an instance on AWS to deploy your Machine Learning models.</p>
+<p>If you are interested in this article follow me on <a href="https://medium.com/@marcellopoliti">Medium</a>! 😁</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://twitter.com/_March08_">Twitter</a> | <a href="https://emojiterra.com/laptop-computer/">💻 </a><a href="https://marcello-politi.super.site/">Website</a></p>
+<p>This article is also published on <a href="https://towardsdatascience.com/deploy-tiny-llama-on-aws-ec2-f3ff312c896d/">Towards Data Science</a>.</p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

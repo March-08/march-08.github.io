@@ -1,0 +1,312 @@
+<title>Marcello Politi — Draft A (Terminal)</title>
+<style>
+  :root{
+    --ground:#FBF8F1;       /* warm cream */
+    --panel:#F4EFE4;
+    --text:#1B1A17;         /* warm near-black */
+    --muted:#8C8273;        /* warm grey */
+    --line:#E4DCCB;
+    --accent:#B45309;       /* amber-700 */
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --maxw:780px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--ground);color:var(--text);
+    font-family:var(--mono);font-size:15px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;letter-spacing:-.1px;
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--accent);color:var(--ground)}
+
+  header{
+    position:sticky;top:0;z-index:20;background:rgba(251,248,241,.85);
+    backdrop-filter:saturate(150%) blur(8px);border-bottom:1px solid var(--line);
+  }
+  .bar{max-width:var(--maxw);margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:16px}
+  .brand{font-weight:600}
+  .brand .dim{color:var(--muted)}
+  nav{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+  nav a{color:var(--muted);padding:4px 8px;border-radius:5px}
+  nav a:hover{color:var(--text);background:var(--panel)}
+  nav a::before{content:"[";color:var(--accent)}
+  nav a::after{content:"]";color:var(--accent)}
+  .kbtn{
+    border:1px solid var(--line);background:var(--panel);color:var(--muted);
+    font-family:var(--mono);font-size:12px;padding:5px 9px;border-radius:6px;cursor:pointer;
+  }
+  .kbtn:hover{color:var(--text);border-color:var(--accent)}
+
+  main{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  section{padding:54px 0;border-bottom:1px dashed var(--line)}
+  .hero{padding:74px 0 60px}
+  h1{font-size:38px;line-height:1.1;margin:0 0 6px;font-weight:700;letter-spacing:-1px}
+  .cursor{display:inline-block;width:.6ch;height:1.05em;background:var(--accent);
+    transform:translateY(.13em);margin-left:2px;animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .role{color:var(--accent);font-weight:600}
+  .lede{color:var(--muted);max-width:60ch;margin:14px 0 0}
+  .hint{margin-top:26px;font-size:13px;color:var(--muted)}
+  kbd{font-family:var(--mono);background:var(--panel);border:1px solid var(--line);
+    border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--text)}
+
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:0 0 22px;font-weight:600}
+  h2::before{content:"// ";color:var(--accent)}
+
+  .row{display:flex;gap:16px;align-items:baseline;padding:11px 10px;margin:0 -10px;border-radius:7px;transition:background .15s}
+  .row:hover{background:var(--panel)}
+  .row .date{color:var(--muted);font-size:13px;min-width:7ch;flex-shrink:0}
+  .row .t{flex:1}
+  .row .arr{color:var(--accent);opacity:0;transition:opacity .15s,transform .15s}
+  .row:hover .arr{opacity:1;transform:translateX(3px)}
+  .tag{color:var(--muted);font-size:12px}
+
+  .pub{padding:13px 0;border-top:1px solid var(--line)}
+  .pub:first-of-type{border-top:none}
+  .pub .v{color:var(--accent)}
+  .pub .meta{color:var(--muted);font-size:13px}
+
+  .cvgrid{display:grid;grid-template-columns:1fr;gap:20px}
+  .cvcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+  .cvcard h3{margin:0 0 12px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent)}
+  .cvitem{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px dashed var(--line)}
+  .cvitem:first-of-type{border-top:none}
+  .cvitem .y{color:var(--muted);font-size:13px;white-space:nowrap}
+  .skills{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{border:1px solid var(--line);background:var(--ground);border-radius:6px;padding:4px 9px;font-size:13px}
+  .dl{display:inline-block;margin-top:4px;color:var(--accent);border:1px solid var(--accent);
+    padding:8px 14px;border-radius:7px;font-size:13px}
+  .dl:hover{background:var(--accent);color:var(--ground)}
+
+  /* map */
+  .maphead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .mapwrap{position:relative;margin-top:18px;border:1px solid var(--line);border-radius:12px;
+    background:var(--panel);overflow:hidden}
+  canvas{display:block;width:100%}
+  .pin{position:absolute;width:9px;height:9px;background:var(--accent);border-radius:2px;
+    transform:translate(-50%,-50%);cursor:pointer;box-shadow:0 0 0 0 rgba(180,83,9,.5)}
+  .pin:hover,.pin.on{animation:ping 1.4s ease-out infinite}
+  @keyframes ping{0%{box-shadow:0 0 0 0 rgba(180,83,9,.5)}100%{box-shadow:0 0 0 9px rgba(180,83,9,0)}}
+  .tip{position:absolute;transform:translate(-50%,-140%);background:var(--text);color:var(--ground);
+    font-size:12px;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:5}
+  .tip.show{opacity:1}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-size:13px}
+  .legend b{color:var(--text);font-weight:600}
+
+  footer{max-width:var(--maxw);margin:0 auto;padding:40px 22px 70px;color:var(--muted);font-size:13px}
+
+  /* command palette */
+  .pal{position:fixed;inset:0;background:rgba(27,26,23,.35);backdrop-filter:blur(3px);
+    display:none;align-items:flex-start;justify-content:center;z-index:50;padding-top:14vh}
+  .pal.open{display:flex}
+  .palbox{width:min(540px,92vw);background:var(--ground);border:1px solid var(--line);
+    border-radius:12px;box-shadow:0 24px 60px rgba(0,0,0,.18);overflow:hidden}
+  .palbox input{width:100%;border:none;border-bottom:1px solid var(--line);background:transparent;
+    font-family:var(--mono);font-size:15px;padding:16px 18px;color:var(--text);outline:none}
+  .palbox input::placeholder{color:var(--muted)}
+  .palist{max-height:46vh;overflow:auto;padding:6px}
+  .palrow{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px}
+  .palrow .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-left:auto}
+  .palrow.sel,.palrow:hover{background:var(--panel)}
+  .palrow .ic{color:var(--accent)}
+  @media (prefers-reduced-motion:reduce){.cursor{animation:none}.pin{animation:none!important}}
+  @media(min-width:680px){.cvgrid{grid-template-columns:1fr 1fr}.cvcard.full{grid-column:1/-1}}
+</style>
+
+<header>
+  <div class="bar">
+    <a class="brand" href="#top">marcello<span class="dim">.</span>politi</a>
+    <nav>
+      <a href="#articles">articles</a>
+      <a href="#publications">publications</a>
+      <a href="#cv">cv</a>
+      <a href="#map">map</a>
+    </nav>
+    <button class="kbtn" id="openPal">⌘K</button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <h1>marcello politi<span class="cursor"></span></h1>
+    <div class="role">research engineer</div>
+    <p class="lede">I build systems at the intersection of cryptography, distributed protocols and machine learning — and I write about the parts that are hard to make simple.</p>
+    <div class="hint">press <kbd>⌘</kbd> <kbd>K</kbd> to jump anywhere</div>
+  </section>
+
+  <section id="articles">
+    <h2>articles</h2>
+    <a class="row" href="#"><span class="date">2026.06</span><span class="t">On economic alignment in decentralized systems</span><span class="arr">→</span></a>
+    <a class="row" href="#"><span class="date">2026.04</span><span class="t">Notes on zero-knowledge proof aggregation</span><span class="arr">→</span></a>
+    <a class="row" href="#"><span class="date">2026.02</span><span class="t">Why frontend craft matters for research tools</span><span class="arr">→</span></a>
+    <a class="row" href="#"><span class="date">2025.11</span><span class="t">A practical guide to reproducible ML pipelines</span><span class="arr">→</span></a>
+  </section>
+
+  <section id="publications">
+    <h2>publications</h2>
+    <div class="pub"><span class="t">Scalable consensus under adversarial latency</span><br><span class="meta">M. Politi, A. Rossi, K. Sato — <span class="v">NeurIPS 2025</span></span></div>
+    <div class="pub"><span class="t">Privacy-preserving aggregation for federated inference</span><br><span class="meta">M. Politi, A. Rossi — <span class="v">IEEE S&amp;P 2024</span></span></div>
+    <div class="pub"><span class="t">Mechanism design for open protocols</span><br><span class="meta">M. Politi — <span class="v">arXiv:2403.01829</span>, 2024</span></div>
+  </section>
+
+  <section id="cv">
+    <h2>cv</h2>
+    <div class="cvgrid">
+      <div class="cvcard">
+        <h3>experience</h3>
+        <div class="cvitem"><span>Research Engineer · Ethereum Foundation</span><span class="y">2023—</span></div>
+        <div class="cvitem"><span>ML Engineer · Acme Labs</span><span class="y">2021—23</span></div>
+        <div class="cvitem"><span>Research Intern · CERN</span><span class="y">2020</span></div>
+      </div>
+      <div class="cvcard">
+        <h3>education</h3>
+        <div class="cvitem"><span>MSc Computer Science · Imperial</span><span class="y">2021</span></div>
+        <div class="cvitem"><span>BSc Mathematics · Sapienza</span><span class="y">2019</span></div>
+      </div>
+      <div class="cvcard full">
+        <h3>skills</h3>
+        <div class="skills">
+          <span class="chip">Rust</span><span class="chip">Python</span><span class="chip">TypeScript</span>
+          <span class="chip">PyTorch</span><span class="chip">zk-SNARKs</span><span class="chip">Distributed systems</span>
+          <span class="chip">React</span><span class="chip">WebGL</span>
+        </div>
+        <div style="margin-top:16px"><a class="dl" href="#">↓ download cv.pdf</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="map">
+    <div class="maphead">
+      <h2 style="margin:0">where i've been</h2>
+      <span class="tag" id="placeCount"></span>
+    </div>
+    <div class="mapwrap" id="mapwrap">
+      <canvas id="map-canvas"></canvas>
+      <div class="tip" id="tip"></div>
+    </div>
+    <div class="legend">
+      <span><b id="selPlace">hover a pin</b> <span id="selNote"></span></span>
+    </div>
+  </section>
+</main>
+
+<footer>
+  // built with plain HTML, hand-tuned · dummy content · draft A — terminal
+</footer>
+
+<div class="pal" id="pal">
+  <div class="palbox">
+    <input id="palInput" placeholder="type to navigate… (esc to close)" autocomplete="off">
+    <div class="palist" id="palist"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ---------- shared map data ---------- */
+  const PLACES=[
+    {c:"Rome, IT",lat:41.9,lng:12.5,note:"hometown"},
+    {c:"Zurich, CH",lat:47.37,lng:8.54,note:"research engineer @ EF"},
+    {c:"London, UK",lat:51.5,lng:-0.12,note:"MSc, Imperial"},
+    {c:"Berlin, DE",lat:52.52,lng:13.40,note:"Devcon"},
+    {c:"San Francisco, US",lat:37.77,lng:-122.42,note:"conference"},
+    {c:"New York, US",lat:40.71,lng:-74.0,note:"hackathon"},
+    {c:"Lisbon, PT",lat:38.72,lng:-9.14,note:"sabbatical month"},
+    {c:"Tokyo, JP",lat:35.68,lng:139.69,note:"workshop"},
+    {c:"Singapore, SG",lat:1.35,lng:103.82,note:"invited talk"},
+    {c:"Bangalore, IN",lat:12.97,lng:77.59,note:"collaboration"},
+    {c:"Buenos Aires, AR",lat:-34.6,lng:-58.38,note:"ETH event"},
+    {c:"Cape Town, ZA",lat:-33.92,lng:18.42,note:"team retreat"},
+    {c:"Sydney, AU",lat:-33.87,lng:151.21,note:"conference"}
+  ];
+  const CONT=[
+    {lat:56,lng:-100,rLat:23,rLng:33},{lat:62,lng:-150,rLat:8,rLng:13},
+    {lat:72,lng:-42,rLat:9,rLng:14},{lat:-20,lng:-60,rLat:25,rLng:15},
+    {lat:5,lng:20,rLat:33,rLng:20},{lat:52,lng:18,rLat:11,rLng:22},
+    {lat:50,lng:95,rLat:30,rLng:50},{lat:22,lng:80,rLat:13,rLng:10},
+    {lat:-25,lng:134,rLat:11,rLng:16}
+  ];
+  const LAT_T=82,LAT_B=-58;
+  function land(lat,lng){return CONT.some(c=>{const a=(lng-c.lng)/c.rLng,b=(lat-c.lat)/c.rLat;return a*a+b*b<=1});}
+  function px(lng){return (lng+180)/360;}
+  function py(lat){return (LAT_T-lat)/(LAT_T-LAT_B);}
+
+  const wrap=document.getElementById('mapwrap');
+  const cv=document.getElementById('map-canvas');
+  const ctx=cv.getContext('2d');
+  const tip=document.getElementById('tip');
+  let W=0,H=0;
+  function draw(){
+    W=wrap.clientWidth;H=Math.round(W*0.52);
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+    const step=2.4,r=1.0;
+    ctx.fillStyle='#C9BBA0';
+    for(let lng=-180;lng<=180;lng+=step){
+      for(let lat=LAT_B;lat<=LAT_T;lat+=step){
+        if(land(lat,lng)){ctx.beginPath();ctx.arc(px(lng)*W,py(lat)*H,r,0,7);ctx.fill();}
+      }
+    }
+    placePins();
+  }
+  function placePins(){
+    wrap.querySelectorAll('.pin').forEach(p=>p.remove());
+    PLACES.forEach((p,i)=>{
+      const el=document.createElement('div');el.className='pin';
+      el.style.left=(px(p.lng)*100)+'%';el.style.top=(py(p.lat)*100)+'%';
+      el.addEventListener('mouseenter',()=>{
+        tip.textContent=p.c;tip.style.left=(px(p.lng)*100)+'%';tip.style.top=(py(p.lat)*100)+'%';
+        tip.classList.add('show');
+        document.getElementById('selPlace').textContent=p.c;
+        document.getElementById('selNote').textContent='— '+p.note;
+        el.classList.add('on');
+      });
+      el.addEventListener('mouseleave',()=>{tip.classList.remove('show');el.classList.remove('on');});
+      wrap.appendChild(el);
+    });
+  }
+  document.getElementById('placeCount').textContent=PLACES.length+' places · 5 continents';
+  window.addEventListener('resize',draw);draw();
+
+  /* ---------- command palette ---------- */
+  const pal=document.getElementById('pal'),inp=document.getElementById('palInput'),list=document.getElementById('palist');
+  const ITEMS=[
+    {ic:'→',label:'Articles',k:'section',go:'#articles'},
+    {ic:'→',label:'Publications',k:'section',go:'#publications'},
+    {ic:'→',label:'CV',k:'section',go:'#cv'},
+    {ic:'→',label:'Map — where I\'ve been',k:'section',go:'#map'},
+    {ic:'¶',label:'On economic alignment in decentralized systems',k:'article',go:'#articles'},
+    {ic:'¶',label:'Notes on zero-knowledge proof aggregation',k:'article',go:'#articles'},
+    {ic:'↓',label:'Download CV (pdf)',k:'action',go:'#cv'},
+    {ic:'@',label:'GitHub',k:'link',go:'#'},
+    {ic:'@',label:'Google Scholar',k:'link',go:'#'}
+  ];
+  let sel=0,view=ITEMS;
+  function render(){
+    list.innerHTML='';
+    view.forEach((it,i)=>{
+      const d=document.createElement('div');d.className='palrow'+(i===sel?' sel':'');
+      d.innerHTML='<span class="ic">'+it.ic+'</span><span>'+it.label+'</span><span class="k">'+it.k+'</span>';
+      d.addEventListener('click',()=>exec(it));list.appendChild(d);
+    });
+  }
+  function open(){pal.classList.add('open');inp.value='';view=ITEMS;sel=0;render();setTimeout(()=>inp.focus(),30);}
+  function close(){pal.classList.remove('open');}
+  function exec(it){close();if(it.go&&it.go!=='#'){location.hash=it.go;}}
+  document.getElementById('openPal').addEventListener('click',open);
+  inp.addEventListener('input',()=>{const q=inp.value.toLowerCase();view=ITEMS.filter(i=>i.label.toLowerCase().includes(q));sel=0;render();});
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='ArrowDown'){sel=Math.min(sel+1,view.length-1);render();e.preventDefault();}
+    else if(e.key==='ArrowUp'){sel=Math.max(sel-1,0);render();e.preventDefault();}
+    else if(e.key==='Enter'){if(view[sel])exec(view[sel]);}
+    else if(e.key==='Escape'){close();}
+  });
+  document.addEventListener('keydown',e=>{
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();pal.classList.contains('open')?close():open();}
+    else if(e.key==='Escape')close();
+  });
+  pal.addEventListener('click',e=>{if(e.target===pal)close();});
+})();
+</script>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>LLMOps — Serve a Llama-3 Model with BentoML — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>LLMOps — Serve a Llama-3 Model with BentoML</h1>
+    <p class="subtitle">Quickly set up LLM APIs with BentoML and Runpod.</p>
+    <p class="postdate">January 22, 2025 · LLMOps, BentoML, Llama-3</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>I often see data scientists getting interested in the development of LLMs in terms of model architecture, training techniques or data collection. However, I have noticed that many times, outside the theoretical aspect, in many people have problems in serving these models in a way that they can actually be used by users.</p>
+<p>In this brief tutorial, I thought I would show in a very simple way how you can serve an LLM, specifically llama-3, using <a href="https://www.bentoml.com/">BentoML</a>.</p>
+<blockquote><p>BentoML is an end-to-end solution for machine learning model serving. It facilitates Data Science teams to develop production-ready model serving endpoints, with DevOps best practices and performance optimization at every stage.</p></blockquote>
+<h2><strong>We need GPU</strong></h2>
+<p>As you know in Deep Learning having the right hardware available is critical. Especially for very large models like LLMs, this becomes even more important. Unfortunately, I don’t have any GPU 😔</p>
+<p>That’s why I rely on external providers, so I rent one of their machines and work there. I chose for this article to work on <a href="https://www.runpod.io/">Runpod</a> because I know their services and I think it is an affordable price to follow this tutorial. But if you have GPUs available or want to use any other provider, feel free to skip this part.</p>
+<p>First, make sure you have a Runpod account. Next we need to create a cryptographic key pair with which we can authenticate to Runpod via <a href="https://www.geeksforgeeks.org/ssh-command-in-linux-with-examples/">SSH connection</a>.</p>
+<p>I have a MacOS, so I used the following tutorial to generate the keys. But for Linux and Windows, the procedure should not be much different.</p>
+<a class="linkcard" href="https://docs.tritondatacenter.com/public-cloud/getting-started/ssh-keys/generating-an-ssh-key-manually/manually-generating-your-ssh-key-in-mac-os-x?source=post_page-----4d580a7a007f---------------------------------------"><img class="lc-icon" src="images/favicons/docs.tritondatacenter.com.png" alt=""><span class="lc-body"><span class="lc-title">Manually generating your SSH key in macOSYou generate an SSH key through macOS by using the Terminal application. Once you upload a valid public SSH key, the…docs.tritondatacenter.com</span><span class="lc-domain">docs.tritondatacenter.com</span></span></a>
+<p>You should now have a public and a private key. Be sure not to share your private key anywhere! In the settings, Runpod will ask you to enter the public key so that you can authenticate, so go ahead and copy it into the appropriate slot as shown.</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-02.png" alt="">
+</figure>
+<p>Now we are ready to create a pod, that is, a virtual machine that we can use to code. Click on the “<em>+Deploy</em>” button.</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-03.png" alt="">
+</figure>
+<p>Runpod will ask you to specify which type of GPU you want to use. The price changes depending on the performance of the GPU you need. Ours is just a tutorial so we do not have extreme needs in terms of latency or throughput. In this case, I chose an RTX 4090.</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-04.png" alt="">
+</figure>
+<p>You can further modify the model and increase the disk size to 40GB.</p>
+<figure>
+  <img class="med" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-05.png" alt="">
+</figure>
+<p>If you click on the “<em>connect</em>” button, Runpod will show you the commands you can use from bash to connect to the machine made available for you remotely.</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-06.png" alt="">
+</figure>
+<p>Before we start working, however, there is one more thing we need to do. The command shown above specifies an IP address and a port.</p>
+<p>Now you need to go into the terminal and access the .ssh folder where you keep your SSH keys.</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-07.png" alt="">
+</figure>
+<p>Edit the “<em>config</em>” file using the “<em>vim config</em>” command.</p>
+<p>Add an entry to your file as in my case. I named the host “<em>bentoml</em>”, and added the IP, the port and also the path where my private key is located, this way when trying to connect to this host, the pc will automatically know where to find the key to connect.</p>
+<figure>
+  <img class="med" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-08.png" alt="">
+</figure>
+<p>It would be nice though to <strong>connect from VSCode</strong> instead of using the CLI right? Just follow a few simple steps. Open VSCode and click on the blue arrows at the bottom left as shown in the image. In the drop-down menu now click on “<em>connect to host</em>”.</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-09.png" alt="">
+</figure>
+<p>Now VSCode will know which hosts are available because we entered them first in the configuration file, in fact, it will recognize <em>bentoml</em> as the host. Click on it.</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-10.png" alt="">
+</figure>
+<p>You are now inside the Runpod virtual machine! Open the <em>/workspace</em> folder and you can start working.</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-11.png" alt="">
+</figure>
+<h2><strong>Serve with BentoML</strong></h2>
+<p>Setting up the development environment with Runpod was probably the most complex part of this tutorial because BentoML makes serving llama-3 really easy.</p>
+<p>First of all, with the CLI we can clone the repository developed by the BentoML team.</p>
+<pre><code>git clone https://github.com/bentoml/BentoVLLM.git</code></pre>
+<p>In the repository, we will find several examples of different models.</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-12.png" alt="">
+</figure>
+<p>In this case, we will specifically use llama3–8b-instruct. So we go into that folder.</p>
+<pre><code>cd BentoVLLM/
+cd llama3-8b-instruct/</code></pre>
+<p>We need to install all the necessary requirements.</p>
+<pre><code>pip install -r requirements.txt &amp;&amp; pip install -f -U "pydantic&gt;=2.0"</code></pre>
+<p>The actual code is found in the <em>service.py</em> file.</p>
+<p>However, it will suffice for us to invoke the following command to serve the model.</p>
+<pre><code>bentoml serve .</code></pre>
+<p>When the model is served an IP address will open to you to see the API locally. If you add the path “<em>/docs</em>” to the IP address, you will find the swagger with all the methods available.</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-13.png" alt="">
+</figure>
+<p>You see that the main API is <em>/generate</em> in which you can enter a prompt and a system prompt and wait for the output of the model.</p>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-14.png" alt="">
+</figure>
+<figure>
+  <img class="wide" src="images/llmops-serve-a-llama-3-model-with-bentoml/img-15.png" alt="">
+</figure>
+<p>Of course, in addition to the swagger, you can use the API from code for example if you want to develop your own custom frontend!</p>
+<h2><strong>Conclusion</strong></h2>
+<p>In this article, we saw how to connect to a remote machine using an SSH connection. In this tutorial we used Runpod but all providers follow a similar procedure.</p>
+<p>Connecting via SSH directly from VSCode is very useful, so that we can write code and visualize files from our favourite IDE, and we saw in this article how to do this in simple steps by registering the host data on the configuration file.</p>
+<p>Ironically the serving of llama-3 was the fastest part of this simple tutorial, as thanks to bento we only need to call a command to have the model running and usable via the swagger.</p>
+<p>Follow me on <a href="https://medium.com/@marcellopoliti">Medium</a> for more in-depth tutorials on BentoML 😁</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://twitter.com/_March08_">X (Twitter)</a> | <a href="https://emojiterra.com/laptop-computer/">💻</a> <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>This article has been published on <a href="https://medium.com/data-science/llmops-serve-a-llama-3-model-with-bentoml-4d580a7a007f">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

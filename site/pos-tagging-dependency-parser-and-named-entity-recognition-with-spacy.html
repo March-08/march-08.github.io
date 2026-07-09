@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>POS Tagging, Dependency Parser and Named Entity Recognition with SpaCy — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>POS Tagging, Dependency Parser and Named Entity Recognition with SpaCy</h1>
+    <p class="subtitle">Mastering NLP with spaCy — Part 2.</p>
+    <p class="postdate">September 5, 2025 · NLP, SpaCy</p>
+<figure>
+  <img class="wide" src="images/pos-tagging-dependency-parser-and-named-entity-recognition-with-spacy/img-01.jpg" alt="Photo by Buddha Elemental 3D on Unsplash">
+  <figcaption>Photo by <a href="https://unsplash.com/@buddhaelemental3d?utm_source=medium&amp;amp;utm_medium=referral">Buddha Elemental 3D</a> on <a href="https://unsplash.com/?utm_source=medium&amp;amp;utm_medium=referral">Unsplash</a></figcaption>
+</figure>
+<h3>Introduction</h3>
+<p>Words in a sentence provide a lot of information, such as what they mean in the real world, how they connect to other words, how they change the meaning of other words, and sometimes their true meaning can be ambiguous, and can even confuse humans!</p>
+<figure>
+  <img class="wide" src="images/pos-tagging-dependency-parser-and-named-entity-recognition-with-spacy/img-02.jpg" alt="Image from Unsplash Free">
+  <figcaption>Image from Unsplash Free</figcaption>
+</figure>
+<p>All of this must be figured out to build applications with <strong>Natural Language Understanding</strong> capabilities. Three main tasks help to capture different kinds of information from text:</p>
+<ul>
+  <li>Part-of-speech (POS) tagging</li>
+  <li>Dependency parsing</li>
+  <li>Named entity recognition</li>
+</ul>
+<h3>Part of Speech (POS) Tagging</h3>
+<figure>
+  <img class="wide" src="images/pos-tagging-dependency-parser-and-named-entity-recognition-with-spacy/img-03.png" alt="">
+</figure>
+<p>In POS tagging, we classify words under certain categories, based on their function in a sentence. For example we want to differentiate a noun from a verb. This can help us understand the meaning of some text.</p>
+<p>The most common tags are the following.</p>
+<ul>
+  <li><strong>NOUN</strong>: Names a person, place, thing, or idea (e.g., “dog”, “city”).</li>
+  <li><strong>VERB</strong>: Describes an action, state, or occurrence (e.g., “run”, “is”).</li>
+  <li><strong>ADJ</strong>: Modifies a noun to describe its quality, quantity, or extent (e.g., “big”, “happy”).</li>
+  <li><strong>ADV</strong>: Modifies a verb, adjective, or other adverb, often indicating manner, time, or degree (e.g., “quickly”, “very”).</li>
+  <li><strong>PRON</strong>: Replaces a noun or noun phrase (e.g., “he”, “they”).</li>
+  <li><strong>DET</strong>: Introduces or specifies a noun (e.g., “the”, “a”).</li>
+  <li><strong>ADP</strong>: Shows the relationship of a noun or pronoun to another word (e.g., “in”, “on”).</li>
+  <li><strong>NUM</strong>: Represents a number or quantity (e.g., “one”, “fifty”).</li>
+  <li><strong>CONJ</strong>: Connects words, phrases, or clauses (e.g., “and”, “but”).</li>
+  <li><strong>PRT</strong>: A particle, often part of a verb phrase or preposition (e.g., “up” in “give up”).</li>
+  <li><strong>PUNCT</strong>: Marks punctuation symbols (e.g., “.”, “,”).</li>
+  <li><strong>X</strong>: Catch-all for other or unclear categories (e.g., foreign words, symbols).</li>
+</ul>
+<p>These are called <strong>Universal Tags</strong>. Then each language can have more granular tags. For example, we can expand the “noun” tag to add the singular/plural information etc.</p>
+<p>In spaCy, tags are represented with acronyms like “VBD”. If you are not sure what an acronym refers to, you can ask spaCy to explain with spacy.explain()</p>
+<p>Let’s see some examples.</p>
+<pre><code>import spacy
+spacy.explain("VBD")
+
+&gt;&gt;&gt; verb, past tense</code></pre>
+<p>Let’s try now to investigate the POS tags of an entire sentence</p>
+<pre><code>nlp = spacy.load("en_core_web_sm")
+doc = nlp("I love Rome, it is the best city in the world!"
+)
+for token in doc:
+    print(f"{token.text} --&gt; {token.tag_}--&gt; {spacy.explain(token.tag_)}")</code></pre>
+<figure>
+  <img class="wide" src="images/pos-tagging-dependency-parser-and-named-entity-recognition-with-spacy/img-04.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>The tag of a word depends on the words nearby, their tags, and the word itself.</p>
+<p>POS taggers are based on statistical models. We have mainly</p>
+<ul>
+  <li>Rule-Based Taggers: Use hand-crafted linguistic rules (e.g., “a word after ‘the’ is often a noun”).</li>
+  <li>Statistical Taggers: Use probabilistic models like Hidden Markov Models (HMMs) or Conditional Random Fields (CRFs) to predict tags based on word and tag sequences.</li>
+  <li>Neural Network Taggers: Use deep learning models like Recurrent Neural Networks (RNNs), Long Short-Term Memory (LSTM) networks, or Transformers (e.g., BERT) to capture context and predict tags.</li>
+</ul>
+<h3>Dependency Parsing</h3>
+<p>With POS tagging, we are able to categorize the words in our document, but we don’t know what the relationships are among the words. This is exactly what dependency parsing does. This helps us understand the structure of a sentence.</p>
+<p>We can think a dependency as a direct edge/link that goes from a parent word to a child, which defines the relationship between the two. This is why we use dependency trees to represent the structure of sentences. See the following image.</p>
+<figure>
+  <img class="wide" src="images/pos-tagging-dependency-parser-and-named-entity-recognition-with-spacy/img-05.png" alt="src: https://spacy.io/usage/visualizers">
+  <figcaption><a href="https://spacy.io/usage/visualizers">Source ↗</a></figcaption>
+</figure>
+<p>In a dependency relation, we always have a <strong>parent</strong>, also called the <strong>head</strong>, and a <strong>dependent</strong>, also called the <strong>child.</strong> In the phrase “red car”, car is the head and red is the child.</p>
+<figure>
+  <img class="wide" src="images/pos-tagging-dependency-parser-and-named-entity-recognition-with-spacy/img-06.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<p>In spaCy the relation is always assigned to the child and can be accessed with the attribute <code>token.dep_</code></p>
+<pre><code>doc = nlp("red car")
+
+for token in doc:
+    print(f"{token.text}, {token.dep_} ")
+
+&gt;&gt;&gt; red, amod
+&gt;&gt;&gt; car, ROOT</code></pre>
+<p>As you can see in a sentence, the main word, usually a verb, in this case a noun, has the role of ROOT. From the root, we build our dependency tree.</p>
+<p>It is important to know, also that a word can have multiple children but only one parent.</p>
+<p>So in this case what does the <em>amod </em>relationship tells us?</p>
+<blockquote><p>The relation applies whether the meaning of the noun is modified in a compositional way (e.g.,<br><em>) or an idiomatic way (</em><br><em>).</em></p></blockquote>
+<p>Indeed, the “red” is a word that modifies the word “car” by adding some information to it.</p>
+<p>I will list now the most fundamental relationship you can find in a dependency parsing and their meaning.</p>
+<p>Fot a comprehensive list check this website: <a href="https://universaldependencies.org/u/dep/index.html">https://universaldependencies.org/u/dep/index.html</a></p>
+<p>We can visualize the dependency tree in spaCy using the <strong>display</strong> module. Let’s see an example.</p>
+<pre><code>from spacy import displacy
+
+sentence = "A dependency parser analyzes the grammatical structure of a sentence."
+
+nlp = spacy.load("en_core_web_sm")
+doc = nlp(sentence)
+
+displacy.serve(doc, style="dep")</code></pre>
+<figure>
+  <img class="wide" src="images/pos-tagging-dependency-parser-and-named-entity-recognition-with-spacy/img-07.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<h3>Named Entity Recognition (NER)</h3>
+<p>A POS tag provides information about the role of a word in a sentence. When we perform NER we look for words that represent objects in the real world: a company name, a proper name, a location etc.</p>
+<p>We refer to these words as <strong>named entity</strong>. See this example.</p>
+<figure>
+  <img class="wide" src="images/pos-tagging-dependency-parser-and-named-entity-recognition-with-spacy/img-08.png" alt="src: https://spacy.io/usage/visualizers#ent">
+  <figcaption><a href="https://spacy.io/usage/visualizers#ent">Source ↗</a></figcaption>
+</figure>
+<p>In the sentence “ <em>Rome is the capital of Italy</em> “, Rome and Italy are named entity, while capital it’s not because it is a generic noun.</p>
+<p>spaCy supports many named entities already, to visualise them:</p>
+<pre><code>nlp.get_pipe("ner").labels</code></pre>
+<p>Named entity are accessible in spaCy with the <code>doc.ents</code> attribute</p>
+<pre><code>sentence = "A dependency parser analyzes the grammatical structure of a sentence."
+
+nlp = spacy.load("en_core_web_sm")
+doc = nlp("Rome is the bast city in Italy based on my Google search")
+
+doc.ents
+
+&gt;&gt;&gt; (Rome, Italy, Google)</code></pre>
+<p>We can also ask spaCy provide some explanation about the named entities.</p>
+<pre><code>doc[0], doc[0].ent_type_, spacy.explain(doc[0].ent_type_)
+
+&gt;&gt;&gt; (Rome, 'GPE', 'Countries, cities, states')</code></pre>
+<p>Again, we can rely on displacy to visualise the results of NER.</p>
+<pre><code>displacy.serve(doc, style="ent")</code></pre>
+<figure>
+  <img class="wide" src="images/pos-tagging-dependency-parser-and-named-entity-recognition-with-spacy/img-09.png" alt="Image by Author">
+  <figcaption>Image by Author</figcaption>
+</figure>
+<h3>Final Thoughts</h3>
+<p>Understanding how language is structured and how it works is key to building better tools that can handle text in meaningful ways. Techniques like part-of-speech tagging, dependency parsing, and named entity recognition help break down sentences so we can see how words function, how they connect, and what real-world things they refer to.</p>
+<p>These methods give us a practical way to pull useful information out of text, things like identifying who did what to whom, or spotting names, dates, and places. Libraries like spaCy make it easier to explore these ideas, offering clear ways to see how language fits together.</p>
+<a class="linkcard" href="https://www.linkedin.com/in/marcello-politi/"><img class="lc-icon" src="images/favicons/linkedin.com.png" alt=""><span class="lc-body"><span class="lc-title">Linkedin ️| X (Twitter) | Website</span><span class="lc-domain">linkedin.com</span></span></a>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

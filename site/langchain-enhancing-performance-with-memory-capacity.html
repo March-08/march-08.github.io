@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>LangChain: Enhancing Performance with Memory Capacity — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>LangChain: Enhancing Performance with Memory Capacity</h1>
+    <p class="subtitle">LangChain’s Boost through Memory Expansion Techniques.</p>
+    <p class="postdate">June 29, 2024 · LangChain, LLM</p>
+<figure>
+  <img class="med" src="images/langchain-enhancing-performance-with-memory-capacity/img-01.png" alt="">
+</figure>
+<p>I have already published <a href="https://medium.com/towards-data-science/develop-applications-powered-by-language-models-with-langchain-d2f7a1d1ad1a">articles</a> about LangChain before, introducing the library and all its capabilities. Now I would like to focus on a key aspect, how to manage memory in intelligent chatbots.</p>
+<p>Chatbots or agents also need an information storage mechanism, which can take different forms and perform different functions. <strong>Implementing a memory system in chatbots not only helps make them more clever, but also more natural and useful for users</strong>.</p>
+<p>Fortunately, LangChain provides APIs that make it easy for developers to implement memory in their applications. In this article, we will explore this aspect in more detail.</p>
+<h2><strong>Use Memory in LangChain</strong></h2>
+<p>A best practice when developing chatbots is to<strong> save all the interactions the chatbot has with the user.</strong> This is because the<strong> state of the LLM can change depending on the past conversation</strong>, in fact, the LLM to the same question from 2 users will also answer differently because they have a different past conversation with the chatbot and therefore it is in a different state.</p>
+<p>So what the chatbot memory creates is nothing more than a list of old messages, which are fed back to it before a new question is asked. Of course, the <strong>LLM have limited context, so you have to be a little creative and choose how to feed this history back to the LLM</strong>. The most common methods are to return a summary of the old messages or return only the N latest messages that are probably the most informative.</p>
+<h2><strong>Start with the basics with ChatMessageHistory</strong></h2>
+<p>This is the main class that allows us to manage the messages that occur between the chatbot (AI) and the user (Human). This class provides two main methods which are The following.</p>
+<ul>
+  <li><strong>add_user_message: </strong>allows us to add a message into the chatbot’s memory and tag the message as “user”</li>
+  <li><strong>add_ai_message: </strong>allows us to add a message into the chatbot’s memory and tag the message as “AI”</li>
+</ul>
+<pre><code>!pip install langchain
+from langchain.memory import ChatMessageHistory
+
+history = ChatMessageHistory()
+
+history.add_user_message("Hi!")
+history.add_ai_message("Hey, how can I help you today?")
+
+#print messages
+history.messages</code></pre>
+<p>This class allows you to do various things, but in its simplest use, you can look at it as saving various messages to a list from time to time. Then you can also review all the messages you have added simply by iterating over the history in the following way.</p>
+<pre><code>for message in history.messages:
+    print(message.content)</code></pre>
+<h2><strong>Advanced Memory with ConversationBufferMemory</strong></h2>
+<p>The <strong>ConversationBufferMemory</strong> class behaves somewhat like the ChatMessageHistory class with respect to the message store, though it <strong>provides clever methods to retrieve old messages</strong>.</p>
+<p>For example, we can retrieve old messages, as a list of messages or as one big string depending on what we need. If we want to ask the LLM to make a summary of the past conversation it might be useful to have the past conversation as one big string. If we want to do a detailed analysis of the past instead, we can read one message at a time by extracting a list.</p>
+<p>Also with the ConversationBufferMemory class, we can add messages to the history using the add_user_message and add_user_message methods.</p>
+<p>The load_memory_variables method on the other hand is used to extract old messages in list or dictionary form depending on what is specified, let’s see an example.</p>
+<pre><code>from langchain.memory import ConversationBufferMemory
+
+memory = ConversationBufferMemory()
+
+memory.chat_memory.add_user_message("Hi, how are you?")
+memory.chat_memory.add_ai_message("hey,I am fine! How are you?")
+
+memory_variables = memory.load_memory_variables({})
+print(memory_variables['history'])</code></pre>
+<h2><strong>Manage Memory in Multiple Conversations</strong></h2>
+<p>We have seen toy examples of how to manage memory by saving and retrieving messages. <strong>But in a real-world application you will probably need to manage the memory of several conversations</strong>. LangChain allows you to manage this case as well with the use of what are called <strong>chains.</strong></p>
+<p><strong>A chain is nothing more than a workflow of various simple or complex steps that allow you to achieve a certain goal.</strong></p>
+<p><strong>For example, an LLM that looks up a piece of information on Wikipedia because it does not know how to answer a certain question is a chain.</strong></p>
+<p>To handle various conversations, it is enough to associate a ConversationBufferMemory with each chain that is created with an instantiation of the ConversationChain class.</p>
+<p>This way when the predict method of the model is called, all the steps of the chain are run so the model will read the past messages of the conversation.</p>
+<p>Let’s look at a simple example.</p>
+<pre><code>from langchain.llms import OpenAI
+from langchain.chains import ConversationChain
+from langchain.memory import ConversationBufferMemory
+
+
+memory = ConversationBufferMemory()
+conversation = ConversationChain(llm= OpenAI(), memory=memory)
+
+conversation.predict(input="Hey! how are you?")</code></pre>
+<h2><strong>Final Thoughts</strong></h2>
+<p>In conclusion,<strong> memory is a critical component of a chatbot,</strong> and LangChain provides several frameworks and tools to manage memory effectively. Through the use of classes such as<strong> ChatMessageHistory and ConversationBufferMemory, you can capture and store user interactions with the AI</strong>, and use this information to guide future AI responses. I hope this information helps you build smarter and more capable chatbots!</p>
+<p>In the next article, I will show you how to use LangChain tools.</p>
+<p>If you found this article useful follow me here on Medium! <a href="https://emojipedia.org/it/apple/ios-15.4/faccina-che-fa-l-occhiolino/">😉</a></p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>This article was published on <a href="https://medium.com/data-science/langchain-enhancing-performance-with-memory-capacity-c7168e097f81">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

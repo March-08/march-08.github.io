@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>d3-force prototype — light graph & neural</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:#faf8f3;color:#1f1d19;height:100vh;overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  .app{display:flex;flex-direction:column;height:100vh}
+  header{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid #e8e1d3;flex-shrink:0;
+    background:#fbf9f4;z-index:5}
+  .brand{font-size:14px;font-weight:600;font-family:Georgia,serif}
+  .tabs{display:flex;gap:6px}
+  .tab{font-size:12px;color:#8c8273;border:1px solid #e0d8c8;background:#fff;padding:5px 11px;border-radius:7px;cursor:pointer}
+  .tab.on{color:#0f5132;border-color:#1f8f6a;background:#eafaf2}
+  .hint{margin-left:auto;font-size:11px;color:#a99f8c}
+  .stage{position:relative;flex:1;overflow:hidden}
+  svg{display:block;width:100%;height:100%}
+  /* dark variant for neural */
+  .stage.dark{background:radial-gradient(120% 90% at 50% 32%,#15203a,#070a14)}
+  .invite{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-size:11px;
+    border-radius:20px;padding:5px 14px;pointer-events:none}
+  .stage.light .invite{color:#8c8273;background:rgba(255,255,255,.75);border:1px solid #e8e1d3}
+  .stage.dark .invite{color:#9fb0e0;background:rgba(15,20,30,.6);border:1px solid #26314f}
+
+  /* node label text */
+  .nlabel{font-size:12px;font-weight:600;pointer-events:none}
+  .llabel{font-size:11px;pointer-events:none}
+
+  /* content panel */
+  .panel{position:absolute;inset:0;display:none;flex-direction:column;animation:slide .26s cubic-bezier(.2,.7,.2,1)}
+  .panel.on{display:flex}
+  @keyframes slide{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .panel.light{background:#faf8f3;color:#1f1d19}
+  .panel.dark{background:#0c1020;color:#e8ecf6}
+  .pbar{display:flex;align-items:center;gap:12px;padding:14px 22px}
+  .panel.light .pbar{border-bottom:1px solid #e8e1d3}
+  .panel.dark .pbar{border-bottom:1px solid #1d2742}
+  .back{font-size:12px;cursor:pointer;border-radius:7px;padding:5px 10px}
+  .panel.light .back{color:#1f8f6a;background:#eafaf2;border:1px solid #bfe6d6}
+  .panel.dark .back{color:#7fa0ff;background:#141d36;border:1px solid #26314f}
+  .ptitle{font-size:18px;font-weight:600;font-family:Georgia,serif}
+  .pbody{padding:8px 22px 22px;overflow:auto;max-width:760px;margin:0 auto;width:100%}
+
+  .row{display:flex;gap:14px;align-items:baseline;padding:13px 8px;border-radius:8px;cursor:pointer}
+  .panel.light .row{border-top:1px solid #ece5d6}.panel.light .row:hover{background:#f2ece0}
+  .panel.dark .row{border-top:1px solid #18213a}.panel.dark .row:hover{background:#121a30}
+  .row .d{font-size:11px;color:#a99f8c;width:64px;flex-shrink:0}
+  .panel.dark .row .d{color:#6b7793}
+  .row .t{font-size:14px;flex:1}
+  .row .arr{opacity:0;color:#1f8f6a}.row:hover .arr{opacity:1}
+
+  .art h3{font-family:Georgia,serif;font-size:21px;margin:6px 0 4px}
+  .art .meta{font-size:12px;color:#a99f8c;margin-bottom:16px}
+  .art p{font-size:14px;line-height:1.7;margin:0 0 14px;max-width:64ch}
+  .panel.light .art p{color:#4a463d}.panel.dark .art p{color:#c2c8d6}
+
+  .pub{padding:14px 8px}.panel.light .pub{border-top:1px solid #ece5d6}.panel.dark .pub{border-top:1px solid #18213a}
+  .pub:first-child{border-top:none}.pub .t{font-size:14px}.pub .m{font-size:12px;color:#a99f8c;margin-top:3px}
+  .pub .v{color:#1f8f6a;font-weight:600}.panel.dark .pub .v{color:#7fa0ff}
+
+  .about p{font-size:14px;line-height:1.75;max-width:60ch}.panel.light .about p{color:#4a463d}.panel.dark .about p{color:#c2c8d6}
+  .cv{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  .cvc{border-radius:10px;padding:14px}
+  .panel.light .cvc{background:#fff;border:1px solid #e8e1d3}.panel.dark .cvc{background:#101830;border:1px solid #1d2742}
+  .cvc h4{margin:0 0 10px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#1f8f6a}
+  .panel.dark .cvc h4{color:#7fa0ff}
+  .cvi{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:6px 0}
+  .panel.light .cvi{border-top:1px dashed #e8e1d3}.panel.dark .cvi{border-top:1px dashed #1d2742}
+  .cvi:first-of-type{border-top:none}.cvi .y{color:#a99f8c;white-space:nowrap}
+  .places{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .chip{font-size:12px;border-radius:20px;padding:5px 11px}
+  .panel.light .chip{border:1px solid #e0d8c8;background:#fff;color:#4a463d}
+  .panel.dark .chip{border:1px solid #26314f;background:#101830;color:#c2c8d6}
+  @media(max-width:600px){.cv{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <span class="brand">Marcello Politi</span>
+    <div class="tabs">
+      <span class="tab on" id="tab-graph" onclick="setMode('graph')">Knowledge graph</span>
+      <span class="tab" id="tab-neural" onclick="setMode('neural')">Neural field</span>
+    </div>
+    <span class="hint">Drag nodes to feel the physics · click a section to open it</span>
+  </header>
+  <div class="stage light" id="stage">
+    <svg id="svg"></svg>
+    <div class="invite" id="invite">Drag the nodes around · click <b>Writing / Work / Map / About</b></div>
+    <div class="panel light" id="panel">
+      <div class="pbar"><span class="back" id="back" onclick="closePanel()">← back</span><span class="ptitle" id="ptitle"></span></div>
+      <div class="pbody" id="pbody"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------- dummy data ---------------- */
+const ARTICLES=[
+  {d:"Jun 2026",t:"On economic alignment in decentralized systems",
+   body:["Incentive design is the part of a protocol that survives contact with reality. Code can be audited and fixed; misaligned incentives quietly compound until the system behaves in ways no one intended.",
+   "This piece argues we should treat economic alignment as a first-class engineering concern — specified, tested, and monitored like any other subsystem.",
+   "I walk through three failure patterns I keep seeing, and a small checklist for catching them before launch."]},
+  {d:"Apr 2026",t:"Notes on zero-knowledge proof aggregation",
+   body:["Aggregation is where zero-knowledge systems get practical — and where the cost model gets confusing fast.",
+   "Here I separate the three techniques people lump together, and show, with rough numbers, where prover time and verifier cost really land."]},
+  {d:"Feb 2026",t:"Why frontend craft matters for research tools",
+   body:["A research tool nobody can use is a result nobody can reproduce. Interface quality is part of the scientific contribution, not decoration.",
+   "I make the case for funding and reviewing tooling the way we review papers."]},
+  {d:"Nov 2025",t:"A practical guide to reproducible ML pipelines",
+   body:["Reproducibility is mostly a discipline problem dressed up as a tooling problem.",
+   "This is the setup I use to get from a messy notebook to one deterministic command."]}
+];
+const PUBS=[
+  {t:"Scalable consensus under adversarial latency",m:"M. Politi, A. Rossi, K. Sato",v:"NeurIPS 2025"},
+  {t:"Privacy-preserving aggregation for federated inference",m:"M. Politi, A. Rossi",v:"IEEE S&P 2024"},
+  {t:"Mechanism design for open protocols",m:"M. Politi",v:"arXiv:2403.01829, 2024"}
+];
+const PLACES=["Rome","Zurich","London","Berlin","San Francisco","New York","Lisbon","Tokyo","Singapore","Bangalore","Buenos Aires","Cape Town","Sydney"];
+const SECLABEL={writing:'Writing',work:'Work',map:'Map',about:'About'};
+
+/* ---------------- panel ---------------- */
+const SECTIONS={
+  writing:()=>ARTICLES.map((a,i)=>`<div class="row" onclick="openArticle(${i})"><span class="d">${a.d}</span><span class="t">${a.t}</span><span class="arr">→</span></div>`).join(''),
+  work:()=>PUBS.map(p=>`<div class="pub"><div class="t">${p.t}</div><div class="m">${p.m} — <span class="v">${p.v}</span></div></div>`).join(''),
+  map:()=>`<p class="about">13 places, 5 continents. On the real site each pin opens a note.</p><div class="places">${PLACES.map(c=>`<span class="chip">📍 ${c}</span>`).join('')}</div>`,
+  about:()=>`<div class="about"><p>I'm a research engineer working across cryptography, distributed protocols and machine learning. I build systems that make complex technology feel simple — and write about the parts that resist simplification.</p></div>
+    <div class="cv"><div class="cvc"><h4>Experience</h4>
+      <div class="cvi"><span>Research Engineer · Ethereum Foundation</span><span class="y">2023—</span></div>
+      <div class="cvi"><span>ML Engineer · Acme Labs</span><span class="y">2021—23</span></div>
+      <div class="cvi"><span>Research Intern · CERN</span><span class="y">2020</span></div></div>
+    <div class="cvc"><h4>Education</h4>
+      <div class="cvi"><span>MSc Computer Science · Imperial</span><span class="y">2021</span></div>
+      <div class="cvi"><span>BSc Mathematics · Sapienza</span><span class="y">2019</span></div></div></div>`
+};
+const panel=document.getElementById('panel');
+function openSection(id){if(!SECTIONS[id])return;document.getElementById('ptitle').textContent=SECLABEL[id];
+  document.getElementById('pbody').innerHTML=SECTIONS[id]();panel.classList.add('on');}
+function openArticle(i){const a=ARTICLES[i];document.getElementById('ptitle').textContent='Writing';
+  document.getElementById('pbody').innerHTML=`<div class="art"><div class="row" style="border:none;padding:0 0 12px" onclick="openSection('writing')"><span class="d" style="width:auto;color:#1f8f6a">← all writing</span></div><h3>${a.t}</h3><div class="meta">${a.d}</div>${a.body.map(p=>`<p>${p}</p>`).join('')}</div>`;
+  panel.classList.add('on');}
+function closePanel(){panel.classList.remove('on');}
+
+/* ---------------- d3 setup ---------------- */
+const stage=document.getElementById('stage');
+const svg=d3.select('#svg');
+let W,H,sim=null,mode='graph';
+function dims(){const r=stage.getBoundingClientRect();W=r.width;H=r.height;}
+function clearSim(){if(sim){sim.stop();sim=null;}svg.selectAll('*').remove();}
+
+function drag(simulation){
+  return d3.drag()
+    .on('start',(e,d)=>{if(!e.active)simulation.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
+    .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;})
+    .on('end',(e,d)=>{if(!e.active)simulation.alphaTarget(mode==='neural'?0.06:0.02);d.fx=null;d.fy=null;});
+}
+
+/* ---------- GRAPH MODE (light) ---------- */
+function buildGraph(){
+  clearSim();stage.className='stage light';panel.className='panel light';
+  document.getElementById('invite').innerHTML='Drag the nodes around · click <b>Writing / Work / Map / About</b>';
+  const nodes=[{id:'hub',g:'hub'}];
+  ['writing','work','map','about'].forEach(s=>nodes.push({id:s,g:'sec'}));
+  const counts={writing:4,work:3,map:5,about:2};
+  const links=[];
+  ['writing','work','map','about'].forEach(s=>{links.push({source:'hub',target:s});
+    for(let k=0;k<counts[s];k++){const id=s+'-'+k;nodes.push({id,g:'leaf',sec:s,idx:k});links.push({source:s,target:id});}});
+
+  const defs=svg.append('defs');
+  const r=d=>d.g==='hub'?34:d.g==='sec'?22:5;
+  sim=d3.forceSimulation(nodes)
+    .force('link',d3.forceLink(links).id(d=>d.id).distance(d=>d.target.g==='sec'?150:60).strength(0.5))
+    .force('charge',d3.forceManyBody().strength(d=>d.g==='leaf'?-60:-450))
+    .force('center',d3.forceCenter(W/2,H/2))
+    .force('collide',d3.forceCollide().radius(d=>r(d)+10))
+    .alphaTarget(0.02);
+
+  const link=svg.append('g').attr('stroke','#1f8f6a').attr('stroke-opacity',0.28)
+    .selectAll('line').data(links).join('line').attr('stroke-width',d=>d.target.g==='sec'?1.4:1);
+
+  const node=svg.append('g').selectAll('g').data(nodes).join('g').style('cursor','pointer').call(drag(sim));
+  node.append('circle').attr('r',r)
+    .attr('fill',d=>d.g==='hub'?'#0f5132':d.g==='sec'?'#eafaf2':'#cfe9dd')
+    .attr('stroke',d=>d.g==='hub'?'#1f8f6a':d.g==='sec'?'#1f8f6a':'#9fcdb9')
+    .attr('stroke-width',d=>d.g==='sec'?2:1);
+  node.filter(d=>d.g==='sec').append('circle').attr('class','pulse').attr('r',d=>r(d)+7)
+    .attr('fill','none').attr('stroke','#1f8f6a').attr('stroke-opacity',0.35).attr('stroke-width',1);
+  node.append('text').attr('class',d=>d.g==='leaf'?'llabel':'nlabel').attr('text-anchor','middle')
+    .attr('dy',d=>d.g==='hub'?5:d.g==='sec'?4:-10)
+    .attr('fill',d=>d.g==='hub'?'#eafff5':'#1f1d19')
+    .text(d=>d.g==='hub'?'M. Politi':d.g==='sec'?SECLABEL[d.id]:'')
+    .style('opacity',d=>d.g==='leaf'?0:1);
+  // leaf labels show on hover of their section
+  node.on('mouseenter',(e,d)=>{
+    link.attr('stroke-opacity',l=>(l.source===d||l.target===d)?0.7:0.12);
+    node.select('text').style('opacity',n=>{
+      if(n.g==='leaf')return n.sec===d.id?1:0; return (d.g==='sec'&&n.g==='leaf')?0:1;});
+    node.selectAll('text').filter(n=>n.g==='leaf'&&n.sec===d.id)
+      .text(n=>n.sec==='writing'?ARTICLES[n.idx].t.slice(0,22)+'…':n.sec==='work'?'paper '+(n.idx+1):n.sec==='map'?PLACES[n.idx]:(n.idx===0?'CV':'Contact'));
+  }).on('mouseleave',()=>{link.attr('stroke-opacity',0.28);
+    node.select('text').style('opacity',n=>n.g==='leaf'?0:1);});
+  node.on('click',(e,d)=>{if(d.g==='sec')openSection(d.id);
+    else if(d.g==='leaf'&&d.sec==='writing')openArticle(d.idx);else if(d.g==='leaf')openSection(d.sec);});
+
+  let tk=0;
+  sim.on('tick',()=>{tk++;
+    // gentle breathing pulse on section rings
+    node.selectAll('.pulse').attr('r',d=>r(d)+7+Math.sin(tk*0.05+ (d.x||0)*0.01)*2);
+    nodes.forEach(n=>{n.x=Math.max(r(n),Math.min(W-r(n),n.x));n.y=Math.max(r(n)+4,Math.min(H-r(n),n.y));});
+    link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+    node.attr('transform',d=>`translate(${d.x},${d.y})`);
+  });
+}
+
+/* ---------- NEURAL MODE (dark, force graph) ---------- */
+function buildNeural(){
+  clearSim();stage.className='stage dark';panel.className='panel dark';
+  document.getElementById('invite').innerHTML='A force-directed field · click a glowing node — <b>Writing / Work / Map / About</b>';
+  const secIds=['writing','work','map','about'];
+  const nodes=secIds.map(id=>({id,g:'sec'}));
+  const NP=42;
+  for(let i=0;i<NP;i++)nodes.push({id:'p'+i,g:'p'});
+  const links=[];
+  // connect particles in a loose web
+  for(let i=0;i<NP;i++){const a='p'+i;
+    for(let k=1;k<=2;k++){const b='p'+((i+k*7+3)%NP);if(a!==b)links.push({source:a,target:b});}}
+  // attach some particles to each section
+  secIds.forEach((s,si)=>{for(let k=0;k<5;k++)links.push({source:s,target:'p'+((si*9+k*3)%NP)});});
+
+  const defs=svg.append('defs');
+  const glow=defs.append('filter').attr('id','glow').attr('x','-80%').attr('y','-80%').attr('width','260%').attr('height','260%');
+  glow.append('feGaussianBlur').attr('stdDeviation','6').attr('result','b');
+  const fm=glow.append('feMerge');fm.append('feMergeNode').attr('in','b');fm.append('feMergeNode').attr('in','SourceGraphic');
+
+  const r=d=>d.g==='sec'?15:2.5;
+  sim=d3.forceSimulation(nodes)
+    .force('link',d3.forceLink(links).id(d=>d.id).distance(d=>d.target.g==='sec'?70:55).strength(0.25))
+    .force('charge',d3.forceManyBody().strength(d=>d.g==='sec'?-180:-40))
+    .force('center',d3.forceCenter(W/2,H/2))
+    .force('x',d3.forceX(W/2).strength(0.02)).force('y',d3.forceY(H/2).strength(0.02))
+    .velocityDecay(0.9).alphaDecay(0).alphaTarget(0.08);
+  // perpetual gentle jitter so the field never freezes
+  sim.force('jitter',(alpha)=>{nodes.forEach(n=>{if(n.g==='p'){n.vx+=(Math.random()-0.5)*0.25;n.vy+=(Math.random()-0.5)*0.25;}});});
+
+  const link=svg.append('g').attr('stroke','#6e96ff').attr('stroke-opacity',0.16)
+    .selectAll('line').data(links).join('line').attr('stroke-width',1);
+  const node=svg.append('g').selectAll('g').data(nodes).join('g')
+    .style('cursor',d=>d.g==='sec'?'pointer':'default').call(drag(sim));
+  node.filter(d=>d.g==='sec').append('circle').attr('r',d=>r(d)*2.4).attr('fill','#3b5bdb')
+    .attr('opacity',0.35).attr('filter','url(#glow)');
+  node.append('circle').attr('r',r).attr('fill',d=>d.g==='sec'?'#cdd8ff':'#8ca8ff').attr('opacity',d=>d.g==='sec'?1:0.8);
+  node.filter(d=>d.g==='sec').append('text').attr('class','nlabel').attr('text-anchor','middle')
+    .attr('dy',32).attr('fill','#dfe7ff').text(d=>SECLABEL[d.id]);
+  node.filter(d=>d.g==='sec').on('click',(e,d)=>openSection(d.id))
+    .on('mouseenter',(e,d)=>link.attr('stroke-opacity',l=>(l.source===d||l.target===d)?0.6:0.16))
+    .on('mouseleave',()=>link.attr('stroke-opacity',0.16));
+
+  sim.on('tick',()=>{
+    nodes.forEach(n=>{n.x=Math.max(8,Math.min(W-8,n.x));n.y=Math.max(8,Math.min(H-8,n.y));});
+    link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+    node.attr('transform',d=>`translate(${d.x},${d.y})`);});
+}
+
+function setMode(m){mode=m;closePanel();dims();
+  document.getElementById('tab-graph').classList.toggle('on',m==='graph');
+  document.getElementById('tab-neural').classList.toggle('on',m==='neural');
+  if(m==='graph')buildGraph();else buildNeural();}
+function resize(){dims();setMode(mode);}
+window.addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(resize,200);});
+dims();buildGraph();
+</script>
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>ZK Proofs — ZKBoo and ZKBoo+ — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>ZK Proofs — ZKBoo and ZKBoo+</h1>
+    <p class="subtitle">Introduction of ZK proofs with Graph Isomorphisms.</p>
+    <p class="postdate">July 14, 2025 · cryptography, zkml, zkproof</p>
+<p>⛳<strong> Goal</strong>: We want to convince someone that we know something without revealing what exactly we know!</p>
+<p>As it usally happens we ask help to 🙍🏻‍♀️ Alice and 🙎🏻‍♂️ Bob. Alice is the prover and Bob is the verifier.</p>
+<p>Let’s consider as an example the <a href="https://en.wikipedia.org/wiki/Graph_isomorphism">graph isomorphism</a> problem.</p>
+<p><strong>Problem</strong>: Given two graphs G1 and G2, with the same number of vertices,  we say that the graphs are isomorphic if there is a relabelling of the vertices of one graph, which produces<br>the second graph. The relabelling is called φ.</p>
+<p>So φ is a function that transforms G1 into G2.</p>
+<p class="mathblock">beginequation varPhi : G₁ longrightarrow G₂ endequation</p>
+<p>This is a hard computational problem, basically the only way to find it out is to try all the permutation of vertices and see if we can get G2.</p>
+<p>Example:</p>
+<figure>
+  <img class="wide" src="images/zk-proofs-zkboo-and-zkboo/img-01.png" alt="">
+</figure>
+<p>Here, the isomorphism is given as a <strong>permutation in cycle notation</strong>:</p>
+<p class="mathblock">Phi = (1, 2, 4, 3)</p>
+<p>This means:</p>
+<ul>
+  <li>Replace vertex 1 with 2</li>
+  <li>Replace vertex 2 with 4</li>
+  <li>Replace vertex 4 with 3</li>
+  <li>Replace vertex 3 with 1</li>
+  <li>Vertex 5 stays as 5 (because it is not mentioned)</li>
+</ul>
+<p>Suppose Alice know the isomorphism φ that transforms G1 into G2.</p>
+<p><strong>φ is the prover’s private input</strong> that Alice doesn’t want to reveal. But Alice want to convince Bob about the fact that she really knows φ. This is where zero knowledge proofs can help us.</p>
+<p>Alice takes the graph G2 and applies a secret random permutation ψ to the vertices of G2 to<br>produce another isomorphic graph H.</p>
+<p>This new isomorphism can be<code> </code><em><code>ψ = (1, 2)</code></em>. So now we get:<br></p>
+<figure>
+  <img class="wide" src="images/zk-proofs-zkboo-and-zkboo/img-02.png" alt="">
+</figure>
+<p>Peggy now publishes H as a commitment, she of course knows all the following secret graph<br>isomorphisms:</p>
+<p class="mathblock">Phi : G₁ longrightarrow G₂ Psi : G₂ longrightarrow H Psi circ Phi = Phi · Psi : G₁ longrightarrow H</p>
+<p>Now Bob gives Alice a <strong>challenge!</strong> He chooses<strong> randomly</strong> G1 or G2, and asks for the isomorphism between H and G_i (where i is 1 or 2).</p>
+<p>So Alice will give bob either <code>χ = ψ</code> or <code>χ = Φ· ψ</code>. But non of these 2 solutions to the challenge will reveal the secret φ.</p>
+<p>Foe example, if Bob chooses G1 then Alice publishes<br><code>Phi · ψ = (1, 2, 4, 3) · (1, 2) = (2, 4, 3)</code>.</p>
+<p>Bob now can verify that <code>(2, 4, 3)</code> actually converts <code>G1</code> into <code>H</code>. So he starts thinking that Alice knows for real some secret φ.</p>
+<p>Bob is still not sure though, because <strong>Alice can cheat</strong>. How?</p>
+<p>Suppose Alice <strong>does not know φ,</strong> in other words, she doesn’t know the secret isomorphism between G1 and G2. She wants to convince Bob she does, anyway.</p>
+<p>What can she do? ❓</p>
+<ul>
+  <li>She can still pick <strong>some random H isomorphic to G2</strong> by picking a random ψ.</li>
+  <li>She sends H=ψ(G2) to Bob.</li>
+  <li>If Bob asks b=2, she happily replies ψ, because she knows ψ:G2→H</li>
+</ul>
+<p>But if Victor asks <code>b=1</code>, she must produce φ⋅ψ, an isomorphism G1→H.</p>
+<p>But without knowing φ she cannot compute φ⋅ψ.</p>
+<p>→ She’s stuck and cannot respond correctly if b=1 is chosen. So she has 50% of probability to cheat succesfully.</p>
+<p>Note that randomness is essential because:</p>
+<ul>
+  <li>If <code>b=1</code> always → the protocol may leak φ over time → breaks zero-knowledge.</li>
+  <li>If <code>b=2</code> always → Alice can cheat and never gets caught → breaks soundness.</li>
+  <li>If b is random → Alice cannot cheat successfully (with more than negligible probability) <em>and</em> the protocol stays zero-knowledge.</li>
+</ul>
+<p>So <strong>if Alice is cheating she will only be able to respond to Bob correctly 50%<br>of the time</strong>. So we can repeat the protocol over and over to lower the probability that Alice is cheating.</p>
+<p>If Alice used the same H repeatedly, Bob could ask b=1 in one round and b=2 in another, and get both φ *ψ and ψ.</p>
+<p>From these two, he could compute: (φ⋅ψ)*(ψ^-1) and learn φ, which she is supposed to keep secret. Thus, Alice must generate a fresh H each round to prevent Bob from learning anything.</p>
+<p>The protocol properties we want to have in zk proofs are:</p>
+<p>1️⃣ <strong>Completeness: </strong>If Alice knows φ, she always convinces Bob.</p>
+<p>2️⃣ <strong>Soundness: </strong>If Alice does not know φ, she can only guess, so she has at most a 50% chance of cheating successfully in one round. Repeating the protocol k times makes her chance of cheating successfully drop to (1/2)^k, which becomes negligible.</p>
+<p>This is it fir the introduction of zkproofs. Now let’s see two real ZKProof protocols named ZKBoo and ZKBoo+</p>
+<h2>ZKBoo and ZKBoo+</h2>
+<p>We can also define a zkproof as a way for a Prover to convince a Verifier that t<em>hey know a secret <strong><code>x</code></strong> that satisfies a publicly known computation <strong><code>f(x) = y</code></strong> .</em></p>
+<p>For example Alice want to prove  hat she knows <code>x= ( a,b,d) </code> such that the following are satisfied:</p>
+<p class="mathblock">a · b = c c + d = e</p>
+<p>without revealing the secrets <code>(a,b,d)</code>.</p>
+<p>If we assume that we work only with boolean variables, we can model the computation <code>f()</code> as a boolean circuit.</p>
+<ul>
+  <li>The multiplication becomes the <code>AND</code> gate.</li>
+  <li>The addition becomes the <code>XOR</code> gate.</li>
+</ul>
+<figure>
+  <img class="wide" src="images/zk-proofs-zkboo-and-zkboo/img-03.png" alt="">
+</figure>
+<p>Instead of restricting variables to just two possible values (0 or 1), we can allow them to take on more values, up to some maximum. To do this, we use a mathematical structure called a <em>field</em>, with a chosen prime number <code>p</code> All arithmetic operations are then performed <code>modulo p</code> (i.e., we work with numbers from <code>0 to p−1</code>). This technique is known as <strong>ZKBoo+.</strong></p>
+<p>In order to understand how the ZKBoo protocol works we need to clarify some concepts, let’s start with secret sharing.</p>
+<h3>Secret Sharing</h3>
+<p>We can split a variable x in 3 (or more)  parts <code>x1,x2,x3 </code>such that:</p>
+<p class="mathblock">x = x₁ + x₂ + x₃ ±odp</p>
+<p>So if we share with somebody part of our secret e.g (x2 and x3) we will still not reveal the secret x.</p>
+<h3>Multi-Party Computation in the head (MPC)</h3>
+<p>Pretend that the three parts of a secret variable are held by three different parties.</p>
+<figure>
+  <img class="med" src="images/zk-proofs-zkboo-and-zkboo/img-04.png" alt="">
+</figure>
+<p>Each actor (or party) only knows its own share of each value. So if our computations include variables <code>a,b,c,d,e,r </code>the actor i will have access to <code>a_i, b_i, c_i, d_i, e_i </code>and <code>r_i.</code></p>
+<p>The party can perform the computation locally, only on the shares he knows</p>
+<ul>
+  <li>Addition is easy: each party adds their own shares.</li>
+  <li>XOR is also easy: each party XORs their own bits.</li>
+</ul>
+<p>We differentiate between addition and XOR based if we use ZKBoo or ZKBoo+</p>
+<ul>
+  <li>Multiplication is tricky: because of cross-terms between shares.</li>
+</ul>
+<p>In order to support multiplication we need to be a bit smart.</p>
+<p>Part of our original computation was :</p>
+<p class="mathblock">a · b = c</p>
+<p>So let’s split these variables.</p>
+<p class="mathblock">a = a₁ + a₂ + a₃ b = b₁ + b₂ + b₃ c = c₁ + c₂ + c₃</p>
+<p>Now each party is able to do its own computation</p>
+<p class="mathblock">extActor 1: quad a₁ · b₁ = c₁ extActor 2: quad a₂ · b₂ = c₂ extActor 3: quad a₃ · b₃ = c₃</p>
+<p>But we want that the following equation still holds:</p>
+<p class="mathblock">a + b = (a₁ b₁) + (a₂ b₂) + (a₃ b₃)</p>
+<p>But this is not true now because</p>
+<p class="mathblock">a + b =(a₁ + a₂ + a₃) + (b₁ + b₂ + b₃) =a₁ b₁ + a₁ b₂ + a₁ b₃ + dots + a₃ b₁ + a₃ b₂ + a₃ b₃ eq c₁ + c₂ + c₃ =(a₁ b₁) + (a₂ b₂) + (a₃ b₃)</p>
+<p>Crap! This is because in multiplications we have cross terms! So the trick is to split the cross terms and define the following:</p>
+<p class="mathblock">c₁ = a₁ b₁ + a₁ b₂ + a₂ b₁ c₂ = a₂ b₂ + a₂ b₃ + a₃ b₂ c₃ = a₃ b₃ + a₁ b₃ + a₃ b₁</p>
+<p>Now it holds that :</p>
+<p class="mathblock">a · b =(a₁ + a₂ + a₃) + (b₁ + b₂ + b₃) =c₁ + c₂ + c₃</p>
+<h3>Commitments</h3>
+<p>A commitment allows us to promise to some value without revealing it. A commitment is like a <strong>sealed envelope</strong>:</p>
+<ul>
+  <li>The prover writes down each party’s view, seals it, and sends the sealed envelopes to the verifier.</li>
+  <li>Once the verifier decides which 2 to open, the prover opens those 2 envelopes.</li>
+</ul>
+<p>A good commitment is:</p>
+<ul>
+  <li><strong><em>Binding</strong></em>: once you seal it, you can’t change the contents.</li>
+  <li><strong><em>Hiding</strong></em>: until opened, no one can tell what’s inside.</li>
+</ul>
+<p>A simple commit is the hash of some value.</p>
+<p><code>com = SHA256(m || r)</code></p>
+<p>Meaning that we can commit a message m, by adding to it some random noise by concatenating and the “crypting” the message with a hash function.</p>
+<p>The verifier can see the hash message, and if he gets later the information m,r he can check if he obtain the same hash, so if the commitment was truthful.</p>
+<p>Example:</p>
+<p><code>m = “marcello”</code></p>
+<p><code>r = “123”</code></p>
+<p><code>SHA256(”marcello123”) —&gt; “41ADf3gf34sd2”</code></p>
+<p>The prover uses <code>“41ADf3gf34sd2</code>” as a committment. When the verifier will get “marcello” and “123” he can check weather <code>SHA256(”marcello123”)</code> really results in <code>“41ADf3gf34sd2”.</code></p>
+<h3>Sigma Protocol</h3>
+<p>Many ZK proofs systems follow the sigma protocol, also called <strong>interactive protocol. </strong>In this case we have two parties interacting exchanging messages in three different steps.</p>
+<p>The three messages are:</p>
+<p>1. A commitment</p>
+<p>2. A challenge</p>
+<p>3. A response to the challenge</p>
+<p>This Sigma protocol is like a primitive ZKProof. It allow the prover to convince a verifier that some statement is true, without revealing the secret info.</p>
+<p>Basically what happens is that the prover send to the verifier concatenates the variables of the original computation, so he commits to these variables.</p>
+<p>The the verifies says something</p>
+<blockquote><p>“<em>If you really know the secret variables that solve the equations, show me some part of these secrets variables, so only some part of the secret sharing</em>”</p></blockquote>
+<p>The prover than shows these parts of the secret variable.</p>
+<p>Now the verifier starts believing that the prover really knows the secret variable, but to be more convinced he once to do another round, and then another and so on. N times!</p>
+<p>This is the general concept of the sigma protocol, we will go more in depth now by showing how this is implemented in the ZKBoo protocol.</p>
+<h2>We have all the ingredients for the ZKBoo!</h2>
+<p>Recall that the original set of equations for which we know the secrets variables <code>(a, b, d)</code> is:</p>
+<p class="mathblock">a · b = c c + d = e</p>
+<p>After the secret sharing each of this variable is split in three parts. Plus we will have also some random variable <code>r</code> split in <code>r1, r2</code>, and <code>r3</code>. I will explain soon why this is needed.</p>
+<p>The prover can now commit to these 3 sets of variables (one set for each imaginary actor of the MPC).</p>
+<p>Prover:<code>Commitment: {com1, com2, com3} where com_k = hash(a_k, b_k, c_k, d_k, e_k, r_k), k = {1,2,3}</code></p>
+<p>Verifier now challenges the prover asking him to reveal 2 columns. What columns? You can imagine the set of variables arranged in a table.</p>
+<div class="tablewrap"><table class="ntable"><thead><tr><th>Variable</th><th>Party 1 (k=1)</th><th>Party 2 (k=2)</th><th>Party 3 (k=3)</th></tr></thead><tbody><tr><td>a</td><td>a1</td><td>a2</td><td>a3</td></tr><tr><td>b</td><td>b1</td><td>b2</td><td>b3</td></tr><tr><td>c</td><td>c1</td><td>c2</td><td>c3</td></tr><tr><td>d</td><td>d1</td><td>d2</td><td>d3</td></tr><tr><td>e</td><td>e1</td><td>e2</td><td>e3</td></tr></tbody></table></div>
+<p>If the Prover shows 2 columns, the verifier can’t still infer the original variable since you need all the 3 part of the secrets.<br><br>We have one problem though. We defined <code>c_k</code> in a tricky way, so the actual value are:<br></p>
+<div class="tablewrap"><table class="ntable"><thead><tr><th>Variable</th><th>Party 1 (k=1)</th><th>Party 2 (k=2)</th><th>Party 3 (k=3)</th></tr></thead><tbody><tr><td>a</td><td>a1</td><td>a2</td><td>a3</td></tr><tr><td>b</td><td>b1</td><td>b2</td><td>b3</td></tr><tr><td>c</td><td>a1b1 + a1b2 + a2b1</td><td>a2b2 + a2b3 + a3b2</td><td>a3b3 + a1b3 + a3b1</td></tr><tr><td>d</td><td>d1</td><td>d2</td><td>d3</td></tr><tr><td>e</td><td>e1</td><td>e2</td><td>e3</td></tr><tr><td>r</td><td>r1</td><td>r2</td><td>r3</td></tr></tbody></table></div>
+<p>In this case when we reveal:</p>
+<ul>
+  <li>column 1, we will also reveal some ino of secret party 2 (a1<strong>b2)</strong></li>
+  <li>column 2, we will also reveal some ino of secret party 3</li>
+  <li>column 3, we will also reveal some ino of secret party 1 (a1<strong>b2)</strong></li>
+</ul>
+<p>We don’t want to show information about the columns that are not requested!</p>
+<p>That is why we <strong>add some randomness</strong>, so that the it is more difficult for the verifier to infer any information out of it.</p>
+<p>So the way we actually want to define <code>c_k</code> is:</p>
+<p class="mathblock">c₁ = a₁ b₁ + a₁ b₂ + a₂ b₁ + r₁ - r₂ c₂ = a₂ b₂ + a₂ b₃ + a₃ b₂ + r₂ - r₃ c₃ = a₃ b₃ + a₁ b₃ + a₃ b₁ + r₃ - r₁</p>
+<p>Note that when we add them up the random terms cancel out, so it still holds that <code>c = c1 + c2 + c3.</code></p>
+<p>But what columns the verifier asks to the prover to show? He has 3 possibilities : <code>(1,2), (2,3) , (1,3)</code>.</p>
+<p>So he <strong>randomly </strong>chooses  2 columns <code>(i,j)</code>, and the verifier shows those columns.</p>
+<p>The verifier now does:</p>
+<p>1. <strong>Consistency Check</strong>:</p>
+<p class="mathblock">quad 1. quad c_i = a_i b_i + a_i b_j + a_j b_i + r_i - r_j quad 2. quad c_j = a_j b_j + a_j b_k + a_k b_j + r_j - r_k quad ( extcannot be checked: no k ext variables) quad 3. quad c_i + d_i = e_i quad 4. quad c_j + d_j = e_j</p>
+<p>1. Recompute the hashes of the commitment and double check the hold</p>
+<h3>Improve Soundness</h3>
+<p>As we have seen for the graph isomorphism at the beginning, the verifier has the chance of cheating equal to <code>1/3</code>, if he can guess which columns will be requested by the verifier. <br>Thats why wee need to repeat several rounds of the protocol, and in each round the verifier will produce a different set of secret sharing variable, in order to don’t leak any secret info.</p>
+<p>With n rounds, the probability of the verifier to cheat is <code>(1/3)^N</code> which becomes negligible!</p>
+<h2><strong>Flat - Shamir Transform</strong></h2>
+<p>We still have one problem though. With N rounds the messages that need to be exchanged are a lot! Can we summarise it entirely in one single message?</p>
+<p>We said at the beginning, that is really important the randomness introduced by the verifier in asking randomly two columns <code>(i,j)</code>.</p>
+<p>But maybe the prover can simulate this randomness itself, so he doesn’t need to ask the prover.</p>
+<p>The way to do this is to use an hash function.</p>
+<ul>
+  <li>Replace verifiers random challenge with a hash of the commitments + some public info on which verifier and prover have agreed upon</li>
+  <li>Since hashes are unpredictable and binding, prover can’t cheat</li>
+</ul>
+<p>So the steps of the algorithm become:</p>
+<p>1. Prover commits for all rounds</p>
+<p>2. Prover computes challenge for each round:</p>
+<p>1. <code>challenge_k = SHA256(all previous commitments , pbl info, k ) mod 3</code></p>
+<p>3. Then, for each round k, the prover reveals the two columns according to challenge_k and sends all the responses to the verifier in a single package.</p>
+<p>4. The verifier simply recomputes the challenges using the same hash function and verifies the responses against the commitments and the public info.</p>
+<h2>Implementing ZKBoo</h2>
+<p>The following Python code is a <strong>demonstration of a Zero-Knowledge Proof (ZKP) using the ZKBoo protocol principles</strong>.</p>
+<p>It shows how a <strong>prover</strong> can convince a <strong>verifier</strong> that they know secret values a,b,da, b, da,b,d such that a⋅b+d=ea cdot b + d = ea⋅b+d=e,</p>
+<p>without revealing the secrets themselves.</p>
+<p>The code implements:</p>
+<ul>
+  <li>A small finite field Fpmathbb{F}_pFp for arithmetic modulo a prime p=101p=101p=101.</li>
+  <li>Secret-sharing of variables a,b,da, b, da,b,d into three random shares each.</li>
+  <li>Computation of intermediate values c=a⋅bc = a cdot bc=a⋅b and e=c+de = c + de=c+d using MPC-in-the-head techniques.</li>
+  <li>Commitment of shares with SHA-256 hashes to ensure hiding and binding.</li>
+  <li>A verifier that randomly challenges the prover to open two out of three views.</li>
+  <li>Verification that the opened views are consistent with the commitments and the computation.</li>
+</ul>
+<p>It simulates a single round of the protocol and clearly logs all the steps to illustrate how the prover and verifier interact —</p>
+<p>while guaranteeing that the verifier learns nothing about the secret values beyond the fact that the prover knows them.</p>
+<pre><code class="language-python">import random, hashlib
+
+p = 101  # Prime field modulus
+
+class FiniteField:
+    """Simple finite field implementation for GF(p)"""
+    def __init__(self, modulus):
+        self.p = modulus
+    
+    def random_element(self):
+        """Generate a random field element"""
+        return random.randint(0, self.p - 1)
+    
+    def add(self, a, b):
+        """Addition in the field"""
+        return (a + b) % self.p
+    
+    def sub(self, a, b):
+        """Subtraction in the field"""
+        return (a - b) % self.p
+    
+    def mul(self, a, b):
+        """Multiplication in the field"""
+        return (a * b) % self.p
+
+F = FiniteField(p)
+
+def secret_share(v):
+    """Split 'v' into 3 random shares mod p."""
+    s1, s2 = F.random_element(), F.random_element()
+    s3 = (v - s1 - s2) % p
+    print(f"Secret sharing {v}:")
+    print(f"   s1 = {s1}, s2 = {s2}, s3 = {s3}")
+    print(f"   Check: ({s1} + {s2} + {s3}) mod {p} = {(s1 + s2 + s3) % p} = {v}")
+    return [s1, s2, s3]
+
+def commit(vals):
+    """Hash tuple of values to produce a commitment."""
+    commitment = hashlib.sha256(",".join(map(str, vals)).encode()).hexdigest()
+    print(f"Creating commitment for {vals}")
+    print(f"   Commitment: {commitment[:16]}...")
+    return commitment
+
+def multiply_shares(a, b):
+    """Compute c_i for a single gate a*b=c with offsets r_i."""
+    print(f"\
+MULTIPLICATION GATE:")
+    print(f"   Input a shares: {a}")
+    print(f"   Input b shares: {b}")
+    print(f"   We need to compute c = a × b")
+    print(f"   Expected result: sum(a) × sum(b) = {sum(a) % p} × {sum(b) % p} = {(sum(a) * sum(b)) % p}")
+    
+    r = [F.random_element() for _ in range(3)]
+    print(f"   Random offsets r: {r}")
+    
+    print(f"   Computing c shares using ZKBoo multiplication formula:")
+    print(f"   c[i] = a[i]×b[i] + a[i]×b[i+1] + a[i+1]×b[i] + r[i] - r[i+1]")
+    
+    c = []
+    for i in range(3):
+        j = (i + 1) % 3
+        term1 = a[i] * b[i]
+        term2 = a[i] * b[j]
+        term3 = a[j] * b[i]
+        term4 = r[i] - r[j]
+        c_i = (term1 + term2 + term3 + term4) % p
+        c.append(c_i)
+        print(f"   c[{i}] = {a[i]}×{b[i]} + {a[i]}×{b[j]} + {a[j]}×{b[i]} + ({r[i]} - {r[j]})")
+        print(f"       = {term1} + {term2} + {term3} + {term4} = {c_i}")
+    
+    print(f"   Result c shares: {c}")
+    print(f"   Verification: sum(c) = {sum(c) % p} = {(sum(a) * sum(b)) % p}")
+    
+    assert sum(c) % p == (sum(a) * sum(b)) % p
+    return c, r
+
+def zkboo_prover(a, b, d):
+    """Generate shares for a,b,d and compute c=a*b, e=c+d with random offsets."""
+    print(f"\
+PROVER PHASE:")
+    print(f"   Secret values: a={a}, b={b}, d={d}")
+    print(f"   Statement to prove: a×b + d = {a}×{b} + {d} = {a*b + d}")
+    
+    print(f"\
+STEP 1: Secret sharing inputs")
+    a_sh = secret_share(a)
+    b_sh = secret_share(b)
+    d_sh = secret_share(d)
+    
+    print(f"\
+STEP 2: Computing multiplication c = a × b")
+    c_sh, r_sh = multiply_shares(a_sh, b_sh)
+    
+    print(f"\
+STEP 3: Computing addition e = c + d")
+    e_sh = [(c_sh[i] + d_sh[i]) % p for i in range(3)]
+    print(f"   c shares: {c_sh}")
+    print(f"   d shares: {d_sh}")
+    print(f"   e shares: {e_sh}")
+    print(f"   Verification: sum(e) = {sum(e_sh) % p} = sum(c) + sum(d) = {sum(c_sh) % p} + {sum(d_sh) % p} = {(sum(c_sh) + sum(d_sh)) % p}")
+    
+    print(f"\
+STEP 4: Creating commitments")
+    commits = []
+    for i in range(3):
+        vals = (a_sh[i], b_sh[i], c_sh[i], d_sh[i], e_sh[i], r_sh[i])
+        print(f"   Share {i}: a={a_sh[i]}, b={b_sh[i]}, c={c_sh[i]}, d={d_sh[i]}, e={e_sh[i]}, r={r_sh[i]}")
+        commits.append(commit(vals))
+    
+    return a_sh, b_sh, c_sh, d_sh, e_sh, commits, r_sh
+
+def zkboo_verifier_challenge():
+    """Pick two random shares to reveal."""
+    challenge = random.sample(range(3), 2)
+    print(f"\
+VERIFIER CHALLENGE:")
+    print(f"   Randomly chosen shares to reveal: {challenge}")
+    print(f"   Hidden share: {[i for i in range(3) if i not in challenge][0]}")
+    print(f"   Why only 2 shares? Because 2 shares reveal nothing about the secret!")
+    return challenge
+
+def zkboo_prover_response(ch, a, b, c, d, e, r):
+    """Reveal the requested two shares with all data."""
+    print(f"\
+PROVER RESPONSE:")
+    print(f"   Revealing shares {ch[0]} and {ch[1]}:")
+    response = [{"a": a[i], "b": b[i], "c": c[i], "d": d[i],
+                 "e": e[i], "r": r[i]} for i in ch]
+    
+    for i, share_idx in enumerate(ch):
+        share = response[i]
+        print(f"   Share {share_idx}: a={share['a']}, b={share['b']}, c={share['c']}, d={share['d']}, e={share['e']}, r={share['r']}")
+    
+    return response
+
+def zkboo_verify(ch, resp, commits):
+    """Check commitments and verify correctness of revealed shares."""
+    print(f"\
+VERIFICATION PHASE:")
+    
+    print(f"   CHECK 1: Commitment verification")
+    for i in range(2):
+        share_data = (resp[i]["a"], resp[i]["b"], resp[i]["c"], 
+                     resp[i]["d"], resp[i]["e"], resp[i]["r"])
+        computed_commit = commit(share_data)
+        original_commit = commits[ch[i]]
+        match = computed_commit == original_commit
+        print(f"     Share {ch[i]}: {'OK' if match else 'FAIL'} Commitment matches")
+        if not match:
+            print(f"     Commitment verification failed!")
+            return False
+    
+    print(f"   CHECK 2: Multiplication consistency")
+    def check_c(sh_i, sh_j):
+        """Ensure multiplication consistency of revealed shares."""
+        lhs = (sh_i["a"] * sh_i["b"] + sh_i["a"] * sh_j["b"] +
+               sh_j["a"] * sh_i["b"] + (sh_i["r"] - sh_j["r"])) % p
+        rhs = sh_i["c"]
+        print(f"     Formula: {sh_i['a']}×{sh_i['b']} + {sh_i['a']}×{sh_j['b']} + {sh_j['a']}×{sh_i['b']} + ({sh_i['r']} - {sh_j['r']}) = {lhs}")
+        print(f"     Should equal c = {rhs}: {'OK' if lhs == rhs else 'FAIL'}")
+        return lhs == rhs
+
+    if (ch[0] + 1) % 3 == ch[1]:
+        print(f"     Checking adjacent shares {ch[0]} and {ch[1]}...")
+        if not check_c(resp[0], resp[1]):
+            print(f"     Multiplication verification failed!")
+            return False
+    elif (ch[1] + 1) % 3 == ch[0]:
+        print(f"     Checking adjacent shares {ch[1]} and {ch[0]}...")
+        if not check_c(resp[1], resp[0]):
+            print(f"     Multiplication verification failed!")
+            return False
+    else:
+        print(f"     Shares {ch[0]} and {ch[1]} are not adjacent - no multiplication check needed")
+    
+    print(f"   CHECK 3: Addition consistency (e = c + d)")
+    for i, share in enumerate(resp):
+        expected_e = (share["c"] + share["d"]) % p
+        actual_e = share["e"]
+        match = expected_e == actual_e
+        print(f"     Share {ch[i]}: c + d = {share['c']} + {share['d']} = {expected_e} = e = {actual_e}: {'OK' if match else 'FAIL'}")
+        if not match:
+            print(f"     Addition verification failed!")
+            return False
+    
+    print(f"   All checks passed. Proof is VALID.")
+    return True
+
+def test_zkboo_single_round():
+    """Test a single-round reveal for a,b,d = 3,4,5."""
+    print("=" * 70)
+    print("ZKBOO ZERO-KNOWLEDGE PROOF DEMONSTRATION")
+    print("=" * 70)
+    print("Goal: Prove knowledge of a, b, d such that a×b + d = e")
+    print("WITHOUT revealing the actual values of a, b, d!\
+")
+    
+    a, b, d = 3, 4, 5
+    print(f"Secret statement: {a} × {b} + {d} = {a*b + d}")
+    print(f"   (The verifier will NOT learn these values)")
+    
+    a_sh, b_sh, c_sh, d_sh, e_sh, commits, r_sh = zkboo_prover(a, b, d)
+    
+    ch = zkboo_verifier_challenge()
+    
+    resp = zkboo_prover_response(ch, a_sh, b_sh, c_sh, d_sh, e_sh, r_sh)
+    
+    result = zkboo_verify(ch, resp, commits)
+    
+    print(f"\
+FINAL RESULT:")
+    if result:
+        print("Zero-knowledge proof ACCEPTED.")
+        print("   The prover has convinced the verifier they know values a, b, d")
+        print(f"   such that a×b + d = {a*b + d}, without revealing the actual values.")
+    else:
+        print("Zero-knowledge proof REJECTED.")
+        print("   The prover failed to convince the verifier.")
+    
+    print("=" * 70)
+    assert result, "ZKBoo single-round failed"
+
+test_zkboo_single_round()
+</code></pre>
+<h2>Implement multiple rounds</h2>
+<ul>
+  <li>Loops over <code>num_rounds</code> rounds of the prover-verifier interaction.</li>
+  <li>If <em>any</em> round fails, the whole proof is rejected.</li>
+  <li>If all rounds pass, the proof is accepted, and the soundness error becomes (2/3)num_rounds(2/3)^{num_rounds}(2/3)num_rounds.</li>
+</ul>
+<pre><code class="language-python">def test_zkboo_multiple_rounds(num_rounds=10):
+    print("=" * 70)
+    print(f"ZKBOO ZERO-KNOWLEDGE PROOF WITH {num_rounds} ROUNDS")
+    print("=" * 70)
+    print("Goal: Prove knowledge of a, b, d such that a×b + d = e")
+    print("WITHOUT revealing the actual values of a, b, d!\
+")
+    
+    a, b, d = 3, 4, 5
+    print(f"Secret statement: {a} × {b} + {d} = {a*b + d}")
+    print(f"   (The verifier will NOT learn these values)\
+")
+    
+    all_passed = True
+    
+    for round_num in range(1, num_rounds + 1):
+        print(f"\
+\
+=== ROUND {round_num} ===\
+")
+        
+        # Prover generates proof
+        a_sh, b_sh, c_sh, d_sh, e_sh, commits, r_sh = zkboo_prover(a, b, d)
+        
+        # Verifier sends challenge
+        ch = zkboo_verifier_challenge()
+        
+        # Prover responds
+        resp = zkboo_prover_response(ch, a_sh, b_sh, c_sh, d_sh, e_sh, r_sh)
+        
+        # Verifier checks
+        result = zkboo_verify(ch, resp, commits)
+        
+        if not result:
+            all_passed = False
+            print(f"Round {round_num} FAILED")
+            break
+        else:
+            print(f"Round {round_num} PASSED")
+    
+    print("\
+ FINAL RESULT:")
+    if all_passed:
+        print(f"All {num_rounds} rounds passed. Proof accepted.")
+    else:
+        print(f"Proof failed at round {round_num}.")
+    
+    print("=" * 70)
+
+# Run with desired number of rounds
+test_zkboo_multiple_rounds(10)
+</code></pre>
+<p><br></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

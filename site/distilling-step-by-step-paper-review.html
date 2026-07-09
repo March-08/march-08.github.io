@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Distilling Step-by-Step: Paper Review — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Distilling Step-by-Step: Paper Review</h1>
+    <p class="subtitle">Exploring one of the most recent and innovative methods in LLM compression.</p>
+    <p class="postdate">July 17, 2024 · Paper Review, Distillation</p>
+<figure>
+  <img class="wide" src="images/distilling-step-by-step-paper-review/img-01.webp" alt="">
+</figure>
+<h2><strong>Authors</strong></h2>
+<p>This blog post was written by <a href="https://medium.com/@marcellopoliti">Marcello Politi</a> and <a href="https://medium.com/@vijayasriiyer">Vijayasri Iyer</a>.</p>
+<h2><strong>Introduction</strong></h2>
+<p>Nowadays, large language models are quite prominent. Recent trends in AI Research have shown that <strong>larger LMs have zero-shot generalization capabilities and emergent/common sense reasoning abilities</strong>. Currently, one of the biggest language models is the 540B PaLM model. Companies want to use Large Language Models (LLMs) and customize them to their use cases. <strong>The problem is that deploying and serving these models</strong> independently is not always feasible in terms of costs and specialized hardware.</p>
+<h2><strong>Distilling Step by Step</strong></h2>
+<p>In the recent paper by Google AI, “Distilling Step by Step”, the authors propose an <strong>approach to distill the knowledge of large models</strong> (540B PaLM) <strong>into a much smaller one</strong> (770M-T5, 6GB RAM).</p>
+<figure>
+  <img class="wide" src="images/distilling-step-by-step-paper-review/img-02.gif" alt="">
+
+  <figcaption>Distilling step-by-step (Image By Authors)</figcaption>
+</figure>
+<p><strong>What are the standard approaches?</strong></p>
+<p>There are two approaches that are used to adapt an LLM to a company-specific use case :</p>
+<p>1. <strong>Standard fine-tuning</strong>: The fine-tuning method involves introducing additional layers on top of a pre-trained model, which is trained using a supervised dataset. But it requires loads of computing and GPU RAM.</p>
+<p>2. <strong>Task Distillation</strong>: Large LLMs offer zero-shot capabilities. Task Distillation involves generating pseudo-labels with the large models and training the task-specific smaller model. In this case, the extracted rationales from the larger LM can be used as additional supervision for the smaller model. The disadvantage is that it lacks performance, generalizability, and emergent properties. Moreover, the method is compute-intensive since it requires that the LLM be deployed even at test/inference time.</p>
+<p>In the distilling step-by-step paper, the authors reframe the problem of rationale generation as a multi-task problem with by using <strong>the LLM-generated rationales only at train time.</strong></p>
+<figure>
+  <img class="wide" src="images/distilling-step-by-step-paper-review/img-03.png" alt="">
+
+  <figcaption>Distilling step-by-step flow (src: <a href="https://arxiv.org/pdf/2305.02301.pdf">https://arxiv.org/pdf/2305.02301.pdf)</a>)</figcaption>
+</figure>
+<h2><strong>How does this work?</strong></h2>
+<ul>
+  <li><strong>The larger model acts as a teacher and provides the rationales using Chain-of-Thought prompting (CoT)</strong> that aids a smaller student model during training. This is because LLMs with a large number of parameters tend to have better reasoning abilities.</li>
+</ul>
+<figure>
+  <img class="wide" src="images/distilling-step-by-step-paper-review/img-04.png" alt="">
+
+  <figcaption>Example of CoT Prompting (src: <a href="https://arxiv.org/pdf/2201.11903.pdf">https://arxiv.org/pdf/2201.11903.pdf</a>)</figcaption>
+</figure>
+<ul>
+  <li><strong>The student model learns to produce an output label and the rationale</strong> simultaneously given some input text (multi-task learning). Specific “task prefixes” such as [label], [rationale] or ([label], [rationale]) are added to the input examples when training the smaller model to produce the outputs.</li>
+  <li>This way, the <strong>student model learns to reason like the teacher </strong>and eliminates the need to deploy the teacher LLM completely during inference time.</li>
+</ul>
+<p><strong>Multi-task Learning</strong> is a learning paradigm where the model learns to perform multiple tasks/produce multiple outputs simultaneously at train time (labels and rationales). This model is trained using a <strong>weighted loss function</strong> given below :</p>
+<figure>
+  <img class="wide" src="images/distilling-step-by-step-paper-review/img-05.png" alt="Image By Authors">
+  <figcaption>Image By Authors</figcaption>
+</figure>
+<p>where r_i is the rationale generated by the teacher LLM and y_i is the label.</p>
+<h2><strong>Experimented Benchmarks</strong></h2>
+<p>The authors experiment with the following 4 benchmark datasets and 3 NLP tasks :</p>
+<blockquote><p>e-SNLI: This dataset is an extension of the Stanford Natural Language Inference (NLI) Dataset to include human-annotated natural language explanations of entailment relations.</p></blockquote>
+<figure>
+  <img class="wide" src="images/distilling-step-by-step-paper-review/img-06.png" alt="">
+
+  <figcaption>e-SNLI dataset (src: <a href="https://huggingface.co/datasets/esnli/viewer/plain_text/test?row=0">https://huggingface.co/datasets/esnli/viewer/plain_text/test?row=0</a>)</figcaption>
+</figure>
+<blockquote><p>ANLI: Adversarial Natural Language Inference is a large-scale NLI benchmark dataset, collected via an iterative, adversarial human-and-model-in-the-loop procedure.</p></blockquote>
+<figure>
+  <img class="wide" src="images/distilling-step-by-step-paper-review/img-07.png" alt="">
+
+  <figcaption>ANLI dataset (src: <a href="https://huggingface.co/datasets/anli/viewer/plain_text/train_r1?row=0">https://huggingface.co/datasets/anli/viewer/plain_text/train_r1?row=0</a>)</figcaption>
+</figure>
+<blockquote><p>CQA: multiple-choice question answering dataset that requires different types of commonsense knowledge to predict the correct answers.</p></blockquote>
+<figure>
+  <img class="wide" src="images/distilling-step-by-step-paper-review/img-08.png" alt="">
+
+  <figcaption>CQA dataset (src: <a href="https://huggingface.co/datasets/LLukas22/cqadupstack/viewer/LLukas22--cqadupstack/train?row=0">https://huggingface.co/datasets/LLukas22/cqadupstack/viewer/LLukas22--cqadupstack/train?row=0</a>)</figcaption>
+</figure>
+<blockquote><p>SVAMP: A challenge set for elementary-level Math Word Problems (MWP).</p></blockquote>
+<figure>
+  <img class="wide" src="images/distilling-step-by-step-paper-review/img-09.png" alt="">
+
+  <figcaption>SVAMP dataset (src: <a href="https://huggingface.co/datasets/ChilleD/SVAMP/viewer/ChilleD--SVAMP/train?row=0">https://huggingface.co/datasets/ChilleD/SVAMP/viewer/ChilleD--SVAMP/train?row=0</a>)</figcaption>
+</figure>
+<p>The distilling step-by-step method is compared against 2 approaches namely the standard fine-tuning and standard task-distillation. The authors compare varying sizes of T5 models: 220M T5-Base, 770M T5-Large, and 1B T5-XXL. The results are also compared against two baseline methods :</p>
+<p>1. <strong>Few shot CoT</strong>: Chain-of-thought prompting is <strong>an approach to improve the reasoning ability of large language models in arithmetic, commonsense, and symbolic reasoning tasks</strong>. The main idea is to include a chain of thought, a series of intermediate natural language reasoning steps, in the few-shot prompting process.</p>
+<p>2. <strong>PINTO Tuning</strong>: In this approach, a frozen medium-scale language model is prompted to generate rationales, on which a smaller LM is fine-tuned using the generated rationales, to function as a reasoning module. At inference time, this medium-scale LM generates a rationale which is used by the smaller LM to make a prediction.</p>
+<p>The <strong>trained student model outperforms LLMs that are 2000x larger, on 4 different NLP benchmark </strong>datasets and tasks such as natural language inference, commonsense question answering, and arithmetic math word problems by using far fewer labeled and unlabeled training examples!</p>
+<p>To know about the experiments and results in greater detail, please read the paper here: <a href="https://arxiv.org/pdf/2305.02301.pdf">https://arxiv.org/pdf/2305.02301.pdf</a></p>
+<h2><strong>Other Methods</strong></h2>
+<p>There is great interest in methods to reduce the resources required to run new Machine Learning models, which are becoming increasingly large, such as LLMs. In the literature, there are several techniques for model compression. The most important ones are:</p>
+<p>1. <strong>Quantization</strong>: decreasing the precision of the weights to improve efficiency</p>
+<p>2. <strong>Pruning</strong>: involves reducing the number of weights by removing connections between channels, filters, and neurons.</p>
+<p>3. <strong>Knowledge distillation</strong>: how this technique works is that the trained model is called the “teacher” and the smaller model is called the “student”. The student is taught to minimize the loss function by training on ground truths and labeled truths in the network by the teacher.</p>
+<p>4. <strong>Low-rank tensor decomposition</strong>: a lot of repetitive, similar, and redundant outcomes can occur between different layers while training. This technique involves reducing the number of repetitive outputs by approximating the numerous layers, thus reducing the memory footprint of the network, resulting in highly efficient systems.</p>
+<h2><strong>Final Thoughts</strong></h2>
+<p>That’s all for now! If you liked this article, you might be interested in learning more about how to reduce the resources required to run new Machine Learning models. Techniques such as quantization, pruning, and low-rank tensor decomposition can help improve efficiency and reduce the memory footprint of large models. If you want to implement knowledge distillation, you can check out libraries like the following.</p>
+<a class="linkcard" href="https://github.com/SforAiDl/KD_Lib?source=post_page-----8bf1dcbbb500---------------------------------------"><img class="lc-icon" src="images/favicons/github.com.png" alt=""><span class="lc-body"><span class="lc-title">GitHub - SforAiDl/KD_Lib: A Pytorch Knowledge Distillation library for benchmarking and extending…A Pytorch Knowledge Distillation library for benchmarking and extending works in the domains of Knowledge Distillation…github.com</span><span class="lc-domain">github.com</span></span></a>
+<a class="linkcard" href="https://pypi.org/project/torchdistill/?source=post_page-----8bf1dcbbb500---------------------------------------"><img class="lc-icon" src="images/favicons/pypi.org.png" alt=""><span class="lc-body"><span class="lc-title">torchdistilltorchdistill (formerly kdkit) offers various state-of-the-art knowledge distillation methods and enables you to design…pypi.org</span><span class="lc-domain">pypi.org</span></span></a>
+<p>Follow us for more articles like this!</p>
+<h2><strong>Marcello Politi</strong></h2>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://marcello-politi.super.site/">Website</a></p>
+<h2><strong>Vijayasri Iyer</strong></h2>
+<p><a href="https://www.linkedin.com/in/vijayasriiyer/">Linkedin</a>, <a href="https://twitter.com/thisisvij98">Twitter</a>, <a href="https://github.com/vijpandaturtle">GitHub</a></p>
+<p>This article was published on <a href="https://pub.towardsai.net/distilling-step-by-step-paper-review-8bf1dcbbb500">Towards AI</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

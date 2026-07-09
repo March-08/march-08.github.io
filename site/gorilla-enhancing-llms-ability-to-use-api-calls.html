@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Gorilla — Enhancing LLMs' Ability to Use API Calls — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Gorilla — Enhancing LLMs' Ability to Use API Calls</h1>
+    <p class="subtitle">A Finetuned LLaMA-based Model to Improve LLMs’ API Call Accuracy and Adaptability.</p>
+    <p class="postdate">June 2, 2024 · Gorilla</p>
+<h2><strong>Introduction</strong></h2>
+<p><strong>Large Language Models today are limited in the amount of information they can capture in their weights</strong>, and furthermore, they have a limited context. Therefore, people started to come out with methods to increase the capabilities of these LLMs by allowing them to <strong>go to external resources through API calls</strong>.</p>
+<p>For example, an LLM might not have any information about an event that happened recently, but with a simple API call to Wikipedia, it could learn about that event and answer questions.</p>
+<figure>
+  <img class="med" src="images/gorilla-enhancing-llms-ability-to-use-api-calls/img-01.png" alt="">
+</figure>
+<p>Many developers are building tools that allow LLMs to do exactly that, and an easy way to use these types of tools is to leverage libraries like <a href="https://python.langchain.com/docs/get_started/introduction.html">Langchain</a>🦜️🔗 .</p>
+<p>Langchain allows you to instantiate Agents, which are nothing more than an LLM that decides which tool of those provided to use to solve a given task. Unfortunately, however, the <strong>number of tools within Langchain is limited</strong>.</p>
+<p>What we want is to have a model that has access to millions of APIs, and that allows us to use the right API at the right time.</p>
+<p>For example, an input prompt of such a model might be:</p>
+<blockquote><p>Help me find an API to convert the spoken language in a recorded audio to text using Torch Hub.</p></blockquote>
+<p>Given this prompt the model needs to understand what is being asked, what API to use, and what is the required input to call this API.</p>
+<p>The authors of the paper “<a href="https://arxiv.org/abs/2305.15334"><em>Gorilla: Large Language Model Connected with Massive APIs</em></a>” created an API dataset for this purpose. In fact, the paper introduces <strong>APIBench</strong>, a comprehensive <strong>dataset consisting of HuggingFace, TorchHub, and TensorHub APIs</strong>, to evaluate the model’s ability.</p>
+<p>The basic<strong> LlaMA model was fine-tuned on this API dataset</strong>. The dataset consists of the API and instructions on how to use these APIs. A <strong>self-generated instruction approach</strong> was used, by leveraging GPT-4 to generate the instructions.</p>
+<figure>
+  <img class="wide" src="images/gorilla-enhancing-llms-ability-to-use-api-calls/img-02.png" alt="">
+
+  <figcaption><a href="https://arxiv.org/pdf/2305.15334.pdf">Source ↗</a></figcaption>
+</figure>
+<p>In the image above, you see at the top, the training phase, in which the APIs are carefully chosen. It is important in training to give context to the model by explaining how the API work.</p>
+<p>At the bottom, we see an execution of the model, where from the initial prompt, the model does retrieve the most useful API, and code is generated to call it.</p>
+<h2><strong>Let’s Code!</strong></h2>
+<p>Now that we have a general idea about what Gorilla is about, let’s code. I will use <a href="https://deepnote.com/">Deepnote</a> as my code editor.</p>
+<p>Let’s start by installing the needed libraries.</p>
+<pre><code>!pip install transformers
+!pip install sentencepiece
+!pip install openai</code></pre>
+<p>We import OpenAI for the ChatCompletion functionality and set gorilla-7b-hf-v1 as the default model. The function returns the content result of the model query, or an exception if an error occurs.</p>
+<pre><code>import openai
+
+# Query Gorilla server
+def get_gorilla_response(prompt="I would like to translate from English to Italian.", model="gorilla-7b-hf-v1"):
+  try:
+    completion = openai.ChatCompletion.create(
+      model=model,
+      messages=[{"role": "user", "content": prompt}]
+    )
+    return completion.choices[0].message.content
+  except Exception as e:
+    return e</code></pre>
+<p>Let us now try to use the model, and have it translate a sentence from English into Italian. The output will be a string with code to call some Hugging Face API that will allow us to solve the task.</p>
+<pre><code># Gorilla `gorilla-mpt-7b-hf-v1` with code snippets
+# Translation
+prompt = "I would like to translate 'I like animals.' from English to Italian."
+response = get_gorilla_response(prompt, model="gorilla-7b-hf-v1")
+print(response)</code></pre>
+<p>To believe that it actually works you can run the code represented in the string with Python’s exec command.</p>
+<pre><code>exec("""
+      from transformers import pipeline
+
+      def load_model():
+          translator = pipeline('translation_en_to_it', model='Helsinki-NLP/opus-mt-en-it')
+          return translator
+
+      def process_data(text, translator):
+          response = translator(text)
+          return response[0]['translation_text']
+
+      text = 'I like animals.'
+
+      # Load the model
+      translator = load_model()
+
+      # Process the data
+      response = process_data(text, translator)
+      print(response)
+     """)</code></pre>
+<p>The one above was just an example, but it is possible to use other APIs, for example, if we want to perform an object detection task.</p>
+<pre><code>prompt = "I want to build a robot that can detecting objects in an image ‘cat.jpeg’. Input: [‘cat.jpeg’]"
+print(get_gorilla_response(prompt, model="gorilla-7b-hf-v1"))</code></pre>
+<h2><strong>Final Thoughts</strong></h2>
+<p>In this article, we explored the new Gorilla model that connects the LLM with massive APIs. There is a lot of research happening on ways to make the best use of the models we currently have instead of trying to improve them. We are trying to delegate more and more responsibility to the LLMs, in this case, making them choose which is the best API to use. For now, the dataset used includes many APIs in the AI world, but what will happen when all APIs are introduced to the Web? I wonder if a tool like Gorilla will be able to solve then any task using the right APIs.</p>
+<p>If you are interested in this article, follow me on <a href="https://medium.com/@marcellopoliti">Medium</a>! 😄</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://twitter.com/_March08_">Twitter</a> | <a href="https://emojiterra.com/laptop-computer/">💻</a> <a href="https://marcello-politi.super.site/">Website</a></p>
+<h2><strong>Resources:</strong></h2>
+<ul>
+  <li>Gorilla Web: <a href="https://gorilla.cs.berkeley.edu/">https://gorilla.cs.berkeley.edu/</a></li>
+  <li>Gorilla Github: <a href="https://github.com/ShishirPatil/gorilla">https://github.com/ShishirPatil/gorilla</a></li>
+  <li>Gorilla Paper: <a href="https://arxiv.org/abs/2305.15334">https://arxiv.org/abs/2305.15334</a></li>
+</ul>
+<p>This article was published by <a href="https://pub.towardsai.net/gorilla-enhancing-large-language-models-ability-to-use-api-calls-1975d223d7c3">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

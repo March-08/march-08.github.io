@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>ONNX Unleashed: Training and Optimizing BERT Models for Streamlit Web Apps — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>ONNX Unleashed: Training and Optimizing BERT Models for Streamlit Web Apps</h1>
+    <p class="subtitle">Learn to quantize and deploy your Deep Learning model with ONNX.</p>
+    <p class="postdate">December 8, 2024</p>
+<figure>
+  <img class="med" src="images/onnx-unleashed-training-and-optimizing-bert-models-for-streamlit-web-a/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>In this article, I want to accomplish something very simple: build a web app that recognizes an emotion given a sentence. In doing this though we will see how to train a transformer-based model, convert it to <a href="https://onnx.ai/">ONNX</a> format, quantize it, and run it from the frontend using <a href="https://streamlit.io/">Streamlit</a>.</p>
+<p>You can tun the following scripts using <a href="https://deepnote.com/">Deepnote</a>: a cloud-based notebook that’s great for collaborative data science projects, and good for prototyping.</p>
+<p>Optimizing the model with techniques such as quantization may be a good idea if we can maintain good performance, as it will improve the response speed, and we can create a product with lower latency and ensure greater user satisfaction.</p>
+<p>We use a <strong>BERT-based model for emotion detection</strong>: anger, fear, joy, love, sadness, and surprise.</p>
+<p>This is a model released by Microsoft, which is a <strong>distilled version</strong> of BERT.</p>
+<ul>
+  <li>model: <a href="https://huggingface.co/microsoft/xtremedistil-l6-h256-uncased">https://huggingface.co/microsoft/xtremedistil-l6-h256-uncased</a></li>
+  <li>dataset: <a href="https://huggingface.co/datasets/dair-ai/emotion">https://huggingface.co/datasets/dair-ai/emotion</a></li>
+</ul>
+<p>We will heavily use the hugging face APIs to train this model on this dataset.</p>
+<h2><strong>Model Training</strong></h2>
+<p>Let’s start by installing the needed libraries. We are going to use a lot of the transformers and ONNX ones.</p>
+<pre><code>!pip install transformers[torch]
+!pip install datasets  onnx onnxruntime
+!pip install accelerate -U</code></pre>
+<p>All the imports we need:</p>
+<pre><code>from datasets import load_dataset
+from transformers import AutoTokenizer
+import torch
+from transformers import AutoModelForSequenceClassification
+import numpy as np
+from datasets import load_metric
+from transformers import TrainingArguments
+from transformers import Trainer
+import transformers
+import transformers.convert_graph_to_onnx as onnx_convert
+from pathlib import Path
+import onnxruntime as ort
+from onnxruntime.quantization import quantize_dynamic, QuantType
+import numpy as np
+from google.colab import files</code></pre>
+<p>I chose a <a href="https://huggingface.co/microsoft/xtremedistil-l6-h256-uncased">BERT-based model distilled by Microsoft</a> because it's lighter than its original version.</p>
+<pre><code>model_name = 'microsoft/xtremedistil-l6-h256-uncased'</code></pre>
+<p>We obviously need some data to fine-tune our model. We can use the <a href="https://huggingface.co/datasets/dair-ai/emotion">emotion dataset</a> that can be found on the HuggingFace platform.</p>
+<figure>
+  <img class="wide" src="images/onnx-unleashed-training-and-optimizing-bert-models-for-streamlit-web-a/img-02.png" alt="">
+
+  <figcaption>Dataset View (src: <a href="https://huggingface.co/datasets/dair-ai/emotion">https://huggingface.co/datasets/dair-ai/emotion</a>)</figcaption>
+</figure>
+<p>This <strong>dataset has a total of 20,000 examples</strong> split into train, validation and split</p>
+<p>As usual, we need to load the dataset and tokenize the text in order to be fed to the model. Each model has its own associated tokenizer that we can retrieve by using the AutoTokenizer class.</p>
+<pre><code>def tokenize_function(examples):
+    return tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128)
+
+dataset = load_dataset("emotion")
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenized_datasets = dataset.map(tokenize_function, batched=True)</code></pre>
+<p>The next step is to split the training from the testing data.</p>
+<pre><code>full_train_dataset = tokenized_datasets["train"]
+full_eval_dataset = tokenized_datasets["test"]</code></pre>
+<p>If we have a GPU, it would be smart to set it up as the default training device. Otherwise, let's just use the CPU.</p>
+<pre><code>device = "cuda:0" if torch.cuda.is_available() else "cpu"
+print(device)</code></pre>
+<p>Now, we can download the model and specify that we need it for a classification task with 6 classes. Then, let’s move the model on the device (GPU). To better understand how that works, you might be interested in reading the BERT paper.</p>
+<p>Link to the paper: <a href="https://colab.research.google.com/corgiredirector?site=https%3A%2F%2Farxiv.org%2Fabs%2F1810.04805">https://arxiv.org/abs/1810.04805</a></p>
+<pre><code>model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=6)
+model = model.to(device)</code></pre>
+<p>We should be capable of understanding how our model is doing on this task, which means that we need a way to evaluate it. It’s a classification task, so the evaluation method is quite easy. In this case, we can just rely on the accuracy metric so we can check the difference between the predicted labels and the real ones.</p>
+<pre><code>metric = load_metric("accuracy")
+
+def compute_metrics(eval_pred):
+    logits, labels = eval_pred
+    predictions = np.argmax(logits, axis=-1)
+    return metric.compute(predictions=predictions, references=labels)</code></pre>
+<p>The transformer library allows us to create a <em>TrainingArguments</em> object where we can specify the training hyperparameters like <em>batch_size</em> and <em>learning_rate</em>.</p>
+<p>Then, pass these arguments to the <em>Trainer</em> together with the model and the data, and you’re ready to go.</p>
+<pre><code>training_args = TrainingArguments("test_trainer",
+                                  per_device_train_batch_size=128,
+                                  num_train_epochs=24,
+                                  learning_rate=3e-05,
+                                  evaluation_strategy="epoch")
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=full_train_dataset,
+    eval_dataset=full_eval_dataset,
+    compute_metrics=compute_metrics,
+)</code></pre>
+<p>Training might take a while, especially if you’re not using a GPU…</p>
+<pre><code>trainer.train()</code></pre>
+<p>Great! Our model is now trained on the emotional data. How good is that, though? Let’s evaluate it!</p>
+<pre><code>trainer.evaluate()</code></pre>
+<p>Accuracy is greater than 90%.</p>
+<p>Now we can put both the tokenizer and the model into a pipeline so that we are able to classify new sentences.</p>
+<pre><code>pipeline = transformers.pipeline("text-classification",model=model,tokenizer=tokenizer)
+pipeline("I am very mad!")</code></pre>
+<h2><strong>ONNX Conversion and Quantization</strong></h2>
+<p>ONNX is an intermediary machine learning framework used to convert between different machine learning frameworks.</p>
+<p>Let’s move the model back to the CPU.</p>
+<pre><code>model = model.to("cpu")</code></pre>
+<p>With a single function, we can convert our developed <a href="https://pytorch.org/">PyTorch</a> pipeline into an ONNX model.</p>
+<p>The <code>opset</code> parameter specifies the version of the ONNX operator set to be used during the conversion from PyTorch to ONNX. The ONNX operator set defines the set of operations and their semantics that the ONNX model can use.</p>
+<pre><code>onnx_convert.convert_pytorch(pipeline, opset=11, output=Path("classifier.onnx"), use_external_format=False)</code></pre>
+<p>We’re not done yet. We can still <strong>quantize our model</strong>. This means less precision in the weights representation, which makes the model smaller. In this case, I am using INT8 quantization.</p>
+<pre><code>quantize_dynamic("classifier.onnx", "classifier_int8.onnx",
+                 weight_type=QuantType.QUInt8)</code></pre>
+<p>To use the ONNX models, you need you create a session. So I am instantiating here a session for both unquantized and quantized models.</p>
+<pre><code>session = ort.InferenceSession("classifier.onnx")
+session_int8 = ort.InferenceSession("classifier_int8.onnx")</code></pre>
+<p>Let’s define a function to run the prediction on a single sentence by tokenizing the input sentence and running inference with the ONNX session.</p>
+<pre><code>def predict_sentece(sentence:str):
+
+  # Tokenize and preprocess the input sentence
+  tokens = tokenizer(sentence, return_tensors='np', padding=True, truncation=True)
+
+  # Create the input_data dictionary
+  input_data = {
+      'input_ids': tokens['input_ids'],
+      'attention_mask': tokens['attention_mask'],
+      'token_type_ids': tokens['token_type_ids'],
+  }
+
+  # Run inference
+  output = session.run(None, input_data)
+
+  return np.argmax(output[0], axis=-1)
+
+
+predict_sentece("I Love Python")</code></pre>
+<p>An input feed always looks like the following. You can read more about it here: <a href="https://colab.research.google.com/corgiredirector?site=https%3A%2F%2Fhuggingface.co%2Flearn%2Fnlp-course%2Fchapter2%2F4%3Ffw%3Dpt">https://huggingface.co/learn/nlp-course/chapter2/4?fw=pt</a></p>
+<p>We have this data structure already ready because the downloaded dataset had this particular format. We can then exploit it for evaluation.</p>
+<pre><code>input_feed = {
+    "input_ids": np.array(full_eval_dataset['input_ids']),
+    "attention_mask": np.array(full_eval_dataset['attention_mask']),
+    "token_type_ids": np.array(full_eval_dataset['token_type_ids'])
+}</code></pre>
+<p>Let’s run the models and get the output with the help of the<em> numpy argmax</em> function.</p>
+<pre><code>out = session.run(input_feed=input_feed,output_names=['output_0'])[0]
+out_int8 = session_int8.run(input_feed=input_feed,output_names=['output_0'])[0]</code></pre>
+<pre><code>predictions = np.argmax(out, axis=-1)
+predictions_int8 = np.argmax(out_int8, axis=-1)</code></pre>
+<p>Let’s check to be sure that the accuracy of the predicted outputs using the converted ONNX model is still high.</p>
+<pre><code>metric.compute(predictions=predictions, references=full_eval_dataset['label'])</code></pre>
+<p>Same thing with the quantized model. You will notice that our quantized model, is lighter for sure, but its accuracy decreases by 10 points.</p>
+<pre><code>metric.compute(predictions=predictions_int8, references=full_eval_dataset['label'])</code></pre>
+<p>If you are using Colab, you can download the two ONNX models by using this function.</p>
+<pre><code>files.download('classifier_int8.onnx')
+files.download('classifier.onnx')</code></pre>
+<h2><strong>Deploy on a Streamlit Web App</strong></h2>
+<p>Now that we have downloaded the two model files, we can use one to develop our sentiment classification app.</p>
+<p>I am not a good front-end developer, so when I need to create fast prototypes, I like using tools like Streamlit or <a href="https://www.gradio.app/">Gradio</a>.</p>
+<p>In a few lines of Python code, we can set up this app easily.</p>
+<p>In the following code we:</p>
+<ul>
+  <li>set up the session runtime ONNX</li>
+  <li>set up the tokenizer</li>
+  <li>create a dictionary to map the predicted classes to the real emotions</li>
+  <li>reuse the prediction function we developed earlier</li>
+  <li>set up a simple UI where the user can insert a prompt and run the model with a button.</li>
+</ul>
+<pre><code>import streamlit as st
+from transformers import pipeline
+import onnxruntime as ort
+import numpy as np
+from transformers import AutoTokenizer
+
+session = ort.InferenceSession("classifier.onnx")
+model_name = "microsoft/xtremedistil-l6-h256-uncased"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+
+decode_sentiment = {
+    0: "sadness",
+    1: "joy",
+    2: "love",
+    3: "anger",
+    4: "fear",
+    5: "surprise",
+}
+
+
+def predict_sentece(sentence: str):
+    # Tokenize and preprocess the input sentence
+    tokens = tokenizer(sentence, return_tensors="np", padding=True, truncation=True)
+
+    # Create the input_data dictionary
+    input_data = {
+        "input_ids": tokens["input_ids"],
+        "attention_mask": tokens["attention_mask"],
+        "token_type_ids": tokens["token_type_ids"],
+    }
+
+    # Run inference
+    output = session.run(None, input_data)
+
+    return np.argmax(output[0], axis=-1)
+
+
+
+
+# Streamlit app
+def main():
+    st.title("Sentiment Classification App with BERT")
+
+    # User input
+    user_input = st.text_area("Enter your text here:")
+
+    # Make prediction when the user clicks the button
+    if st.button("Predict Sentiment"):
+        if user_input:
+            # Perform sentiment prediction
+            sentiment = predict_sentece(user_input)[0]
+
+            # Display the result
+            st.success(f"Sentiment: {decode_sentiment[sentiment]}")
+        else:
+            st.warning("Please enter a text for sentiment prediction.")
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+<p>The result should look something like the following.</p>
+<figure>
+  <img class="wide" src="images/onnx-unleashed-training-and-optimizing-bert-models-for-streamlit-web-a/img-03.gif" alt="">
+
+  <figcaption>Streamlit Web App (Image by Author)</figcaption>
+</figure>
+<h2><strong>Conclusions</strong></h2>
+<p>In this article, where we implemented a small full-stack app, we saw how to train a model, how to optimize it using quantization, and how to create a simple frontend prototype using Streamlit.</p>
+<p>One interesting thing to know about ONNX is that it is a format that can be converted to many other frameworks. So if you want to then convert it back using Tensorflow, for example, it’s very easy to do.</p>
+<p>If you are interested in this article, follow me on <a href="https://medium.com/@marcellopoliti">Medium</a>! 😁</p>
+<p>💼 <a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a> ️| 🐦 <a href="https://twitter.com/_March08_">Twitter</a> | <a href="https://emojiterra.com/laptop-computer/">💻</a> <a href="https://marcello-politi.super.site/">Website</a><br><br>This article has been published on <a href="https://medium.com/towards-artificial-intelligence/onnx-unleashed-training-and-optimizing-bert-models-for-streamlit-web-apps-5e4a8d840738">Towards AI</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

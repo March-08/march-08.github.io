@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Blockchain: The Most Misunderstood Technology — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Blockchain: The Most Misunderstood Technology</h1>
+    
+    <p class="postdate">October 9, 2025 · blockchain, bitcoin</p>
+<p>I am writing this article because I want to refresh my knowledge of the technology behind web3. For most people, web3 is simply a place where scammers gather, but I believe that <strong>blockchain is one of the most misunderstood technologies ever created</strong>. I will begin with the basics in chronological order, <strong>starting with Bitcoin</strong>, then move on to the development of <strong>Smart Contracts and Ethereum</strong>, and finish with a look at the intersection of <strong>AI and web3</strong>. 🚀</p>
+<p><strong>Table of Contents</strong></p>
+<nav class="toc"><span class="toc-title">Contents</span><ul><li class="toc-h2"><a href="#sec-1">Introduction</a></li><li class="toc-h2"><a href="#sec-2">Deep Dive into Bitcoin Mechanics</a></li><li class="toc-h2"><a href="#sec-3">Transactions</a></li><li class="toc-h3"><a href="#sec-4">Common Transaction</a></li><li class="toc-h3"><a href="#sec-5">Aggregating Transaction</a></li><li class="toc-h3"><a href="#sec-6">Distributing Transaction</a></li><li class="toc-h3"><a href="#sec-7">Constructing the transaction</a></li><li class="toc-h3"><a href="#sec-8">Transmitting the transaction into the network</a></li><li class="toc-h2"><a href="#sec-9">Bitcoin Mining</a></li><li class="toc-h2"><a href="#sec-10">Keys and Addresses</a></li><li class="toc-h3"><a href="#sec-11">Public key Cryptography</a></li><li class="toc-h3"><a href="#sec-12">Elliptic Curve Cryptography</a></li><li class="toc-h2"><a href="#sec-13">Wallets</a></li><li class="toc-h2"><a href="#sec-14">Transactions</a></li><li class="toc-h2"><a href="#sec-15">Transaction Outputs</a></li><li class="toc-h2"><a href="#sec-16">Transaction Inputs</a></li><li class="toc-h2"><a href="#sec-17">Transaction Fees</a></li><li class="toc-h2"><a href="#sec-18">Transaction Script Language</a></li><li class="toc-h2"><a href="#sec-19">Digital Signatures (ECDSA)</a></li><li class="toc-h2"><a href="#sec-20">The Bitcoin Network</a></li><li class="toc-h3"><a href="#sec-21">Full Nodes</a></li><li class="toc-h3"><a href="#sec-22">Simplified Payment Verification (SPV) Nodes</a></li><li class="toc-h3"><a href="#sec-23">Transaction Pools</a></li><li class="toc-h2"><a href="#sec-24">The Blockchain</a></li><li class="toc-h2"><a href="#sec-25">Structure of a Block</a></li><li class="toc-h2"><a href="#sec-26">Merkle Trees</a></li><li class="toc-h2"><a href="#sec-27">Mining and Consensus</a></li><li class="toc-h2"><a href="#sec-28">Proof of Work</a></li><li class="toc-h2"><a href="#sec-29">Consensus Attack</a></li><li class="toc-h2"><a href="#sec-30">Hard and Soft Forks</a></li><li class="toc-h2"><a href="#sec-31">Blockchain Applications</a></li><li class="toc-h2"><a href="#sec-32">Colored Coins</a></li><li class="toc-h2"><a href="#sec-33">Lightning Network</a></li></ul></nav>
+<h2 id="sec-1">Introduction</h2>
+<p>Bitcoin is a collection of technologies that form the basis for a <strong>new digital money ecosystem</strong>. You can use bitcoin in the same way you use traditional currencies, exchanging it with other people for goods or services. A user can <strong>prove ownership</strong> of a certain amount of bitcoin <strong>through a private key</strong>, which works like a password.  This key can also be used to sign a transaction when the user wants to send bitcoin to someone else.</p>
+<p>You can send bitcoin to a wallet by specifying the wallet address, which works a bit like an email address.</p>
+<p>User <strong>keys are stored in</strong> what is called a <strong>wallet</strong>, which is an application that allows people to interact with the bitcoin network.</p>
+<p>The <strong>bitcoin network is peer to peer (p2p)</strong>, which means it is distributed and has no central authority. A user can sign and send transactions without needing permission from a bank, deciding freely how to use their own money.</p>
+<p>How are bitcoin created?</p>
+<figure>
+  <img class="med" src="images/blockchain-the-most-misunderstood-technology/img-01.png" alt="">
+</figure>
+<p>Through a process called <strong>mining</strong>, some users apply their computational power, using computers or servers, to solve complex mathematical problems. When they solve a problem, they are rewarded with new bitcoin. A<strong> miner</strong> is the only type of user who <strong>can validate transactions and record them permanently on the blockchain</strong>. In this way, miners take over the role of a central bank, but in a distributed form.</p>
+<p>On average, <strong>every 10 minutes a miner validates the transactions</strong> by solving the mathematical problem. What happens when hardware becomes more powerful? The problem adjusts and becomes harder, so that a miner still wins on average every ten minutes 🧭</p>
+<p>The bitcoin protocol defines a fixed maximum number of coins that will ever be created. That <strong>limit</strong> is close to <strong>21 million</strong> and is expected to be reached <strong>by the year 2140</strong>.</p>
+<p>What is the price of Bitcoin today? 💰 Check:</p>
+<ul>
+  <li><a href="https://bitcoinaverage.com/markets/">BitcoinAverage</a></li>
+  <li><a href="https://www.coincap.io/">CoinCap.io | Reliable Cryptocurrency Prices and Market Capitalizations</a></li>
+</ul>
+<p>We said that the best way for a user to interact with the bitcoin network is through a wallet. These wallets can be grouped into three types:</p>
+<ul>
+  <li><strong>Full node client</strong> This client stores the entire history of transactions, meaning all transactions are replicated many times. That is why we can say transactions are set in stone. A full node can independently validate the entire blockchain and any transaction. However, storing a full node is computationally expensive.</li>
+  <li><strong>Lightweight client</strong> Also called SPV (simple payment verification). This client connects to a full node to access the bitcoin network and get transaction information. It stores the user wallet locally.</li>
+  <li><strong>Third party API client</strong> This type of client interacts with the network through APIs instead of connecting to the network directly.</li>
+</ul>
+<h2 id="sec-2">Deep Dive into Bitcoin Mechanics</h2>
+<p>In this chapter you will understand how trust is achieved as an emergent property in the Bitcoin protocol. We don’t trust banks anymore 🏦, we trust nobody!</p>
+<p>A blockchain explorer is great tool to better understand what is happening in the network. It is a tool that allows you to search for addresses, transactions and blocks.</p>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-02.png" alt="">
+</figure>
+<p><br><br>Some explorer:</p>
+<ul>
+  <li><a href="https://blockstream.info/">Blockstream Block Explorer</a></li>
+  <li><a href="https://blockchair.com/bitcoin">blockchair.com</a></li>
+  <li><a href="https://live.blockcypher.com/btc/">live.blockcypher.com</a></li>
+</ul>
+<h2 id="sec-3">Transactions</h2>
+<p>A <strong>transaction is a double entry</strong>, input and output, in a ledger.</p>
+<ul>
+  <li>Input: specifies the amount and the owner (address) of the bitcoin</li>
+  <li>Output: specifies the amount that the new owner will receive and its address</li>
+</ul>
+<p><strong>Output &lt; Input</strong>, since the difference is the <strong>transaction fee</strong> that the user need to pay to miners for their work of validating the transaction and storing in a block in the blockchain</p>
+<p>When I receive some money, then I am allowed to spend them again to buy something right? Meaning that the output of a transactions becomes the input of a new transactions, creating in this way a <strong>transaction chain.</strong></p>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-03.png" alt="">
+</figure>
+<h3 id="sec-4">Common Transaction</h3>
+<p>In reality you can have multiple inputs and/or multiple outputs.</p>
+<p>For example normally if A has 100 btc and wand to send 10 btc to B, it will send the rest 90 btc back to himself (A), so there are two outputs.</p>
+<h3 id="sec-5">Aggregating Transaction</h3>
+<p>Aggregate several input in one output. It’s like when you change a lot of coins for a bill. Wallets use this to clean up smaller amounts of money</p>
+<h3 id="sec-6">Distributing Transaction</h3>
+<p>One input, many outputs. Used for example when processing payments to employees.</p>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-04.png" alt="">
+</figure>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-05.png" alt="">
+</figure>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-06.png" alt="">
+</figure>
+<h3 id="sec-7">Constructing the transaction</h3>
+<p>A full- node has access to every transactions, so it can check all the “unspent” transactions (tsx) —&gt; this is basically a user wallet, all the user unspent tsx.</p>
+<p>Most clients are lightweights , so they connect to full-nodes, or the can ask the status of the network via API  but the concept is the same.</p>
+<p>So if we want to know what are the unspent tsx of the address <code>1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v</code>  we can call the service of <code>blockchain.info</code> via API.</p>
+<pre><code class="language-c">curl https://blockchain.info/unspent?active=1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v</code></pre>
+<figure>
+  <img class="med" src="images/blockchain-the-most-misunderstood-technology/img-07.png" alt="">
+</figure>
+<p>So if we sum the values of all these tsx we can get the total amount owned by these user associated to this address.</p>
+<p>Each wallet address is associated to a pvt key. So when we send some amount of money to an address we are basically stating:</p>
+<p><strong><em>This output is payable to whoever can present a signature from the key corresponding to this address (public key)</em> </strong> <label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">An address is also called public key, we’ll understand why</span></p>
+<h3 id="sec-8">Transmitting the transaction into the network</h3>
+<p>Once the transaction is ready, it needs to be added to the ledger. First, we need to propagate the transaction into the bitcoin network.</p>
+<p>The user creating the transaction can send it to any node in the network to which they are connected. This means A can send money to B even if their wallets are not directly connected in the network.</p>
+<p>At this point, any bitcoin node that receives a valid transaction it has never seen before will propagate it to all other nodes it is connected to.</p>
+<p>This propagation technique is called flooding.</p>
+<figure>
+  <div class="embed"><iframe src="https://en.wikipedia.org/wiki/Flooding_algorithm" loading="lazy"></iframe></div>
+  <figcaption> · <a href="https://en.wikipedia.org/wiki/Flooding_algorithm">open ↗</a></figcaption>
+</figure>
+<p>A transaction will reach B’s wallet in a few seconds, and B will know that it is redeemable only with his private key.</p>
+<h2 id="sec-9">Bitcoin Mining</h2>
+<p>The transaction sent by A in the bitcoin network, is not part of the blockchain until it is verified in a process called <strong><em>mining.</strong></em></p>
+<p>A lot of <strong>transactions are grouped into blocks</strong>, that nodes can mine using a lot of computation. The mining process has 2 ojectives:</p>
+<ul>
+  <li>validating transactions</li>
+  <li>creating new bitcoin, as reward for the computational task that requires a lot of electricity</li>
+</ul>
+<p>Miners try to find a solution to a complicated mathematical puzzle that resets every time (10 minutes) a solution is found by some miner.</p>
+<p>The process to find the solution is the so called <strong>Proof-of-Work (PoS).</strong></p>
+<p>The PoS basically consists in <a href="https://en.wikipedia.org/wiki/Hash_function">hashing</a> (SHA 256) the <strong>block header (</strong>i.e the block ID) together with a random number, until the obtained number is smaller than a given number (by changing the given number, we change the difficulty of this challenge).</p>
+<p>The first miner to find this solution can publish the block into the blockchain.</p>
+<p>New transactions are constantly flowing into the network, and they are added to a <strong>temporary pool of unverified transactions maintained by each node.  </strong>Miners get transactions in this pool, prioritising based on the transaction fee value,  and group them into blocks that they try to mine.</p>
+<p>I miner includes into the block also a special transaction with it’s own address which allows him to get the new bitcoins reward + the total amount of fees of all the transaction validated.</p>
+<p>it is worth saying that each block contain in his own header a pointer to the previous block. So when a block is validated it is connected to the previous block, forming a chain.</p>
+<p>It can happen that at the same time two blocks are validated so which one should we consider?</p>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-08.png" alt="">
+</figure>
+<p>We wait for other miners to mine other blocks on top of  block B or C (see image). By convention a <strong>block with more than 6 confirmation</strong> (6 blocks built on top) <strong>is considered irrevocable</strong>.</p>
+<h2 id="sec-10">Keys and Addresses</h2>
+<p>Cryptography is a crucial part of bitcoin.</p>
+<figure>
+  <div class="videowrap" data-yt="l6jqKRXSShI">
+    <img src="images/blockchain-the-most-misunderstood-technology/video-09.jpg" alt="">
+    <span class="pbtn"></span>
+  </div>
+</figure>
+<p>Cryptography can be used for:</p>
+<ul>
+  <li>prove knowledge of a secret without revealing it (digital signature)</li>
+  <li>prove authenticity of data (digital fingerprint)</li>
+</ul>
+<p>A user Wallet is composed by two digital keys 🔑🔑</p>
+<p>🔑 🟢 —&gt; Public Key : it’s like the bank number, you can share it</p>
+<p>🔑 🟠 —&gt; Private Key: it’s like the PIN (password), to keep it private</p>
+<p>During a payment, a recipient public key is represented by a digital fingerprint, called <strong>bitcoin address</strong> which is generated from the public key itself.</p>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-10.png" alt="">
+</figure>
+<h3 id="sec-11">Public key Cryptography</h3>
+<p>In public key cryptography (1970), there are <strong>some functions that are easy to calculate in one direction but difficult to calculate in the opposite direction.</strong> This asymmetry guarantees trust.</p>
+<p>Bitcoin uses <a href="https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication">elliptic curve multiplication</a> as basis for its cryptography.</p>
+<p>From a pvt key, we generate a unique pbl key</p>
+<ul>
+  <li>pvt key —&gt; used to sign transactions and spend funds</li>
+  <li>pbl key —&gt; used to receive funds</li>
+</ul>
+<p>A private key is a random number between <code>1</code> and <code>2²56</code>, and it looks like <code>5KxFakeSampleKeyNotReal1234567890abcdef1234567890abcdef12345678</code><br>The public key is generated from the private one using the elliptic curve multiplication: <code>K = k * G</code></p>
+<ul>
+  <li><code>k</code> is the pvt key</li>
+  <li><code>G</code> constant point called <strong><em>generator point</strong></em></li>
+  <li><code>K</code> is the pbl key</li>
+</ul>
+<p>Given K, if you want to find k, you can only brute force, so its computationally hard, if these values are high, is basically impossible.</p>
+<h3 id="sec-12">Elliptic Curve Cryptography</h3>
+<p>This is a type of public key (o asymmetric) cryptography.</p>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-11.png" alt="">
+</figure>
+<p>Bitcoin uses a specific elliptic curve called <strong><em>secp256k1, </strong> </em>which is defined by the following function:</p>
+<p class="mathblock">y² mod(p)= (x³ +7) mod(p)</p>
+<p>p is a prime number, and indicates that this curve is over a finite field. <label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote">It’s like the clock, in that case p is 12, so instead of saying 23 we say 11pm</span></p>
+<p>In our case p is <code>2²⁵⁶-2³²-2⁹-2⁸-2⁷-2⁶-2⁴-1</code> which is a very large number.</p>
+<p>So a point on this curve is defined by 2 coordinates such as:</p>
+<ul>
+  <li><code>x-coordinate: 26557396834603496405429715671000649890342828193837296682021408587325818683135</code></li>
+  <li><code>y-coordinate: 111966831483317698639766129155297399177101885252094551915029716042625069463573</code></li>
+</ul>
+<p><label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="sidenote">so these two numbers are a solution of the equation</span></p>
+<p>Some basic properties of the elliptic curve:</p>
+<ul>
+  <li>The addition on P1 and P2 gives P3 on the elliptic curve as the image above.</li>
+  <li>the + is associative</li>
+  <li>if P1 = P2, we draw the tangent and intersect the point P3 in this way</li>
+  <li>There is a special point called “point at infinity” so that:</li>
+  <li>if P1 is point at infinity → P1 + P2 = P2</li>
+  <li>for a point P on the curve, and a number k, k*P = P + P + P …. (k times). k sometimes is called the “exponent”</li>
+</ul>
+<p>How to generate a public key?</p>
+<p>Given a random private key, which is a random number, curve, we multiply it  for a given fixed G, the generator point and a point on the curve, to produce another point on the curve K , the pbl key.</p>
+<p>Since G is always the same, whoever posses k can generate K.</p>
+<p>k*G is like summing G to itself k times.</p>
+<figure>
+  <img class="med" src="images/blockchain-the-most-misunderstood-technology/img-12.png" alt="">
+</figure>
+<p><br></p>
+<p>An Hash algorithm, is a one-way function to produce the fingerprint or hash of a given input.</p>
+<p>Bitcoin applies two hash function on top of the public key to generate the bitcoin address. These functions are the <code>SHA256</code> and the <code>RIPEMD160</code> .</p>
+<p class="mathblock">Address = RIPEMD160(SHA256(K))</p>
+<p>The result is then encoded in <a href="https://en.bitcoin.it/wiki/Base58Check_encoding">Base 58 Check</a>.</p>
+<h2 id="sec-13">Wallets</h2>
+<p>Wallets are applications that store only the keys, the “coins” are stored into the blockchain instead.</p>
+<p>Two type of wallets:</p>
+<ul>
+  <li><strong>non-deterministic walltet</strong>: each key is independently generated at random</li>
+  <li><strong>deterministic wallet</strong>:<strong> </strong>all the keys are derived from a single master key (easier to backup) known as seed, which is usually a <strong>mnemonic code words. </strong>Hierarchical deterministic (HD) wallets are the most advanced wallet of this kind, which derives keys from a seed in a tree structure.</li>
+</ul>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-13.png" alt="">
+</figure>
+<h2 id="sec-14">Transactions</h2>
+<p>Transactions are data structures that encode the transfer of value between users. Each transaction is a double entry in a public ledger or blockchain.</p>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-14.png" alt="">
+
+  <figcaption>Example of transaction</figcaption>
+</figure>
+<h2 id="sec-15">Transaction Outputs</h2>
+<p>Bitcoin full-nodes are able to track all unspent transactions, there are known as the <strong>unspent transaction outputs </strong>or <strong>UXTO</strong>.</p>
+<p>So a user balance, is the sum of the UXTO spendable with his own key.</p>
+<p>As a dollar can be divided in cents, a BTC can be divided in satoshis (1  SATOSHI is 0,000012 BTC).</p>
+<p>Transaction outputs are <em>discrete</em> and <em>indivisible.</em> So if you have an UXTO worth 20 BTC and you want to pay 1 BTC, you must spend all 20 BTC instead. So you send 1 BTC to the real receiver, and 19 BTC back to yourself.</p>
+<p>In each block there is a special transaction called <strong><em>coinbase</strong>, </em>which is always the first transaction. This tsx is placed by the winning minerand creates new bitcoins as reward to the miner. So the coinbase trx does not consume UXTO, it has instead a special input called the “coinbase”.</p>
+<figure>
+  <img class="med" src="images/blockchain-the-most-misunderstood-technology/img-15.png" alt="">
+</figure>
+<p>A transaction output consists of two parts:</p>
+<ul>
+  <li>An amount of bitcoing expressed in satoshis</li>
+  <li>A cryptographic puzzle that determines the conditions required to spend the output. Also called <em>locking script, witness script or <strong><code>scriptPubKey</code></strong>.</em></li>
+</ul>
+<p>See exmple.</p>
+<pre><code class="language-c">"vout": [
+  {
+    "value": 0.50000000,
+    "n": 0,
+    "scriptPubKey": "OP_DUP OP_HASH160 7f9b1a7fb68d60c536c2fd8b8a8f3f3e8c9d2e3f OP_EQUALVERIFY OP_CHECKSIG",
+  },
+  {
+    "value": 0.25000000,
+    "n": 1,
+    "scriptPubKey": "OP_HASH160 8a9b2c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b OP_EQUAL",
+  }
+]</code></pre>
+<h2 id="sec-16">Transaction Inputs</h2>
+<p>Transaction inputs identify which UXTO will be consumed and provide the proof of ownership through the unlocking script.</p>
+<ul>
+  <li>The first part of a transaction input is a pointer to an UXTO by reference to the transaction hash and an ouptut index, which identifies the UXTO in that transaction.</li>
+  <li>The second part is the unlocking script which is a digital signature and public key proving ownership of the bitcoin.</li>
+</ul>
+<pre><code class="language-c">"vin": [
+  {
+    "txid": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef", #reference transaction
+    "vout": 0,        # UXTO in transaction
+    "scriptSig": "3044022047ac...D43 ",     #condition to unlock spend
+    },
+    "sequence": 4294967295
+  }
+]</code></pre>
+<p>So, in order to understand if the unlocking script is valid, full nodes need also to retrieve the referenced UXTO.</p>
+<h2 id="sec-17">Transaction Fees</h2>
+<p>Transactions include also a fee which serve as an incentive to include (mine) the transaction into the next block. Fees are collected by the miners.</p>
+<p>Fees are calculated based on the size of the tx in kilobytes, not on the amount of btc sent.</p>
+<p>Miners prioritise transactions with higher fees. What should  be the amount of the fee to be sure the tx gets mined?</p>
+<p>There are fee estimation algorithms that calculates the appropriate fee based on “competitor” transaction fees, you can use third party services that provide this estimate.</p>
+<a class="linkcard" href="https://bitcoinfees.net/"><img class="lc-icon" src="images/favicons/bitcoinfees.net.png" alt=""><span class="lc-body"><span class="lc-title">Bitcoin Fees Now, #1 Estimator and Fee Calculator</span><span class="lc-domain">bitcoinfees.net</span></span></a>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-16.png" alt="">
+</figure>
+<ul>
+  <li>Fee Rate: All options list a fee of 1.01 satoshis per virtual byte (sat/vB), which is the cost per byte of transaction data.</li>
+  <li>Cost in USD: Each option estimates the fee at $0.17, reflecting the current value of 1.01 sat/vB based on Bitcoin's price and network conditions.</li>
+  <li>Confirmation Time: The options vary by estimated confirmation time:</li>
+  <li>~10 min (green): Fastest option, suitable for urgent transactions.</li>
+  <li>The same fee rate (1.01 sat/vB) for both 10 minutes and 24 hours on the BitcoinFees tool suggests that the Bitcoin network's current congestion level is very low.</li>
+</ul>
+<p>The data structure for transactions does not have an entry for the fee, the fee is instead calculated simply by:</p>
+<p class="mathblock">Fees = Sum(Inputs) - Sum(Outputs)</p>
+<h2 id="sec-18">Transaction Script Language</h2>
+<p>Bitcoin transaction script language is called <strong><em>Script —&gt; </strong></em>simple language, limited scope, requires minimal processing.</p>
+<p>Script it is not a <a href="https://en.wikipedia.org/wiki/Turing_completeness">Turing Complete</a> language (e.g no for loops).</p>
+<ul>
+  <li>Locking script: is a spending condition put on the output of a transaction and it’s called <code>scriptPubKey</code> (or witness script or cryptographic puzzle)</li>
+  <li>Unlocking script: script that solves the locking puzzle. These are part of every tx input. In most cases they contain a digital signature produced by the user’s private key.  Called also <code>scriptSig</code> or <code>witness</code></li>
+</ul>
+<p>Every bitcoin validating node will validate transactions by executing locking and unlocking scripts in sequence.</p>
+<p>The Script language is havely based on a <strong>stack</strong>, meaning it can push and pop vars on the stack and do operations on them.</p>
+<p><strong>Locking Script looks like this</strong></p>
+<pre><code class="language-c">OP_DUP OP_HASH160 7f9b1a7fb68d60c536c2fd8b8a8f3f3e8c9d2e3f OP_EQUALVERIFY OP_CHECKSIG</code></pre>
+<ul>
+  <li><code>OP_DUP</code>: Duplicates the top stack item.</li>
+  <li><code>OP_HASH160</code>: Hashes the duplicated public key.</li>
+  <li><code>7f9b1a7fb68d60c536c2fd8b8a8f3f3e8c9d2e3f</code>: The expected public key hash.</li>
+  <li><code>OP_EQUALVERIFY</code>: Checks if the hashes match; fails if not.</li>
+  <li><code>OP_CHECKSIG</code>: Verifies the signature against the public key.</li>
+</ul>
+<p><strong>Unlocking Script looks like this</strong></p>
+<pre><code class="language-c">&lt;signature&gt; &lt;public key&gt;</code></pre>
+<ul>
+  <li><code>&lt;signature&gt;:</code> The ECDSA signature (e.g., 3044022047ac...) proving ownership.</li>
+  <li><code>&lt;public key&gt;</code>: The full public key (e.g., 04x9...) that hashes to 7f9b1a7fb68d60c536c2fd8b8a8f3f3e8c9d2e3f.</li>
+</ul>
+<p><strong>Validation step</strong></p>
+<p>Combine the scripts —&gt; unlocking &lt;&gt; locking</p>
+<p>Script Execution (Step-by-Step, follow the image on the right)</p>
+<p>1. <strong>Push</strong> <code>&lt;signature&gt;</code>:</p>
+<ul>
+  <li>Stack = <code>[signature]</code></li>
+  <li>The signature (e.g., <code>3044022047ac</code>...) is placed on the stack. 2. <strong>Push</strong> <code>&lt;public key&gt;</code>:</li>
+  <li>Stack = <code>[signature, public key]</code></li>
+  <li>The public key (e.g., <code>04x9</code>...) is added on top. 3. <strong>OP_DUP</strong>:</li>
+  <li>Duplicates the top stack item (public key).</li>
+  <li>Stack = <code>[signature, public key, public key]</code> 4. <strong>OP_HASH160</strong>:</li>
+  <li>Hashes the top public key (using SHA-256 followed by RIPEMD-160).</li>
+  <li>Stack = <code>[signature, public key, hash of public key]</code> 5. Push <code>7f9b1a7fb68d60c536c2fd8b8a8f3f3e8c9d2e3f</code>:</li>
+  <li>The expected public key hash is pushed.</li>
+  <li>Stack = <code>[signature, public key, hash of public key, 7f9b1a7fb68d60c536c2fd8b8a8f3f3e8c9d2e3f]</code> 6. <strong>OP_EQUALVERIFY</strong>:</li>
+  <li>Compares the top two items (hash of public key and expected hash).</li>
+  <li>If they match, removes them and continues; if not, fails the script.</li>
+  <li>Stack = <code>[signature, public key] </code>(if successful) 7. <strong>OP_CHECKSIG</strong>:</li>
+  <li>Takes the signature and public key from the stack.</li>
+  <li>Verifies the signature against the public key using <code>ECDSA</code>.</li>
+  <li>Pushes <code>1</code> (true) if valid, <code>0</code> (false) if invalid.</li>
+  <li>Stack = <code>[1] </code>(if successful)</li>
+</ul>
+<figure>
+  <img class="med" src="images/blockchain-the-most-misunderstood-technology/img-17.png" alt="">
+</figure>
+<h2 id="sec-19">Digital Signatures (ECDSA)</h2>
+<p><em>A <strong>digital signature</strong> is a mathematical scheme for verifying the authenticity of digital messages or documents. A valid digital signature on a message gives a recipient confidence that the message came from a sender known to the recipient — Wikipedia</em></p>
+<figure>
+  <img class="med" src="images/blockchain-the-most-misunderstood-technology/img-18.png" alt="">
+</figure>
+<p>The digital signature used in bitcoin is the <strong><em>Elliptic Curve Digital Signature (ECDSA), </strong></em>and it is used by some script functions such as OP_CHECKSIG we saw above.</p>
+<p>In bitcoin the signatures proves the ownership of a private key, so the authorization to spend the funds.</p>
+<p>A digital signature is composed of two parts</p>
+<ul>
+  <li>An algorithm to create a signature using the private key from a given message (or transaction)</li>
+  <li>An algorithm to allow anyone to verity the signature given also the message and the public key</li>
+</ul>
+<p>In math terms the signature is:</p>
+<p class="mathblock">Sig = F_sig(F_hash(m),dA)</p>
+<p>where:</p>
+<ul>
+  <li><code>dA</code> is the signing private key</li>
+  <li><code>m </code>is the transaction (message)</li>
+  <li><code>F_hash</code> is the hashing function</li>
+  <li><code>F_sig</code> is the signing algorithm</li>
+</ul>
+<p>Sig at the end will be composed of two values R and S.</p>
+<p class="mathblock">Sig = (R, S)</p>
+<p>More in detail…</p>
+<p>The signature algorithm generates a temporary private/public key pair which is based on a random number <code>k</code>. From <code>k</code> we generate the public key with the Formula <code>P=k*G</code> as we have seen already in a previous chapter.</p>
+<p>The <strong>R </strong>value of the digital signature is the x coordinate of this new public key P.</p>
+<p>From there the algorithm calculates the S value such that:</p>
+<p class="mathblock">S = k⁻¹(Hash(m)+dA*R) mod(p)</p>
+<p>where:</p>
+<ul>
+  <li><code>k</code> is the temporary private key</li>
+  <li><code>R</code> is the x coordinate of the temporary public key P</li>
+  <li><code>dA</code> is the signing private key</li>
+  <li><code>m</code> is the transaction data (message)</li>
+  <li><code>p</code> is the prime order of the elliptic curve</li>
+</ul>
+<p>The signature verification algorithm takes the message, the signer public key and the signature and returns TRUE is the signature is valid for the message and public key.</p>
+<p>The verification is the inverse, it uses R, S,k to calculate P which is a value on the elliptic curve (the temporary public key used before).</p>
+<p class="mathblock">P = S⁻¹ * Hash(m) * G + S⁻¹ * R * Qa</p>
+<p>where:</p>
+<ul>
+  <li><code>R</code> and <code>S</code> are the signatures value</li>
+  <li><code>Qa</code> is the real public key (not the temporary one)</li>
+  <li><code>m</code> is the transaction data that was signed</li>
+  <li><code>G</code> is the elliptic curve generator point</li>
+</ul>
+<p>If the x coordinate of the calculated point P is equal to R then the verifier can conclude that the signature is valid.</p>
+<p>If you’re curious about the validation of the algorithm please refer to <a href="https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm">Elliptic Curve Digital Signature Algorithm</a></p>
+<h2 id="sec-20">The Bitcoin Network</h2>
+<p>Bitcoin is structured as a <a href="https://en.wikipedia.org/wiki/Peer-to-peer"><strong>peer-to-peer</strong></a><strong> (P2P)</strong> network, meaning there are no special nodes,  servers or hierarchy. Every node is both a provider and a consumer of services at the same time.</p>
+<p>Technologies that used the P2P network are for example <a href="https://it.wikipedia.org/wiki/Napster">Napster</a> or <a href="https://www.bittorrent.com/it/">BitTorrent</a>.</p>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-19.png" alt="">
+</figure>
+<p>Although there are no hierarchy among the nodes, a node can take different roles such as:</p>
+<ul>
+  <li>Routing</li>
+  <li>Blockchain database</li>
+  <li>Mining</li>
+  <li>Wallet Service</li>
+</ul>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-20.png" alt="">
+</figure>
+<p>When a new node want to join the bitcoin network, it need to connect to at least one of the other nodes. It can choose one node at random since the topology of the network is not geographically defined.</p>
+<p>How can a new node find new peers?</p>
+<p>I can query a special <a href="https://en.wikipedia.org/wiki/Domain_Name_System">DNS</a> that provide a list of IP addresses of bitcoin nodes.</p>
+<p>A node must connect to different peers to have a reliable connection to the network. Single nodes are not reliable, they come and go, that’s why a node needs to continuously find new peers.</p>
+<p>Nodes will periodically send messages to peers to maintain the connection. If a node does not reply for more that 90 minutes is assumed to be disconnected. In this way the network dynamically adjusts and can grow and shrink without central control.</p>
+<h3 id="sec-21">Full Nodes</h3>
+<p>The first thing a <strong>full node does when joining the network</strong> it to construct the entire blockchain history. At the beginning it only has the first or <strong>genesis block</strong> which is embedded in to the software itself.</p>
+<p>The new full node will then download hundred of thousands of blocks. The full node will receive messages from its peers to know how many blocks they each have, and can compare with the number of blocks of his own blockchain.</p>
+<p>The peer that has the longer blockchain has more blocks, and can send them to the other nodes for the to catch up.</p>
+<h3 id="sec-22">Simplified Payment Verification (SPV) Nodes</h3>
+<p>Not all the nodes have the power to store the entire blockchain, some nodes might then use the SPV method and become <em>lightweight clients</em>.</p>
+<p>SPV nodes download only the block header and not the transactions included in each block —&gt; x1000 smaller blocks!</p>
+<p>SPV then are not capable of reconstructing a picture of spendable UXTOs, because they don’t store transactions.</p>
+<p>An SPV then cannot validate a transaction by knowing if the UXTO is unspent, but it can link the transaction to the correspondent block using a <em>merkle path (</em>we’ll see it later). Then the SVP waits unlit other 6 blocks are mined on top of the block containing the transaction, and if this happens can say that the transaction is validated.</p>
+<h3 id="sec-23">Transaction Pools</h3>
+<p>Almost every node maintains a temporary list of unconfirmed transactions called <strong><em>memory pool</strong>,<strong> mempool</strong>, </em>or<em> <strong>transaction pool</strong>.</em></p>
+<p>A wallet node for example, can use the mempool to track payment that have been received on the network but not yet confirmed.</p>
+<p>If a transaction’s input refers to a transaction that is not yet known, such as a missing parent, it will be temporarily stored in the <strong>orphan pool</strong>, until the parent arrives<strong>. </strong></p>
+<h2 id="sec-24">The Blockchain</h2>
+<p>The blockchain is a list of linked blocks, each containing some transactions.</p>
+<p>Blocks are linked, since each block refers to the previous block in the chain. You can visualise the blockchain also as a stack, in that case we use the terms <strong><em>height of a block</em>, </strong>to refer to its distance from the block #0 or genesis block.</p>
+<p><strong>Each block is identified by a hash</strong> (SHA256), generated from the header of the block. The block reference to its <em>parent </em>block through the <strong><em>previous block hash</strong></em> field in the block header.</p>
+<p>In other words, each block contains the hash of its parent inside its own header.</p>
+<ul>
+  <li>*</li>
+</ul>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-21.png" alt="">
+</figure>
+<p>A block can have only one parent, but can have temporarily multiple children, and this happens when during a fork different blocks are mined almost simultaneously by different miners.</p>
+<p>Eventually only of of the children becomes part of the chain, and the fork is resolved.</p>
+<p>The <em>previous block hash</em> is embedded in the header of current block effecting its hash. In this way if an hacker modifies a transaction in a previous block it will change also its hash, and it won’t match with the hash of its following blocks, so we will know it.<br>The only way to hack this would be to change something in a block would be to recalculate and modify all the hashes of the latest blocks, which is computationally very expensive then not possible.</p>
+<h2 id="sec-25">Structure of a Block</h2>
+<ul>
+  <li>Header: containing metadata (80 bytes)</li>
+  <li>reference to previous block hash</li>
+  <li>difficulty, timestamp, nonce → related to mining competition</li>
+  <li>Merkle tree → summary of all transaction in the block</li>
+  <li>List of transactions: on average 1900 (400 bytes each on avg)</li>
+</ul>
+<p>A block can be identified either by its hash, or its height in the chain.</p>
+<p>The first block in the chain is called <strong>genesis block</strong> and was created in 2009.</p>
+<p>A Bitcoin full node maintains a local copy of the entire blockchain, which is updated continuously.</p>
+<h2 id="sec-26">Merkle Trees</h2>
+<p>Also known as <strong><em>binary hash tree</strong></em>, is a summary of all the transactions contained in a block.</p>
+<p>Merkle trees produce a<strong> digital fingerprint </strong>(SHA256)<strong> of the entire set of transactions </strong>of a block, producing an efficient way to check if a given transaction is included in a block.</p>
+<p>The merkle tree is constructed bottom-up. Suppose we have four transactions: A,B,C and D. These are the leaves of our tree.</p>
+<p>The transactions are not stored in the tree, but we hash their data and store the resulting hash: <code>H_A,H_B,H_C</code> and <code>H_D</code>.</p>
+<p class="mathblock">H_A = SHA256(SHA256(A))</p>
+<p>Consecutive pairs of leaf nodes are concatenated and then hashed together, to form their parent node.</p>
+<p class="mathblock">H_AB = SHA256(SHA256(H_A+H_B))</p>
+<p>The process continue until we get only one node, known as the <strong>markle root</strong>.</p>
+<p>The hash of the root, 32 bytes,  is stored in the block header and summarises all the data in all four transactions.</p>
+<p>Note that even with thousands of transactions, the final hash size will always be 32 bytes.</p>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-22.png" alt="">
+
+  <figcaption>Example of a merkle tree with 8 leaves</figcaption>
+</figure>
+<p>Since this is a binary tree with N leaves, its height is always be <code>log(N)</code> → <a href="https://en.wikipedia.org/wiki/Binary_tree">Binary tree</a></p>
+<p>So to understand if transaction E (see the picture) is in the block, I need to recompute only its path to the root, only 3 hashes!</p>
+<p>SPV nodes, that don’t maintain the blockchain locally, can verify transaction checking merkle paths.</p>
+<h2 id="sec-27">Mining and Consensus</h2>
+<p>Mining is the mechanism by which transactions are validated and makes the emergence of <strong><em>consensus without a central authority.</strong></em></p>
+<p>A new block is mined on average every 10 minutes, a transaction included in a mined block is considered confirmed.</p>
+<p>Miners get two types of reward:</p>
+<ul>
+  <li>sum of transaction fees included in the mined block</li>
+  <li>new coins created from scratch (currency issuance)</li>
+</ul>
+<p>Miners are rewarded for their work on finding a solution to a complex math problem : <strong>Proof of Work</strong>. (The solution is included in the block)</p>
+<p>Miners reward decreased every 4 years. By 2140 their reward will only be made of transactions fees.</p>
+<p>Every 210.000 blocks (or 4 years) the currency issuance rate decreases by 50%.</p>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-23.png" alt="">
+</figure>
+<p>The blockchain is a global public ledger (list) of transactions. But how can everyone in the network agree on the same universal truth, without relying on a central authority such as a bank ❓</p>
+<p>The main innovation that this technology brings is the <strong><em>emergent consensus.</strong></em></p>
+<p>Consensus is an emergent artefact of the asynchronous interaction of thousands of independent nodes, all following simple rules:</p>
+<p>1. Independent verification of each transaction by full nodes</p>
+<p>1. before forwarding transactions to its neighbors, every node verifies the transaction against a long checlist of criteria (e.g syntax must be correct), to ensure only valid transactions are propagated through the network</p>
+<p>2. Independent aggregation of those transactions into new blocks by mining nodes</p>
+<p>1. Miners build c<em>andidate blocks </em>with unconfirmed transactions. If a node is collecting transactions for block #315 (after block #314), but receives a mined block #315 from another node, it stops and starts mining block #316.</p>
+<p>3. Independent verification of the new blocks by every node and assembly into a chain</p>
+<p>1. After validating a tx, a node will add it to the <em>memory pool</em> or <em>transaction pool</em> until it gets mined.</p>
+<p>4. Independent selection, by every node, of the chain with most cumulative computation (longest one)</p>
+<h2 id="sec-28">Proof of Work</h2>
+<p>The process of mining consist of hashing a block header repeatedly, changing one parameter, until the result matches a specific target.</p>
+<p>Since the result of a hash function cannot be predicted, the only way to do so is try try over and over again.</p>
+<p>The key characteristic of a cryptographic hash algorithm is that it is computationally infeasible to find two different input that produce tha same fingerprint (result), known as <em>collision.</em></p>
+<p>If I slightly change the input data of a hash function, the output changes completely.</p>
+<pre><code class="language-c">Hash("my name is Marcello Politi-1") --&gt; "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
+Hash("my name is Marcello Politi-2") --&gt; "7d1e3ed9e1e3b6e4a9d0b7a7f8c2e4b8a8b4c1e2d2f3a5b6c7d8e9f0a1b2c3d4"</code></pre>
+<p>The variable number (as in the example above) is called <strong><em>nonce</em>.</strong></p>
+<p>Let’s set the <strong>target</strong> of this game. We want to find a hash hexadecimal number that starts with 0.</p>
+<pre><code class="language-c">Hash("my name is Marcello Politi-1") --&gt; "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
+Hash("my name is Marcello Politi-2") --&gt; "7d1e3ed9e1e3b6e4a9d0b7a7f8c2e4b8a8b4c1e2d2f3a5b6c7d8e9f0a1b2c3d4"
+...
+...
+...
+Hash("my name is Marcello Politi-16") --&gt; "0e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"</code></pre>
+<p>Found! It took me 16 trials!</p>
+<p>Since the output of a hash function is evenly distibuted, we would expect that on average we find an hash starting with 0 every 16 trials. (Since the first number has a range from 0 to 16).</p>
+<p>If we want to make the game more difficult we can set the target as a number starting with two zeros, or even more. In that case we expect on average every 256 trials. So if a device succeeds<strong>,</strong> we are sure it has done some work! Hence, Proof of Work!</p>
+<p>The protocol wants that a miner “wins” on average every 10 minutes, so as soon as the hardware capacity increases, and miners find solutions faster, the protocol can change the target and make the game more difficult, keeping the average of 10 minutes.</p>
+<p>In bitcoin the miners use the block header instead of the string “my name is Marcello Politi”.</p>
+<p>Since mining become so competitive, a solo miner doesn’t stand a chance. That’s why miners can collaborate in what is called a <strong><em>mining pool</strong></em>, and share their hashing power, together with the reward.</p>
+<h2 id="sec-29">Consensus Attack</h2>
+<p>The main relevant attack scenario is called the <strong><em>51% attack. </strong></em>This means that a group of miner controls the majority of the total network hashing power (which is practically unlikely since the network is huge), and they collude to attack the consensus mechanism.</p>
+<p>This group could deliberately create <em>forks</em> in the blockchain and perform double spending. Lets see a concrete example.<br><br>The attacker Marcello buys a car from a seller called Davide for 10 BTC.</p>
+<p>Davide doesn’t wait for that other 6 blocks are mined on top of the block that validated Marcello’s transaction, and gives the car’s key to Marcello which immediately leaves.<br></p>
+<p>Cristiano, which is Marcello accomplice and controls 51% of the network hashing power, mines a new block at the same height of the block that contains Marcello’s transaction, creating then a fork.</p>
+<p>In this new block Cristiano replaces the Marcello’s transaction with the Davide’s payment with a new payment that goes back to Marcello himself.</p>
+<p>Then Cristiano starts mining new blocks on top of this new forked block, making this secondary chain longer than the main one, which then actually becomes the main chain.</p>
+<p>Now Davide is missing is payment and doesn’t have the car no more.</p>
+<figure>
+  <img class="wide" src="images/blockchain-the-most-misunderstood-technology/img-24.png" alt="">
+</figure>
+<h2 id="sec-30">Hard and Soft Forks</h2>
+<p>A hard fork is the scenario in which the participants of the network, split into following two chains.</p>
+<p>This because in the new chain the consensus rules have changed completely and so the network is operating differently. The two chain in this case will evolve independently and won’t merge anymore.</p>
+<p>Not all consensus rule changes cause hard fork, only those that are not forward-compatible.</p>
+<p>If a new fork implements new rules, but old clients still see new mined block as valid, we call the this a soft-fork.</p>
+<p>So transactions and blocks created under the new rules must be valid under the old rules too, but not vice versa.</p>
+<h2 id="sec-31">Blockchain Applications</h2>
+<p>Bitcoin is a decentralised currency system, but the underline technology, the blockchain, is a tool that offers a trust service. that can be used to develop other applications for different use cases.  For example smart contracts surpass the original purpose of the digital currency and make possible the development od decentralised application.</p>
+<h2 id="sec-32">Colored Coins</h2>
+<p>Colored coins is a technology that uses bitcoin transactions to record ownership of extrinsic assets. By extrinsic we mean assets that are not store directly in the blockchain like bitcoin themself but could be for example physical assets like stock certificates, game items, copyrights, licenses etc.</p>
+<figure>
+  <img class="med" src="images/blockchain-the-most-misunderstood-technology/img-25.png" alt="">
+</figure>
+<p>The idea is to mark or “coloring” a small amount of bitcoin, also a single satoshi, that represents something else other than the solely bitcoin value.</p>
+<p>Imagine like having a stamp on a 1bill, saying “this is a stock certificate for Apple”. That single bill now has a value that goes beyond 1.</p>
+<p>The first implementation of colored coins is Enhanced Padded Order Based Coloring or <strong><em>EPOBC.</strong></em></p>
+<p>Color coins ar not visibile to general-purpose blockchain explorer and wallet, but you need special explorers and wallet that are capable of interpreting the transaction metadata to recognise the colored coins.</p>
+<p>The process of creating colored coins is called <strong><em>issuance</strong></em>. An initial transaction, the <em>issuance transaction</em>, register the assets on the bitcoin blockchain and created an <em>assedID. </em>Once issued, asssets can be transferred between addressed with normal transactions.</p>
+<h2 id="sec-33">Lightning Network</h2>
+<p>Think of Bitcoin’s blockchain as a public ledger where every payment gets logged. It’s secure but slow, taking about 10 minutes per entry, and fees can pinch. The Lightning Network is like a fast, cheap sidekick that lets you use Bitcoin for quick purchases, like at a coffee shop, without always writing in that ledger.<br></p>
+<figure>
+  <div class="videowrap" data-yt="rrr_zPmEiME">
+    <img src="images/blockchain-the-most-misunderstood-technology/video-26.jpg" alt="">
+    <span class="pbtn"></span>
+  </div>
+</figure>
+<p><br><br><br><br><br></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>A Gentle Introduction to the DCIN for Decentralized Inference — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>A Gentle Introduction to the DCIN for Decentralized Inference</h1>
+    <p class="subtitle">How a Decentralized Collaborative Intelligence Network works.</p>
+    <p class="postdate">February 9, 2025 · decentralized ai</p>
+<figure>
+  <img class="wide" src="images/a-gentle-introduction-to-the-dcin-for-decentralized-inference/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>We’re on the brink of a new era in the AI and web3 fields.</p>
+<p>Traditionally, AI inference has been the domain of centralized data centres and high-performance computing clusters, accessible only to a few. This is still the case for a lot of decentralized inference networks, where node operators must rely on high-end hardware to be able to earn rewards to effectively just mitigate their expenses.</p>
+<p>This is not <em>democratizing access to AI</em>: most users aren’t able to actively participate in the inference phase due to GPUs’ high costs, and customers who want a <em>decent</em> level of decentralization or privacy are stuck with really slow or expensive solutions.</p>
+<p>In the last couple of months, I have been working with my team on something that hopefully will set a landmark in the intersection of AI and web3: the <strong>DCI Network</strong>.</p>
+<p>But before talking about that, let’s take a step back and see why we ended up in this situation in the first place.</p>
+<h2><strong>Some background</strong></h2>
+<p><strong>Neural Networks</strong> are, as the name already suggests, networks of artificial neurons organized in <strong>layers</strong>. All the neurons in a layer perform the same operation on the given input data, they are often referred to as <strong>operators</strong>. Layers within a Neural Network are connected via <strong>weighted edges</strong>, adjusting these weights during training is what makes a Neural Network “<em>learn</em>”. These weights are often referred to as <strong>parameters</strong>.</p>
+<p>Nowadays Neural Networks are constantly growing in complexity, and when their complexity grows, so do the computational requirements and memory footprint for running both inference and training.</p>
+<p>Complex models have more layers, more neurons, and bigger architectures, which contribute to a huge number of mathematical operations that need to be computed. When a device performs these computations, it must store the result in memory.</p>
+<p>A Neural Network is “large” when one (or more) of the following occur:</p>
+<ul>
+  <li>It has a lot of operators -&gt; requires more computational power</li>
+  <li>It has a lot of parameters -&gt; requires more memory to store the weights</li>
+</ul>
+<p>I’m ignoring the training case (we should take into consideration also the training sample data size).</p>
+<p>During the inference phase of a Deep Neural Network (DNN), input data is processed through every network layer to produce an output. Two critical factors affect this phase: the <strong>memory footprint</strong> (the amount of memory needed to hold the network and data) and the <strong>GOP</strong> (Giga [10⁹] Operations) required to generate the result. If a device lacks sufficient memory to accommodate the entire network, it cannot perform the inference. Even if memory is adequate, limited computing power can cause significant delays in processing, making inference impractically slow on less powerful devices.</p>
+<p>The problem that we want to solve is: “<strong>How can we perform inference of a large model on a device that is limited by hardware?</strong>”. Or, in other words, how can we use a large model on a device that is not capable of handling the model operators and parameters?</p>
+<p>Let’s picture the “abstract” concept of DNN as the concept of Graph, where data is represented by <strong>tensors</strong> and computed by <strong>operators</strong>. A <strong>tensor</strong> is a n-dimensional vector of data (or tensor) that flows through the graph (or NN); there are two types of tensors: <strong>input tensors</strong> (<strong>X</strong>) and <strong>output tensors</strong> (<strong>Y</strong>). An example of input tensors is the <strong>parameter tensors</strong> (that serve as static input for operators). When a tensor is the result of the output of an operator it’s called <strong>activation tensor</strong>.</p>
+<p>Performing <strong>inference</strong> on a model means computing all the <strong>activations</strong> of the operators using an input tensor (our prompt in the LLM case) and obtaining the output tensor (our result — an image, text, etc.).</p>
+<h2><strong>Current challenges and solutions</strong></h2>
+<p>The current trend in the development of large language models (<strong>LLMs</strong>) focuses on scaling up, which means expanding model sizes and enhancing hardware capabilities. While this approach achieves state-of-the-art performance, it introduces significant challenges when deploying or interacting with such models:</p>
+<ul>
+  <li><strong>High costs and complexity</strong> — LLMs are really resource-intensive, requiring powerful hardware to be efficient or even to just work. This means that their deployment in local environments or devices is prohibitively expensive.</li>
+  <li><strong>Latency issues</strong> — our current world is based on time-sensitive applications, and transmitting data back and forth between cloud-based servers introduces significant latency, leading to suboptimal performances or even safety hazards in critical use cases.</li>
+  <li><strong>Privacy concerns</strong> — transmitting sensitive data over the internet to centralized servers poses high privacy risks. Once data leaves our device, we have no control over how it’s used or stored: sensitive data like healthcare or personal information could be intercepted or misused during transmission.</li>
+</ul>
+<p>Several strategies are being exploited to mitigate these challenges, especially for reducing the computational requirements of LLMs. These techniques work by simplifying models without severely degrading their performance:</p>
+<ul>
+  <li><strong>Quantization</strong> reduces the precision of the model parameters, lowering the memory footprint. This method has its limits, as lowering precision too much can degrade model accuracy, and not all hardware supports operations with lower precision.</li>
+  <li><strong>Distillation</strong> involves training a smaller model (“student”) to replicate the performance of a larger model (“teacher”), thereby reducing the size of the model.</li>
+  <li><strong>Pruning</strong> removes unnecessary parameters from models, decreasing the computational load.</li>
+</ul>
+<p>For more information regarding these solutions, you can check my previous article.</p>
+<a class="linkcard" href="https://towardsdatascience.com/efficient-deep-learning-unleashing-the-power-of-model-compression-7b5ea37d4d06?source=post_page-----f42f41367a95---------------------------------------"><img class="lc-icon" src="images/favicons/towardsdatascience.com.png" alt=""><span class="lc-body"><span class="lc-title">Efficient Deep Learning: Unleashing the Power of Model CompressionAccelerate model inference speed in productiontowardsdatascience.com</span><span class="lc-domain">towardsdatascience.com</span></span></a>
+<p>These methods can help but do not fully scale for large models, and you still have a performance trade-off for all of them. Instead of relying on a single device, let’s take into consideration <strong>distributing computing across multiple devices</strong>. By forming a network of devices, each contributing to the overall computation, larger models can be executed more efficiently. This also allows for:</p>
+<ul>
+  <li><strong>Scalability</strong> — adding more devices to the network increases the total memory and computing power available, making it possible to handle larger models without overwhelming individual devices.</li>
+  <li><strong>Fault Tolerance</strong> — a decentralized, heterogeneous network of devices reduces the risk of downtime. If one device fails, others can continue processing, ensuring the system remains operational.</li>
+  <li><strong>Privacy Preservation</strong> — in a distributed system, data is not sent to a single centralized server. Instead, information is shared and processed across the network, preserving privacy. Since no single server has access to all user data, the risk of sensitive information being misused is significantly reduced.</li>
+</ul>
+<h2><strong>What is the DCI Network?</strong></h2>
+<p>The <strong>Decentralized Collaborative Intelligence Network</strong> or <strong>DCI Network</strong> is a network of nodes that share computational power to execute inference on open source models.</p>
+<p>By “<strong>collaborative intelligence</strong>” we mean a distributed system where multiple actors are contributing to solving a particular problem by autonomously computing a part of the solution of such a problem. In the context of the DCI network, the <strong>actors</strong> are the nodes, the <strong>problem</strong> is the inference of a model and the <strong>solution</strong> is the result of the inference.</p>
+<h2><strong>Distributed Model Parallelism</strong></h2>
+<p>The approach we want to use is to divide the neural network graph into <strong>subgraphs</strong> and assign each subgraph to a particular device. By executing inference on these subgraphs we drastically reduce the computational requirements on each device.</p>
+<p>The process of dividing the graph into subgraphs is known as <strong>Layer Sharding</strong>. Layers and/or sublayers can be allocated to the DCI Network devices in different manners based on a variety of strategies.</p>
+<figure>
+  <img class="wide" src="images/a-gentle-introduction-to-the-dcin-for-decentralized-inference/img-02.png" alt="src: Embedded Distributed Inference of Deep Neural Networks: A Systematic Review">
+  <figcaption><a href="https://arxiv.org/abs/2405.03360">Source ↗</a></figcaption>
+</figure>
+<h2><strong>Layer Sharding key concepts</strong></h2>
+<p>1. <strong>Model partitioning</strong> — the model is divided into segments (the subgraphs), each consisting of one or more layers. These segments will be distributed among the devices.</p>
+<p>2. <strong>Sequential execution</strong> — the inference proceeds sequentially through the various layers, and each intermediate result is passed from device to device.</p>
+<p>When implementing Layer Sharding in a horizontal (sequential) splitting manner, within a network of devices with different computational powers, there are two main challenges that need to be addressed (more on that later):</p>
+<p>1. <strong>Layer Assignment</strong> — we need to find the best way to assign one or more layers to each device. For example, layers that need a higher memory consumption might be distributed to multiple devices that have less available memory.</p>
+<p>2. <strong>Effective Communication</strong> — the devices of the network need to communicate efficiently and in a fast way. Also, messages must not be lost during communication, otherwise the whole inference process collapses.</p>
+<h2><strong>DCI Network Challenges</strong></h2>
+<p>Developing such a network poses multiple challenges:</p>
+<p>1. <strong>Distribution Selection</strong> — How can an optimized configuration be chosen? This includes determining where to partition the network and allocate tasks across devices. The search space for possible configurations may be too large to test exhaustively, requiring algorithms to guide selection. The challenge is how to model this optimization problem.</p>
+<p>2. <strong>Devices</strong> — How many devices are available, and are they identical or do they differ in features? Is performance modelling (in terms of latency and energy) available, or is profiling required to inform decisions?</p>
+<p>3. <strong>Metrics and Constraints</strong> — What are the primary metrics (e.g., speed, energy) to optimize? If multiple metrics exist, are there priorities among them? Are there any hard constraints that need to be considered?</p>
+<p>4. <strong>Adaptability</strong> — Should the system adapt to dynamic changes (e.g., bandwidth fluctuations, changes in the number of devices) or should it be configured once at compile-time, remaining static afterwards?</p>
+<p>In a <strong>static runtime system</strong>, the distribution algorithm is executed only once during the compilation phase of a DNN. After this, the network is partitioned and assigned to different devices, which are then used for actual operations. Since the distribution is determined at compile-time, more complex algorithms can be employed for optimal task allocation, as they are not constrained by real-time performance. This allows for thorough analysis and longer algorithmic execution without affecting the system’s runtime performance.</p>
+<p>In an <strong>adaptive runtime system</strong>, the network topology changes dynamically to optimize some metrics. The most common variable that is monitored is usually the bandwidth between devices of the network. In this way, it is possible to change device allocations to optimize latency and load balancing.</p>
+<p>Research related to distributed computation mainly focused on the optimization of three aspects of such networks which are:</p>
+<ul>
+  <li><strong>Latency</strong> — time required for the system to run the entire process from obtaining the input data to generating the output result;</li>
+  <li><strong>Throughput</strong> — number of inputs that the system can process per second;</li>
+  <li><strong>Energy</strong> — energy needed to communicate and process one input.</li>
+</ul>
+<p>Most studies also focus on optimizing only one type of metric, and our primary goal is to optimize the latency metric. However, we believe that generating multi-objective optimization problems presents itself as a promising research and development direction.</p>
+<p>We’ll see in the next paragraphs how we want to tackle these challenges.</p>
+<h2><strong>Architecture</strong></h2>
+<p>The DCI Network nodes solve two main purposes inside the network:</p>
+<p>1. <strong>Inference</strong> — to calculate the inference of the model.</p>
+<p>2. <strong>Validation</strong> — to validate the result of the other nodes for reward generation.</p>
+<p>The DCI Network is a <strong>P2P network</strong>. The topology of the network is constructed via a graph; each node of the graph contains its ID and the description of the device itself (memory, chip, etc.). The discovery of peers happens through this graph.</p>
+<p>A node, to become part of this network needs to hold the private key or seed phrase of a wallet that has <strong>staked a fixed amount of tokens.</strong></p>
+<h2><strong>Inference</strong></h2>
+<p>In the DCI Network, any device can participate: whether it’s a Macbook Pro, a Linux Laptop or a mobile device (like an iOS phone). This is done via the already cited <strong>distributed model parallelism</strong>.</p>
+<p>We already described before how we can consider a Neural Network as a graph and how the DCI Network is structured itself as a graph. To simplify the understanding of the following passages:</p>
+<ul>
+  <li>With “<strong>model graph</strong>” we are addressing the graph structure of a Neural Network (or model);</li>
+  <li>With “<strong>network graph</strong>” we are addressing the graph structure of the nodes connected to the DCI Network.</li>
+</ul>
+<p>We also discussed how creating subgraphs of the initial model graph allows us to distribute them to multiple devices in order to solve the problem related to hardware requirements.</p>
+<p>Our goal now is to find the best <strong>partitioning strategy</strong> in order to find the best way to assign the layers to each device.</p>
+<p>By partitioning strategy, we mean an algorithm that optimally splits up the layers of the model and assigns them to a node of the network to be computed. We describe the <strong>Ring Memory-Weighted Partitioning Strategy</strong> (proposed by <a href="https://x.com/exolabs_">Exo Labs</a>) and then we propose our more advanced solution.</p>
+<p>In a ring-shaped network, each node will receive the input for its local model chunk from the previous node in the communication chain, and it will process it to transmit its output to the next node. Due to the autoregressive nature of LLMs, the output information will have to be fed back into the input to generate another token. This is why the proposed partition strategies are the most suitable for our use case.</p>
+<h2><strong>Ring Memory-Weighted Partitioning Strategy</strong></h2>
+<p>In this strategy, the network works by splitting up the workflow using <strong>weighted partitioning</strong> among all the nodes that participate in the network. Each device contributes to the inference based on the following formula:</p>
+<pre><code>n = device_memory / total_memory</code></pre>
+<p>where <strong>n</strong> is the number of model partitions, <strong>device_memory</strong> is the device available memory for inference and <strong>total_memory</strong> is the total amount of memory of the network. The total memory of the network is calculated via the broadcast of the resources available from the other nodes.</p>
+<p>In other words, each device <strong>contributes proportionally</strong> to how many resources it’s sharing with the network in relation to how big the network is, and it’s rewarded based on such proportion.</p>
+<p>Using a <strong>Ring Memory-Weighted Partitioning Strategy</strong> (like the one depicted in the picture below proposed by <a href="https://x.com/exolabs_">Exo Labs</a> in their <a href="https://github.com/exo-explore/exo">exo</a> implementation), the nodes are sorted by their total memory in ascending order, and based on their value <strong>n</strong> (calculated in the formula above) both a <strong>start layer</strong> and an <strong>end layer</strong> of the model are calculated. These will be the start and end layers of the model that that particular node will use for the inference.</p>
+<figure>
+  <img class="med" src="images/a-gentle-introduction-to-the-dcin-for-decentralized-inference/img-03.png" alt="src: Exo Labs (GPL 3.0)">
+  <figcaption><a href="https://github.com/exo-explore/exo?tab=readme-ov-file#device-equality">Source ↗</a></figcaption>
+</figure>
+<h2><strong>Layer-Aware Ring Memory-Weighted Partitioning Strategy</strong></h2>
+<p>We propose an evolution to the Ring Memory-Weighted partitioning strategy: we call it the <strong>Layer-Aware Ring Memory-Weighted Partitioning Strategy (or Layer-Aware RMW)</strong>.</p>
+<p>The Ring Memory-Weighted partitioning strategy is a <strong>static</strong> strategy: this means that the partitioning takes into consideration only the resources of the network, and gets updated only when a node joins/leaves the network.</p>
+<p>Our solution, instead, is <strong>dynamic</strong> because it changes every time based on the model that gets requested: this is because the partitioning is not only done solely on the resources of the network, but we also calculate the computational needs of each model layer and optimally assigning the most computation-intensive layers to the best-performing devices in the network.</p>
+<p>In order for this to work we need to perform:</p>
+<p>1. <strong>Device Profiling</strong> — when a device joins the network, it retrieves its CPU/GPU capabilities and memory capacity and shares it with the other nodes</p>
+<p>2. <strong>Model Profiling</strong> — the open-source models usable in the DCI Network have each of their layers profiled, so we know what resources are needed to optimize the computation on that given layer.</p>
+<p>Given a set of layers (with their associated computational complexities and memory requirements) and a set of devices (our network) with their processing powers, we need to solve <strong>an optimization problem</strong> where the goal is to balance the computational load and memory usage across all devices.</p>
+<p>Solving this problem means:</p>
+<ul>
+  <li>Minimize any computational imbalance across devices</li>
+  <li>Ensuring memory constraints are not violated during layer-to-device assignment</li>
+  <li>Optimizing for minimal inter-device communication</li>
+</ul>
+<h2><strong>Validation</strong></h2>
+<p>Being the DCI Network is a decentralized network, we need to provide <strong>validation</strong> (or <strong>verification</strong>) to ensure that the nodes are actually performing inference on the right layers and returning the correct output to the next node/to the user.</p>
+<p>We introduced then the concept of <a href="https://learn.metamask.io/lessons/what-is-staking"><strong>staking</strong></a> in order to let nodes enter the network.</p>
+<blockquote><p>Staking is a strategy used across crypto and web3 that empowers users to participate in keeping a blockchain network honest and secure.</p></blockquote>
+<p>Now we need to see how and why we should perform <a href="https://research.web3.foundation/Polkadot/security/slashing/amounts"><strong>slashing</strong></a> on such stakeholders in case they act maliciously. When talking about <strong>verifiable inference</strong>, there are two types of approaches that we could take: <strong>proof-based</strong> and <strong>cryptoeconomics-based</strong>.</p>
+<h2><strong>Proof-based validations</strong></h2>
+<p>Proof-based validations, as the name suggests, are approaches that use proofs to verify that the inference was executed correctly. For the scope of the DCI Network, we will take into consideration just two types of proof-based validation: <strong>Zero-Knowledge Proofs</strong> and <strong>Optimistic Fraud Proofs</strong>. The following three paragraphs are an extract of the amazing work done in this <a href="https://arxiv.org/html/2401.17555v1">paper</a>.</p>
+<h2><strong>Zero-Knowledge Proofs</strong></h2>
+<p><a href="https://world.org/blog/engineering/intro-to-zkml">zkML</a> (Zero-Knowledge Machine Learning) represents a new paradigm in the intersection of ML and Blockchain: by leveraging <a href="https://www.di.ens.fr/~nitulesc/files/Survey-SNARKs.pdf"><strong>zk-SNARKS</strong></a> (Zero-Knowledge Succinct Non-Interactive Arguments of Knowledge), it safeguards confidentiality in model parameters and user data both during the training and the inference processes. This can mitigate privacy concerns but also reduce the computational burden on the blockchain network.</p>
+<p>What’s most fascinating about zkML it’s the fact that it is able to generate proofs of a fixed size, regardless of how big the model is. This cryptographic approach, also, always guarantees correctness.</p>
+<p>On the other hand, the cost of compiling a DNN into a zero-knowledge circuit has been proven extremely difficult, and also extremely expensive: some studies have shown an increase of 1000x of the cost of inference and latency (due to the proof generation). Even if this cost may be divided along the nodes, or passed down to the user, it’s still very expensive.</p>
+<h2><strong>Optimistic Fraud Proofs</strong></h2>
+<p>opML (Optimistic Machine Learning) instead brings a new paradigm to the table: trust, but verify. This approach always assumes that the inference is correct, and after it has been generated validator nodes can call out a node for having generated a wrong inference using a <strong>fraud proof</strong>.</p>
+<p>If a validator node generates a different inference, it can start a dispute that can be settled on-chain.</p>
+<p>What is really strong about opML is the fact that as long as there’s a single honest validator in the network, there’s no incentive for the actual inference nodes to act maliciously, since they will lose the dispute and get slashed. It is also way less expensive than zkML, but the cost scales proportionally in relation to how many validator nodes are present. In the context of the DCI Network, the cost scales also with how many inference nodes are available, since all the validator nodes must re-run the inferences that have been computed. Another problem with opML concerns the finality: we should wait for the challenge period in order to accept an inference as correct or not.</p>
+<h2><strong>zkML vs opML</strong></h2>
+<p>These two approaches really differ from each other. Let’s see their main differences, pros and cons:</p>
+<ul>
+  <li><strong>Proof system</strong> — zkML uses zk-SNARKS to prove the correctness of the ML output, opML uses fraud proofs.</li>
+  <li><strong>Performance</strong> — we need to break down this metric into two sub-categories:</li>
+</ul>
+<p><strong>Proof generation time</strong> — generating a zkML proof takes long and complexity grows dramatically with increasing model parameters. Fraud proofs, instead, can be computed in a short time.</p>
+<p><strong>Memory consumption</strong> — just to give an example, the memory consumption of a zkML circuit for generating a proof for a 7B-LLaMa model is in the order of Terabytes, while the memory consumption for generating a proof for such model using opML is “equivalent” to the size of the model itself (so in this case this model is around 26 GB, the memory required is 32 GB).</p>
+<ul>
+  <li><strong>Security</strong> — zkML gives the best security possible, no doubt, but it also introduces problems related to costs and generation time. opML, on the other hand, sacrifices security (because it relies more on economics rather than cryptography or mathematics) for flexibility and performance.</li>
+  <li><strong>Finality</strong> — the finality of zkML is achieved when the zk-proof of the inference is generated; for opML, instead, the finality is achieved when the challenge process ends. Though we need to wait for this process to end, for larger models (but even for smaller ones) if the zkML time of generating the proof takes longer than the challenge process of opML, the latter can achieve finality faster than the first.</li>
+</ul>
+<h2><strong>Cryptoeconomics-based validation</strong></h2>
+<p>These approaches skip the complex cryptographic and mathematical details, focusing solely on achieving the desired outcome.</p>
+<p>A really easy example of such an approach in the context of the DCI Network is to let the inference be executed by multiple nodes (<strong>N</strong>) at the same time, the results are checked between each other and the most amount of nodes with the same response are considered “correct” and get passed further in the ring; the odd ones are rejected and slashed.</p>
+<p>With this approach, the latency depends on the number of nodes and on the complexity of the inference, but since the goal of the DCI Network is to reduce the network complexity, we can optimistically say that such an approach has a fast latency.</p>
+<p>However, the security is at its weakest, since we cannot leverage cryptography or mathematics to ensure that the output is correct: if a reasonable number of nodes were to deviate (rationally or irrationally), they could impact the result of the inference.</p>
+<p>What’s really interesting though is that this “security problem” is true for most of the “decentralized inference networks” out there that just perform redundant inference and use a <strong>commit-reveal</strong> scheme. In the DCI Network, instead, we can leverage different techniques to mitigate such security problems: the first one is leveraging <strong>EigenLayer</strong> restaking and attributable security to allow the network to provide “insurance” in case of a security failure.</p>
+<p>The second one deserves its own paragraph.</p>
+<h2><strong>Cryptoeconomics security in the DCI Network</strong></h2>
+<p>Due to the nature of the DCI Network, inference is calculated step-by-step on a batch of layers instead of the whole model. As already mentioned in this document, users when asking for inference can pay more to increase the level of security and decentralization of the inference.</p>
+<p>Why is that the case and how does this relate to the cryptoeconomics-based approach for validation? When a user wants to increase the security level, in reality, he’s paying more for allowing more subgraphs (thus more nodes) to execute inference on his prompt. This means that multiple nodes will execute inference on the same layers, and their result will be checked between one another by the validator nodes. This not only increases security but is also fast because what validators need to check is output tensor equality.</p>
+<p>Let’s make an example to make this clearer.</p>
+<p>The user selects a security level of 3, meaning 3 subgraphs will be chosen to execute inference. These subgraphs will have the same partitioning, meaning that the number of nodes (<strong>N</strong>) and the number of layers per node (<strong>M</strong>) will be the same. For this example let’s set:</p>
+<pre><code>X = 3
+N = 5
+M = 10</code></pre>
+<p>This means that we’re gonna have 3 subgraphs with 5 nodes each that will compute 10 layers each. The number of nodes also defines the depth of our subgraph, meaning the number of “inference steps” that we need to perform in order to achieve the final output. We’re also going to define with the notation <strong>Ixy</strong> the y-th node of the x-th subgraph that is currently performing inference. This is going to be helpful when explaining how the inference and validation processes work together.</p>
+<p><strong><em>Step 1</strong></em>:</p>
+<p>Nodes <strong>I11</strong>, <strong>I21</strong>, <strong>I31</strong> are currently executing inference on their 10 layers using the input prompt. They all output the same result vector [a, b, c]; this output is sent to the next nodes of the inference ring and to the validator nodes.</p>
+<p><strong><em>Step 2</strong></em>:</p>
+<p>Nodes <strong>I12</strong>, <strong>I22</strong>, <strong>I32</strong> are executing inference on their 10 layers using the result vector of the first nodes. They all output the same result vector [d, e, f]; this output is sent to the next nodes of the inference ring and to the validator nodes.</p>
+<p><strong><em>Step N — 1</strong></em>:</p>
+<p>Nodes <strong>I1N-1</strong>, <strong>I2N-1</strong>, <strong>I3N-1</strong> are executing inference on their 10 layers using the result vector of the first nodes. The node <strong>I2N-1</strong> returns a different result from the other two nodes.</p>
+<p><strong><em>Step N</strong></em>:</p>
+<p>The final nodes of the ring perform the last bit of inference, but of course, due to the wrong result of node <strong>I2N-1</strong>, the subgraph 2 is producing a different (or “wrong”) inference.</p>
+<p>The validators after receiving all the intermediate inference results (or during the process, still <strong>TBD</strong>) perform a vector equality check between all the different levels. They find out that node <strong>I2N-1</strong> is the only one that has returned a different output from the other nodes of their level, so it gets slashed. The correct result (output of the subgraphs 1 and 3) gets sent to the user.</p>
+<p>Why does this increase security? Because the probability of multiple nodes getting selected at the same level, for the same inference request and with the means of deviating is extremely low. This is because this type of model resembles the <strong>Swiss cheese model</strong>: having multiple subgraphs with different layers is like having multiple Swiss cheese slices on top of each other; in order to achieve the final result of returning a malicious or erroneous result to the user is like trying to pass through all the holes in the cheese slices at once until reaching the bottom.</p>
+<p>Since this type of security model allows us to easily find the malicious nodes, combining this with the fact that nodes are getting penalized for acting “differently” from other nodes and with the fact that validator nodes are also subject to their own consensus algorithm with penalties, we can achieve a relevant level of security without sacrificing performance and without implementing complex cryptographic algorithms that would cost a lot in terms of money and time.</p>
+<h2><strong>Latency (inter-device communication)</strong></h2>
+<p>As previously mentioned, <strong>latency</strong> is a key metric. In order to achieve efficient inter-device communication and optimize the DCI Network, we want to focus on the following key strategies.</p>
+<h2><strong>Network Proximity Awareness</strong></h2>
+<p>When creating the subgraphs (rings), we need to ensure that nodes close to each other are physically (or logically) close in terms of network latency. This reduces communication delays between nodes as the inference results are passed along the ring.</p>
+<p>This optimization can be achieved by using network distance metrics (such as latency or bandwidth) when forming the subgraphs. This is also known as <strong>network proximity awareness</strong>.</p>
+<p>The first step in creating a network proximity-aware system is to measure the latency and the bandwidth between the nodes. There are two main approaches to doing so:</p>
+<ul>
+  <li><strong>Active Probing</strong> — we periodically measure round-trip times (RTT) and bandwidth between nodes using protocols like ICMP (ping) or custom heartbeat messages. This allows us to have an estimate of how “close” nodes are to each other in terms of communication speed</li>
+  <li><strong>Passive Monitoring</strong> — if nodes are already communicating with each other, we can measure the network conditions (such as latency and throughput) from the traffic they generate without introducing additional overhead</li>
+</ul>
+<p>Once the data has been gathered, we proceed with the creation of a <strong>proximity table</strong>, where each node stores its estimated latency to other nodes. This table can (and must) be updated with new measurements.</p>
+<p>This matrix contains the pairwise latency between all the node’s peers:</p>
+<figure>
+  <img class="wide" src="images/a-gentle-introduction-to-the-dcin-for-decentralized-inference/img-04.png" alt="">
+</figure>
+<p>Simple Example (Image by Author)</p>
+<p>This matrix is distributed among nodes without central coordination and each node can access it to choose neighbours with low latency for forming the ring topology. Constructing this matrix is crucial when implementing our <strong>ring formation algorithm</strong> based on one of the strategies proposed above.</p>
+<p>In addition to considering latency, it’s important of course to account for <strong>bandwidth</strong> and <strong>computational resources</strong>: nodes with higher bandwidth and stronger computational resources can be prioritized for layers with heavier computation or large intermediate data transfers. This requires building a composite <strong>metric</strong> that combines both latency and bandwidth into the proximity matrix.</p>
+<p>We need to set a bandwidth threshold (<strong>bandwidth thresholding</strong>) for selecting neighbours to ensure that nodes with insufficient bandwidth aren’t chosen for high-throughput inference tasks. This means creating a composite score that weights both latency and bandwidth for each node pair.</p>
+<p>We calculate such a score with the following formula:</p>
+<pre><code>score_ij = α*latency_ij + β*(1/bandwidth_ij)</code></pre>
+<p>Where <strong>α</strong> and <strong>β</strong> are the weights that balance the importance of latency versus bandwidth.</p>
+<p>Building such a proximity matrix is a common task in large-scale systems with many nodes. Thankfully, there are multiple distributed approaches that can help us achieve this goal:</p>
+<ul>
+  <li><strong>Gossip protocols</strong> — nodes periodically share proximity data with their neighbours, gradually spreading information about the network conditions. Over time, each node builds up its own local view of the proximity matrix;</li>
+  <li><strong>DHT-based discovery</strong> — using DHT-based strategies like <strong>Chord</strong> or <strong>Kademlia</strong> can be used to discover neighbours based on proximity, selecting peers that are close in terms of both network proximity and ID space. Chord DHT also is already meant for ring-based structures, so it can be a useful fit for solving this problem.</li>
+</ul>
+<h2><strong>Chord DHT and Bandwidth-Weighted Proximity</strong></h2>
+<p><strong>Chord</strong> arranges nodes into a logical ring based on their hashed identifiers (<strong>node IDs</strong>). Each node maintains a <strong>finger table</strong> with pointers to nodes at increasing distances in the ring, which allows efficient lookups with <strong>O(log N)</strong> complexity. A node also knows its immediate <strong>successor</strong> (the next node in the ring) and its <strong>predecessor</strong> (the previous node), ensuring that data can be routed through the ring efficiently.</p>
+<p>The “default” implementation of Chord uses the ID distance to calculate successors and predecessors. We need to modify such routing logic to account for both <strong>proximity</strong> (latency and bandwidth-based) and ID distance.</p>
+<p>1. <strong>Augmenting the finger table with proximity information: </strong>Each node maintains this finger table that stores nodes at specific intervals in the ID space. Instead of purely using distance in the ID space, we augment the finger table with latency and bandwidth information for each finger (neighbouring node). We use previously stated strategies to constantly update the proximity data.</p>
+<p>2. <strong>Proximity-Based Finger Selection: </strong>During the routing process, Chord typically forwards messages to the node closest to the target in the ID space. In our case, we use the previously cited proximity score to prioritize nodes that are both close in terms of ID space and network proximity.</p>
+<p>Chord is <strong>fault-tolerant</strong> and handles node joins departures, and failures by adjusting the finger tables and successors pointers. With proximity awareness:</p>
+<ul>
+  <li>When a <strong>node joins</strong>, we measure its proximity to its neighbours and update the finger tables of existing nodes accordingly.</li>
+  <li>When a <strong>node leaves</strong> or <strong>fails</strong>, its <strong>closest neighbour in terms of proximity</strong> should take over its responsibilities. This ensures that the ring remains optimized for low latency even as nodes churn.</li>
+</ul>
+<p>To maximize performance, the DCI Network must be tested under different conditions (eg. low bandwidth, high latency, node failures, etc.) to ensure that this proximity-aware routing strategy consistently improves performance. In addition to this, we must also experiment with different values of <strong>α</strong> and <strong>β</strong> to optimize for either low-latency or high-bandwidth, depending on the nature of the current AI model inference task.</p>
+<h2><strong>Selective participation</strong></h2>
+<p><strong>Selective Participation</strong> is a strategy where nodes in a distributed network self-select or are assigned specific types of inference tasks based on their computational resources, particularly in terms of <strong>Teraflops</strong> (<strong>TFLOPS</strong>).</p>
+<p>A Teraflop refers to a processor’s capability to calculate one trillion floating-point operations per second. This means that when a device has “8 TFLOPS”, we actually mean that its processor setup can handle 8 trillion floating-point operations per second on average. Unlike gigahertz (GHz) — that measures a processor’s clock speed, a TFLOP is a direct mathematical measurement of a computer’s performance.</p>
+<p>Nodes can be categorized into different tiers based on their computational capacity; each category corresponds to the complexity and size of the AI models that nodes are capable of processing. An example of such categorization (TBD) could be:</p>
+<p>1. <strong>Category A (high-performance nodes): </strong>Range: 20+ TFLO. Suitable for large, resource-intensive model layers. Typical hardware: high-end GPUs, specialized AI hardware</p>
+<p>2. <strong>Category B (moderate-performance nodes): </strong>Range: 5–20 TFLOPS. Suitable for medium-complexity models. Typical hardware: mid-range GPUs, CPUs with AI accelerators (Apple Chips)</p>
+<p>3. <strong>Category C (low-performance nodes): </strong>Range: &lt;5 TFLOPS. Suitable for lightweight models. Typical hardware: standard CPUs, mobile devices or edge devices with limited compute capacity</p>
+<p>By categorizing nodes in such a way, the network ensures that nodes with sufficient computational resources handle the more demanding AI models, while less powerful nodes focus on lightweight models. This also creates an opportunity for people participating in the network using a mobile device (like their smartphone) by allowing these less-performing devices to participate in the inference of smaller models.</p>
+<h2><strong>Final considerations</strong></h2>
+<p>By utilizing a <strong>truly decentralized inference network</strong>, we enable AI tasks to be executed across a network of nodes, where computation is distributed dynamically and efficiently, while also maintaining a high level of security and rewarding users for sharing their computation.</p>
+<p>In fact, our approach:</p>
+<ul>
+  <li><strong>Reduces latency and enhances scalability</strong>, by leveraging the collective “intelligence” (computational power) of the network. Inference tasks can be completed faster and more efficiently, without bottlenecks that may occur in centralized systems or old-fashioned distributed inference networks;</li>
+  <li><strong>Democratizes access to AI technology</strong>. Anyone with computing resources, from high-end GPU to edge devices, can contribute to the inference, making cutting-edge AI technology accessible to a broader audience;</li>
+  <li><strong>Optimizes resource utilization</strong> via our selective participation strategy and node selection process.</li>
+</ul>
+<p>This new decentralized network will not only advance AI technology but will also empower individuals and organizations to participate in, benefit from and contribute to the AI ecosystem like never before.</p>
+<p>Our network also has profound implications for the web3 ecosystem. By merging AI with the principles of the Blockchain, more in particular via <strong>incentivization</strong>, we create a self-sustaining system that rewards users for contributing computational power.</p>
+<p>Our network not only compensates users but also indirectly creates a marketplace where computational power is commoditized. Not high-end, expensive, computational power, but the everyday one, mostly unused and “wasted”.</p>
+<p>The concept of exploiting wasted computing power is as old as the internet. One of the earliest examples, the Condor project (now <a href="https://research.cs.wisc.edu/htcondor/background.html">HTCondor</a>), started in 1988. In 1993 Scott Fields wrote a research sampler called “<a href="https://chtc.cs.wisc.edu/doc/WiscIdea.html">Hunting for wasted computing power</a>”, with the goal of putting idle pc’s to work.</p>
+<p>In such a research sampler there’s a phrase that we would like to cite: “<em>The philosophy here is that we would like to encourage you to use as many cycles as possible and to do research projects that can run for weeks or months. But we want to protect owners, whether or not they are heavy users</em>”.</p>
+<p>We can break down this quote into its parts:</p>
+<ul>
+  <li>“<em>We would like to encourage you to use as many cycles as possible</em>” — this means that the program aims at maximizing the use of computational resources (CPU cycles at the time) that would otherwise go unused. The goal is to encourage users to run long and complex tasks, taking full advantage of their computing power;</li>
+  <li>“<em>and to do research projects that can run for weeks or months</em>” — Condor supported research tasks that may require a lot of computational power over extended periods;</li>
+  <li>“<em>but we want to protect owners, whether or not they are heavy users</em>” — this highlights the importance of protecting the user usage, respecting their usage preferences and letting the owners have full control.</li>
+</ul>
+<p>In the context of our network, this phrase can be written as: “<em>Our philosophy is to encourage the full utilization of available computational resources, empowering users to contribute to AI inference tasks. However, we remain committed to protecting the interests of resource owners, ensuring that they are fairly compensated for their participation”</em>.</p>
+<h2><strong>Authors</strong></h2>
+<p><em>This article is an extract of a longer paper that will be published in the next months; this was written by </em><a href="https://x.com/BrianKnowsAI"><strong><em>Brian</strong></em></a><em> team.</em></p>
+<p><a href="https://x.com/Marcello_AI"><em>Marcello Politi</em></a><em>, </em><a href="https://twitter.com/orbuloeth"><em>Paolo Rollo</em></a>, <a href="https://twitter.com/Frankc_eth"><em>Francesco Cirulli</em></a><em>, </em><a href="https://twitter.com/matteoikari"><em>Matteo D’andreta</em></a><em>, </em><a href="https://twitter.com/jondar_eth"><em>Federico Giancotti</em></a></p>
+<h2><strong>Resources</strong></h2>
+<p><em>Our work comes from studying different projects, papers and protocols of amazing AI and web3 researchers and developers, from whom we took inspiration. We would like to thank these authors, and the people working behind this project.</em></p>
+<p>1. Nagel, Markus, Marios Fournarakis, Rana Ali Amjad, Yelysei Bondarenko, Mart Van Baalen, and Tijmen Blankevoort. “<a href="https://arxiv.org/abs/2106.08295">A white paper on neural network quantization.</a>” arXiv preprint arXiv:2106.08295 (2021).</p>
+<p>2. Xu, Xiaohan, Ming Li, Chongyang Tao, Tao Shen, Reynold Cheng, Jinyang Li, Can Xu, Dacheng Tao, and Tianyi Zhou. “<a href="https://arxiv.org/abs/2402.13116">A survey on knowledge distillation of large language models.</a>” <em>arXiv preprint arXiv:2402.13116</em> (2024).</p>
+<p>3. Cheng, Hongrong, Miao Zhang, and Javen Qinfeng Shi. “<a href="https://arxiv.org/abs/2308.06767">A survey on deep neural network pruning: Taxonomy, comparison, analysis, and recommendations.</a>” <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em> (2024).</p>
+<p>4. Conway, So, Yu and Wongi. “<a href="https://arxiv.org/html/2401.17555v1">opML: Optimistic Machine Learning on Blockchain</a>” <em>arXiv preprint arXiv:2401.17555v1 (2024)</em>.</p>
+<p>5. Ganescu, Bianca-Mihaela, and Jonathan Passerat-Palmbach. “<a href="https://arxiv.org/abs/2402.06414">Trust the process: Zero-knowledge machine learning to enhance trust in generative ai interactions.</a>” <em>arXiv preprint arXiv:2402.06414</em> (2024).</p>
+<p>6. Stoica, Morris, Liben-Nowell, Karger, Kaashoek, Dabek and Balakrishman. “<a href="https://pdos.csail.mit.edu/papers/ton:chord/paper-ton.pdf">Chord: A Scalable Peer-to-peer Lookup Protocol for Internet Applications</a>”.</p>
+<p>7. The team behind <a href="https://x.com/exolabs">Exo Labs</a>, that kickstarted our work and for their contribution to democratizing access to AI, truly.</p>
+<p>This article has been published on <a href="https://medium.com/data-science/a-gentle-introduction-to-the-dcin-for-decentralized-inference-f42f41367a95">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

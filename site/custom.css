@@ -1,0 +1,217 @@
+/* ------------------------------------------------------------------
+   custom.css — loaded AFTER nicola's tufte.css.
+   Only adds blocks Tufte lacks; every element reuses ET Book / ETBembo
+   / Gill Sans so the typography is identical to his everywhere.
+   ------------------------------------------------------------------ */
+
+/* author's intro note */
+.note {
+  width: 55%;
+  color: #6a6a6a;
+  border-left: 2px solid #dcdcd6;
+  padding-left: 1.2rem;
+  margin: 1.4rem 0;
+}
+.note p { width: auto; font-style: italic; }
+
+/* deep-dive definition boxes (echo his bordered diagram cards) */
+.deepdive {
+  width: 55%;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #e4e4de;
+  border-radius: 2px;
+  padding: 1rem 1.4rem .3rem;
+  margin: 1.9rem 0;
+}
+.deepdive .callout-label {
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-size: .95rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #0099FF;
+  display: block;
+}
+.deepdive .callout-title {
+  font-family: "et-book-display-italic", Georgia, serif;
+  font-style: italic;
+  font-size: 1.6rem;
+  margin: .1rem 0 .6rem;
+  display: block;
+}
+.deepdive p, .deepdive li { width: auto; font-size: 1.25rem; line-height: 1.35; }
+.deepdive p { margin: .7rem 0; }
+.deepdive ul { width: auto; margin: .5rem 0; padding-left: 1.4rem; }
+.deepdive li { margin: .2rem 0; }
+.deepdive .callout-title { margin-top: .15rem; }
+.deepdive .formula {
+  display: block;
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  background: #f4f4f2;
+  border-radius: 2px;
+  padding: .5rem .7rem;
+  margin: .3rem 0 1rem;
+  overflow-x: auto;
+}
+
+/* figures + images (sized by orientation, centered like Notion) */
+figure { width: 55%; margin: 2rem 0; text-align: center; }
+figure img { display: block; margin: 0 auto; height: auto; border-radius: 2px; }
+figure img.portrait { max-width: 240px; }
+figure img.med      { max-width: 380px; }
+figure img.wide     { max-width: 100%; }
+.figph {
+  background: #fff; border: 1px solid #e4e4de; min-height: 120px;
+  display: flex; align-items: center; justify-content: center; color: #b3b1a9;
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-size: .85rem; letter-spacing: .1em; text-transform: uppercase;
+}
+figcaption {
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-size: 1rem; color: #8a8a8a; margin-top: .5rem; text-align: center;
+}
+/* display-math blocks */
+.mathblock {
+  width: 55%; text-align: center; margin: 1.5rem 0;
+  font-size: 1.3rem; letter-spacing: .01em; color: #24292e;
+}
+
+/* fenced code blocks — wider than the prose column so code needs less horizontal scroll */
+pre {
+  width: 90%; box-sizing: border-box; overflow-x: auto;
+  background: #f7f6f3; border: 1px solid #e4e4de; border-radius: 3px;
+  padding: .8rem 1rem; margin: 1.5rem 0;
+}
+/* override tufte's body.layout-post pre code {width:52.5%} which was clamping code width */
+body.layout-post pre code, pre code {
+  width: auto !important; display: block; white-space: pre;
+  font-family: Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.95rem; line-height: 1.45; color: #24292e;
+  background: none; border: none; padding: 0;
+}
+/* let highlight.js color tokens but keep our block background/padding */
+pre code.hljs { background: transparent; padding: 0; }
+
+/* content tables */
+.tablewrap { width: 55%; overflow-x: auto; margin: 1.6rem 0; }
+table.ntable { width: 100%; border-collapse: collapse; border: none; text-align: left; margin: 0; }
+table.ntable th, table.ntable td {
+  border: 1px solid #e4e4de; padding: .5rem .75rem; vertical-align: top; font-size: 1.15rem; line-height: 1.35;
+}
+table.ntable thead th {
+  background: #f4f1ea; border-bottom: 1px solid #d8d3c6;
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-weight: 600; font-size: 1rem;
+}
+
+/* table of contents */
+.toc {
+  width: 55%; box-sizing: border-box; margin: 1.4rem 0 2rem;
+  padding: .8rem 1.1rem .9rem; background: #f7f6f3; border: 1px solid #e4e4de; border-radius: 3px;
+}
+.toc .toc-title {
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-size: .78rem; letter-spacing: .13em; text-transform: uppercase; color: #0099FF;
+  display: block; margin-bottom: .5rem;
+}
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc li { margin: .18rem 0; line-height: 1.3; }
+.toc li.toc-h3 { padding-left: 1.2rem; font-size: 1.05rem; }
+.toc a { color: rgb(59,59,59); background: none; border: none; }
+.toc a:hover { color: #0099FF; }
+
+/* responsive interactive embeds */
+.embed { position: relative; width: 100%; padding-top: 56.25%; }
+.embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 1px solid #e4e4de; border-radius: 2px; }
+
+/* video poster — click swaps in an inline player (see site.js) */
+.videowrap { position: relative; display: block; border: none; background: none; cursor: pointer; }
+.videowrap img { width: 100%; display: block; border: 1px solid #e4e4de; border-radius: 2px; }
+.videowrap .pbtn {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 72px; height: 50px; background: rgba(20,20,20,.78); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; transition: background .15s;
+}
+.videowrap .pbtn::after {
+  content: ""; margin-left: 4px;
+  border-style: solid; border-width: 10px 0 10px 17px;
+  border-color: transparent transparent transparent #fff;
+}
+.videowrap:hover .pbtn { background: #cc0000; }
+
+/* auto-numbered footnote sidenotes (Tufte / Thinking-Machines style).
+   Numbering is scoped to real footnotes (label + input + .sidenote) so plain
+   .marginnote asides stay unnumbered. */
+html { counter-reset: sidenote-counter; }
+.sidenote-number { counter-increment: sidenote-counter; }
+.sidenote-number::after {
+  content: counter(sidenote-counter);
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-size: .8rem; vertical-align: super; line-height: 0; color: #0099FF; margin-left: 1px;
+}
+input.margin-toggle + .sidenote::before {
+  content: counter(sidenote-counter) " ";
+  color: #0099FF; font-weight: 600;
+}
+
+/* blockquotes — Tufte only sizes blockquote>p; restore reading size for bare quotes */
+blockquote { width: 55%; font-size: 1.4rem; line-height: 1.42; margin: 1.6rem 0; }
+blockquote p { font-size: inherit; line-height: inherit; margin: 0; width: auto; }
+blockquote footer, blockquote cite {
+  display: block; font-style: normal; font-size: 1.1rem; color: #8a8a8a; margin-top: .35rem;
+}
+
+/* home: headshot — left-aligned block, above the bio */
+.headshot {
+  display: block;
+  width: 150px; height: auto;
+  margin: .7rem 0 1.3rem;
+  border-radius: 4px;
+}
+
+/* link-preview cards (Notion/Medium-style bookmark blocks) */
+.linkcard {
+  display: flex; align-items: center; gap: .85rem;
+  width: 55%; box-sizing: border-box; margin: 1.5rem 0;
+  padding: .7rem .9rem; background: #fff; border: 1px solid #e4e4de; border-radius: 6px;
+  text-decoration: none;
+}
+.linkcard:hover { background: #f7f6f3; border-color: #d8d3c6; }
+.lc-icon {
+  flex: 0 0 40px; width: 40px; height: 40px; border-radius: 6px;
+  object-fit: contain; background: #f4f1ea; padding: 4px; box-sizing: border-box;
+}
+.lc-icon-blank { background: #ece8df; }
+.lc-body { display: flex; flex-direction: column; min-width: 0; }
+.lc-title {
+  display: block; color: rgb(59,59,59); font-size: 1.15rem; line-height: 1.3;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.linkcard:hover .lc-title { color: #0099FF; }
+.lc-domain {
+  display: block; margin-top: .35rem;
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-size: .85rem; color: #a4a29a;
+}
+
+/* home: name + writing list */
+.namelink { font-size: 1.4rem; }
+.writing-h { margin-top: 4rem; margin-bottom: 2rem; }
+.postlist { width: 55%; list-style: none; padding-left: 0; margin: 0; }
+.postlist li { display: block; width: auto; margin: 0 0 1.35rem; }
+.postlist .title {
+  display: block; font-size: 1.5rem; line-height: 1.25;
+  color: rgb(59,59,59); background: none; border-bottom: none;
+}
+.postlist .title:hover { color: #0099FF; }
+.postlist .date {
+  display: block; margin-top: .15rem;
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-size: .92rem; letter-spacing: .01em; color: #a4a29a;
+}
+.more-note { width: 55%; color: #a4a29a; font-style: italic; }
+.postdate { font-size: 1.1rem; color: #7a7a7a; margin-top: 0; }
+
+@media screen and (max-width: 760px) {
+  .note, .deepdive, figure, .postlist, .more-note, pre, .mathblock, .tablewrap, .toc, .linkcard { width: auto; }
+}

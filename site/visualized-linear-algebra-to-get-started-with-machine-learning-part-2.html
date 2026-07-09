@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Visualized Linear Algebra to Get Started with Machine Learning: Part 2 — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Visualized Linear Algebra to Get Started with Machine Learning: Part 2</h1>
+    <p class="subtitle">Master elements of linear algebra, start with simple and visual explanations of basic concepts.</p>
+    <p class="postdate">October 6, 2024 · Linear Algebra</p>
+<figure>
+  <img class="portrait" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>In this article, we continue the work we started in <em>“</em><a href="https://medium.com/towards-data-science/visualized-linear-algebra-to-get-started-with-machine-learning-part-1-245c2b6487f0"><em>Visualized Linear Algebra to Get Started with Machine Learning: Part 1</em></a><em>”.</em> We tackle new concepts of linear algebra in a simple and intuitive way. These articles are intended to introduce you to the world of linear algebra and make you understand how strongly the study of this subject and other mathematical subjects is related to data science.</p>
+<h2><strong>Index</strong></h2>
+<ul>
+  <li>Solve Equations</li>
+  <li>Determinants</li>
+  <li>Advanced Changing Basis</li>
+  <li>Eigenvalues and Eigenvectors</li>
+  <li>Calculating Eigenvalues and Eigenvectors</li>
+</ul>
+<h2><strong>Solve Equations</strong></h2>
+<p>Let’s finally try to understand how to solve equations simultaneously. You will by now have become familiar with writing equations compactly using matrices and vectors, as in this example.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-02.png" alt="">
+
+  <figcaption>Equation (Image By Author)</figcaption>
+</figure>
+<p>Finding the vector of unknowns r = [a,b], is quite straightforward; we only need to <strong>multiply the left and right sides of the equation by the inverse of matrix A</strong>.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-03.png" alt="">
+
+  <figcaption>Solve Equation (Image By Author)</figcaption>
+</figure>
+<p>We see that <strong>A^-1 and A cancel</strong>, <strong>since multiplication for a matrix by its inverse always gives the identity matrix</strong> (that is, the matrix that has all 1’s on the main diagonal and zero elsewhere). And so we find the value of r.</p>
+<p>But in order to do this we have to <strong>compute A^-1 which may not be too simple</strong>. Often programming languages have algorithms already implemented that are very efficient in calculating the inverse matrix, so you will always have to use those. But in case you want to learn how to do this calculation by hand you will have to use <a href="https://en.wikipedia.org/wiki/Gaussian_elimination">Gaussian Elimination</a>.</p>
+<p>This is for <strong>example how you compute the inverse by using numpy</strong> in Python.</p>
+<pre><code>import numpy as np
+
+A = np.array([[6, 1, 1],
+   [4, -2, 5],
+   [2, 8, 7]])
+
+# Calculating the inverse of the matrix
+print(np.linalg.inv(A))</code></pre>
+<h2><strong>Determinants</strong></h2>
+<p>The determinant is another fundamental concept in line algebra. It is often taught in college how to calculate it but not what it is. <strong>We can associate a value with each matrix, and that value is precisely the determinant.</strong> However, <strong>you can think of the determinant as the area of the deformed space.</strong></p>
+<p>We have seen how each matrix is simply a deformation of space. Let us give an example.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-04.png" alt="">
+
+  <figcaption>Determinant (Image By Author)</figcaption>
+</figure>
+<p>If we calculate the area of the new space, as shown in the figure,<strong> this area is precisely the determinant associated with the starting matrix</strong>. In this case the determinant = a*d.</p>
+<p>Certainly, we have matrices that can describe somewhat more complex deformations of space, and in that case, it may not be so trivial to calculate the area i.e., the determinant.</p>
+<p>For this, <strong>there are known formulas for calculating the determinant.</strong> For example, let us see the formula for calculating the determinant of a 2x2 matrix.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-05.png" alt="">
+
+  <figcaption>Compute Determinant od 2x2 Matrix (Image By Author)</figcaption>
+</figure>
+<p>You can look <a href="https://www.mathsisfun.com/algebra/matrix-determinant.html">here</a> to learn how to calculate the determinant in general cases with larger matrices.</p>
+<p>If you think about it, however, <strong>there are transformations that do not create any area</strong>. Let’s look at the following example.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-06.png" alt="">
+
+  <figcaption>Det equal zero (Image By Author)</figcaption>
+</figure>
+<p>In this example, the<strong> matrix does not allow us to create any area, so we have a determinant equal to zero</strong>.</p>
+<p>But what is the use of knowing the determinant? We have seen that to solve simultaneous equations we need to be able to calculate the inverse of a matrix.</p>
+<p>But <strong>the inverse of a matrix does not exist if the determinant is equal to zero</strong>! That is why it is important to know how to calculate it, to know if there are solutions to the problem.</p>
+<p><strong>You can think of the inverse matrix, as a way of transforming the space back to the original space</strong>. But when a matrix causes, not an area but only a segment to be created, and then makes us go from 2d to 1d space, the inverse matrix does not have enough information and will never be able to make us go back to the original space in 2d from that in 1d.</p>
+<h2><strong>Advanced Changing Basis</strong></h2>
+<p>We have already seen in the previous article the basic example of changing the basis, but now let’s look at a somewhat more complex example.</p>
+<p>Let’s <strong>imagine the existence of two worlds</strong>, <strong>ours and Narnia’s</strong>. In our world, we use the vectors e1 and e2 as our reference vectors, as the basis. Thanks to these vectors we are able to create others and assign coordinates to them. For example, we can create the vectors [1,1], and [3,1].</p>
+<figure>
+  <img class="med" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-07.png" alt="">
+
+  <figcaption>Our world (Image By Author)</figcaption>
+</figure>
+<p>In the world of Narnia though, they use different vectors as a base. Can you guess which ones they use? Just the ones we call [1,1] and [3,1].</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-08.png" alt="">
+
+  <figcaption>Narnia’s world (Image By Author)</figcaption>
+</figure>
+<p>The people of Narnia will then use this basis of theirs to define other vectors of space, for example, they may define the vector [3/2, 1/2].</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-09.png" alt="">
+
+  <figcaption>Vector In Narnian’s world (Image By Author)</figcaption>
+</figure>
+<p>Well, now what I want to find out is: <strong>how do I define that red vector based on the coordinates of my world</strong>?</p>
+<p>We have already seen this, we take the vectors that form the basis of Narnia but expressed in the coordinates of my world, so [1,1] and [3,1]. We put them in a matrix and multiply this matrix by the red vector.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-10.png" alt="">
+
+  <figcaption>Changing Basis (Image By Author)</figcaption>
+</figure>
+<p>Now we ask: <strong>can we do the reverse as well? Can I express a vector of my world according to the coordinates they use in Narnia? Of course!</strong></p>
+<p><strong>It will suffice to do the same process but change the point of view</strong>. But why do we do all this? <strong>Very often when we have to describe vectors or transformations, we have a much simpler notation if we use a different basis.</strong></p>
+<p><strong>Suppose we want to apply an R-transformation to a vector. But this transformation turns out to be difficult to apply. Then we can first transform my vector into a vector in the world of Narnia by applying the matrix N. After that we apply the desired transformation R. And then we bring everything back to our original world with N^-1.</strong></p>
+<p>This is something that can be very useful and make life easier when we are dealing with complex transformations. I hope I have at least given you some insight; there is so much more to talk about.</p>
+<h2><strong>Eigenvalues and Eigenvectors</strong></h2>
+<p>We have already repeated several times that <strong>applying a linear transformation (a matrix) to a vector transforms that vector.</strong></p>
+<p>However, there are cases in which the vector remains in the same initial direction. Think for example the case where we simply<strong> scale the space</strong>. If we visualize<strong> the horizontal and the vertical vector these remain in the same direction although they get longer or shorter.</strong></p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-11.png" alt="">
+
+  <figcaption>Scale Space (Image By Author)</figcaption>
+</figure>
+<p>We see in the image above that the linear transformation applied here is that of scaling. But if we try to understand what happens to each individual vector we notice that the red vectors still maintain the same direction.</p>
+<p><strong>These vectors that maintain the same direction are called Eigenvectors of the matrix that described this transformation.</strong></p>
+<p>In particular, the vertical red vector has remained unchanged, so let’s say it has eigenvalue =1 while the other red vector has doubled so let’s say it has eigenvalue =2.</p>
+<p>Obviously depending on the matrix, and thus the transformation, the number of eigenvectors may vary.</p>
+<h2><strong>Calculating Eigenvalues and Eigenvectors</strong></h2>
+<p>Let us now try to convert what we have expressed in words into a mathematical formula. So eigenvectors are those vectors to which when a matrix is applied they do not change, at most they lengthen or shorten.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-12.png" alt="">
+
+  <figcaption>Calculate Eigenvectors (Image By Author)</figcaption>
+</figure>
+<p>In the formula A is a matrix, x is a vector and lambda is a scalar. If the condition is satisfied we say that x is an eigenvector of A with the corresponding eigenvalue lambda.</p>
+<p>By solving the previous equation we can find the value of the eigenvalues that solve the equation, let’s see how to do it.</p>
+<figure>
+  <img class="med" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-13.png" alt="">
+
+  <figcaption>Characteristic polynomial (Image By Author=</figcaption>
+</figure>
+<p>Once the eigenvalues have been found, it will suffice to substitute them into the following equation to find the eigenvectors.</p>
+<figure>
+  <img class="wide" src="images/visualized-linear-algebra-to-get-started-with-machine-learning-part-2/img-14.png" alt="">
+
+  <figcaption>Find eigenvectors (Image By Author)</figcaption>
+</figure>
+<h2><strong>Final Thoughts</strong></h2>
+<p>I hope you have found some useful insights in this article and that you have understood them without too much effort. The purpose is to get a little familiar with these terms and linear algebra elements. In this way, I hope that the next time you go to look at the documentation of sklearn or some library you will be able to better understand what that particulate function you are using is actually doing! <a href="https://emojipedia.org/smiling-face-with-smiling-eyes/">😊</a></p>
+<h2><strong>The Ends</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://march-08.github.io/digital-cv/">CV</a></p>
+<p>This article was published on <a href="https://medium.com/data-science/visualized-linear-algebra-to-get-started-with-machine-learning-part-2-2ef075edb28b">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

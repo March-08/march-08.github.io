@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Stop Using Print, and Start Debugging — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Stop Using Print, and Start Debugging</h1>
+    <p class="subtitle">Learn how to debug your Python program with Visual Studio Code.</p>
+    <p class="postdate">November 11, 2024 · Best Practices, Python</p>
+<figure>
+  <img class="wide" src="images/stop-using-print-and-start-debugging/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>I once read that in programming an error in code is called <em>bug </em>for a very specific reason. When computers were still huge mainframes (a long, long time ago) it happened that a bug got stuck in the gears and that’s why the program wouldn’t run anymore!</p>
+<p>Today by bugs we mean a very different thing. Everyone, even the most experienced and paid programmers in the world write code that contains bugs, but the skill lies in finding them. In this article, we find out how!</p>
+<h2><strong>Print and Jupyter Notebooks</strong></h2>
+<p>It is common for data scientists to write code using Jupyter Notebooks or Google Colab. I too find that they are super convenient to use, unfortunately, though debugging is not as convenient.</p>
+<p>In these notebooks, we can split our code into cells, that way at the end of the execution of a cell, we can print out all the values of the variables we are interested in, and see if anything has gone wrong. Or at least we can get an idea of what’s going on inside the code.</p>
+<p>Even in cases where we do not use notebooks, we often use print() to figure out the value of variables and thus understand why the code behaved a certain way and fix it.</p>
+<p>For example, suppose we want to execute the following code.</p>
+<pre><code>admin = get_user_input() #returns user input
+
+if admin == 'admin':
+  print(f'welcome {admin}')</code></pre>
+<p>With the previous code, we know we have the variable admin. When this variable takes the value <em>‘admin’</em> we want to greet our admin.</p>
+<p>We find, however, that this condition never occurs, even when it should occur, since it is our admin who is using the program.</p>
+<p>Then what novice programmers generally do is go and print out the admin variable and figure out what’s wrong.</p>
+<pre><code>admin = get_user_input() #returns user input
+print('The value of admin is : ' , admin)
+
+if admin == 'admin':
+  print(f'welcome {admin} ')</code></pre>
+<p>We note that the result of this print is as follows.</p>
+<pre><code>The value of admin is : admin\
+</code></pre>
+<p>And we find that our <em>get_user_input </em>function returns one* </p>
+<ul>
+  <li>extra and that is why the condition never occurs. We are then ready to fix our code and run everything.<strong> Bug found</strong>!</li>
+</ul>
+<p>But is this the best way to find the bug? Not really. In such simple cases where we have 4 lines of code maybe it is okay, but in more complex projects you have to prefer the debugger tool that is provided by various IDEs.</p>
+<h2><strong>Debug with VSCode</strong></h2>
+<p><strong>IDE</strong> stands for Integrated Development Environment and is a tool that allows you to write code by providing very useful tools such as a debugger.</p>
+<p>In this article, we will look at the<strong> VSCode debugger </strong>but they all work pretty much the same, so even if you use PyCharm or any other IDE don’t worry.</p>
+<p>Let’s start by writing a simple code in Python in VSCode. The example code is as follows.</p>
+<pre><code>from random import random, randint
+import time
+
+class User:
+    def __init__(self, name , psw) -&gt; None:
+        self.name = name
+        self.psw = psw
+
+    def say_hello(self):
+        print(f'Hello {self.name}')
+        self.get_name_len()
+
+    def get_name_len(self):
+        print(len(self.name))
+
+    def __str__(self) -&gt; str:
+        return f"{self.name} , {self.psw}"
+
+
+if __name__ == '__main__':
+
+    for _  in range(3):
+        i = int(randint(0,10))
+
+        name = f'user_ {i}'
+        psw = f'psw_ {i}'
+        user = User(name, psw)
+        user.say_hello()</code></pre>
+<p>In this code, we created a User class, where each user is described by name and password.</p>
+<p>Plus a user has two methods, such as <em>say_hello </em>which greets the user, <em>get_name_len </em>which returns the length of the user’s name, and the <em>__str__ </em>method which defines how a user should be printed.</p>
+<p>Finally in the <em>main </em>we go to create three random users and have them use the <em>say_hello </em>method.</p>
+<p>Let’s now go to introduce an error. For example in the <em>get_name_len </em>method, we only print the length of <em>self</em> instead of <em>self.name</em>.</p>
+<pre><code>from random import random, randint
+import time
+
+class User:
+    def __init__(self, name , psw) -&gt; None:
+        self.name = name
+        self.psw = psw
+
+    def say_hello(self):
+        print(f'Hello {self.name}')
+        self.get_name_len()
+
+    def get_name_len(self):
+        print(len(self))
+
+    def __str__(self) -&gt; str:
+        return f"{self.name} , {self.psw}"
+
+if __name__ == '__main__':
+
+    for _  in range(3):
+        i = int(randint(0,10))
+
+        name = f'user_ {i}'
+        psw = f'psw_ {i}'
+        user = User(name, psw)
+        user.say_hello()</code></pre>
+<p>Now if we go to execute the code we will get the following error.</p>
+<figure>
+  <img class="wide" src="images/stop-using-print-and-start-debugging/img-02.png" alt="">
+
+  <figcaption>Error (Image By Author)</figcaption>
+</figure>
+<p>Our purpose now is to try to find the error using the VSCode debugger.</p>
+<p>The first thing to do is to insert a <strong><em>Breakpoint </strong></em>at a certain point in your code. With the Breakpoint, you tell your compiler to <strong>pause the run </strong>at that point so that you can inspect the various variables in your code, and then continue the run only when you want it to.</p>
+<p>To enter a Breakpoint click to the far left of your code and a red dot will appear.</p>
+<figure>
+  <img class="med" src="images/stop-using-print-and-start-debugging/img-03.png" alt="">
+
+  <figcaption>Breakpoint (Image By Author)</figcaption>
+</figure>
+<p>Now let’s run the code in debug mode by clicking on the following icon.</p>
+<figure>
+  <img class="portrait" src="images/stop-using-print-and-start-debugging/img-04.png" alt="">
+
+  <figcaption>Debug (Image By Author)</figcaption>
+</figure>
+<p>Once you click you will see that your code will start the run but stop almost immediately.</p>
+<p>You should now have a screen like this.</p>
+<figure>
+  <img class="med" src="images/stop-using-print-and-start-debugging/img-05.png" alt="">
+
+  <figcaption>Debug (Image By Author)</figcaption>
+</figure>
+<p>So, the yellow line with that symbol next to it, tells you where the code stopped, right where you put the Breakpoint.</p>
+<p>In the upper left corner, on the other hand, you can see the contents of your variables within the code. Many of these variables seem meaningless since they are pointers to functions you have in the code. But if you see well there should be a User variable since before the Breakpoint we have already created a user. In my case, I can see the content which is as follows.</p>
+<figure>
+  <img class="med" src="images/stop-using-print-and-start-debugging/img-06.png" alt="">
+
+  <figcaption>Variables (Image By Author)</figcaption>
+</figure>
+<p>This way I know what the content of my user variable is and I have already saved myself from writing a print().</p>
+<p>Now we can start using the main debugger commands found at the top of the bar made like this.</p>
+<figure>
+  <img class="wide" src="images/stop-using-print-and-start-debugging/img-07.png" alt="">
+
+  <figcaption>Commands (Image By Author)</figcaption>
+</figure>
+<p>The main commands are those highlighted in red. The first allows us to go forward one line of code to see what happens. The second allows us to go inside a function and see what happens. And the last one allows us to go outside the scope of a function.</p>
+<p>Since our program is now stuck on the <em>user.say_hello()</em> function let's click on the down arrow to see what happens inside this function.</p>
+<p>Once clicked you will see that the execution will continue within this function.</p>
+<figure>
+  <img class="wide" src="images/stop-using-print-and-start-debugging/img-08.png" alt="">
+
+  <figcaption>say_hello (Image By Author)</figcaption>
+</figure>
+<p>Now we need to understand what the stack is for. The stack tells you basically how many functions you are in. In fact, if you see in the lower left-hand corner now a line has been added.</p>
+<figure>
+  <img class="med" src="images/stop-using-print-and-start-debugging/img-09.png" alt="">
+
+  <figcaption>Stack (Image By Author)</figcaption>
+</figure>
+<p>This tells us that we are now in the scope of the <em>say_hello</em> function so if we exit this function by clicking the up arrow, we will be back in the main.</p>
+<p>Now let’s move forward one line of code with the <em>forward </em>command.</p>
+<figure>
+  <img class="wide" src="images/stop-using-print-and-start-debugging/img-10.png" alt="">
+
+  <figcaption>Forward Command (Image By Author)</figcaption>
+</figure>
+<p>Now that we are over another function, we click the down arrow to go inside the function itself.</p>
+<figure>
+  <img class="wide" src="images/stop-using-print-and-start-debugging/img-11.png" alt="">
+
+  <figcaption>Stack (Image By Author)</figcaption>
+</figure>
+<p>You see that because we have entered inside another function the stack has increased, so we are in a function inside a function (no, this isn’t Inception).</p>
+<p>Obviously, we can enter more than one unique Breakpoint. So let’s stop the debug and relaunch it by entering 2 Breakpoints this time.</p>
+<figure>
+  <img class="med" src="images/stop-using-print-and-start-debugging/img-12.png" alt="">
+
+  <figcaption>Two Breakpoints (Image By Author)</figcaption>
+</figure>
+<p>So in this case by clicking on <em>forward</em>, we are going to stop at the second Breakpoint.</p>
+<p>If we now click forward again, the code will go to stop, but this time because <strong>we found the error</strong>!</p>
+<figure>
+  <img class="wide" src="images/stop-using-print-and-start-debugging/img-13.png" alt="">
+
+  <figcaption>Error Found (Image By Author)</figcaption>
+</figure>
+<p>We succeeded in our intent. Error found, and we did not dirty our code with useless prints!</p>
+<p>Only one thing remains to be said. What is the watch section for? Well, to look at variables.</p>
+<p>Suppose we save all our users in a list.</p>
+<pre><code>from random import random, randint
+import time
+
+class User:
+    def __init__(self, name , psw) -&gt; None:
+        self.name = name
+        self.psw = psw
+
+    def say_hello(self):
+        print(f'Hello {self.name}')
+        self.get_name_len()
+
+    def get_name_len(self):
+        print('ciao')
+        print(len(self.name))
+
+    def __str__(self) -&gt; str:
+        return f"{self.name} , {self.psw}"
+
+
+if __name__ == '__main__':
+
+    users = []
+    for _  in range(3):
+        i = int(randint(0,10))
+
+        name = f'user_ {i}'
+        psw = f'psw_ {i}'
+        user = User(name, psw)
+        user.say_hello()
+        users.append(user)
+
+    print('end of this tutorial')</code></pre>
+<p>Now we want to see what happens to this list as we go through the code.</p>
+<p>So let’s click on the plus button and add the viable users under watch. In fact, let’s add <em>len(users) </em>as well.</p>
+<figure>
+  <img class="wide" src="images/stop-using-print-and-start-debugging/img-14.png" alt="">
+
+  <figcaption>Watch (Image By Author)</figcaption>
+</figure>
+<p>Now as you move forward with your code with the forward command, you will see the list fills up and you will be able to inspect the objects within it.</p>
+<figure>
+  <img class="wide" src="images/stop-using-print-and-start-debugging/img-15.png" alt="">
+
+  <figcaption>After some iterations (Image By Author)</figcaption>
+</figure>
+<h2><strong>Final Thoughts</strong></h2>
+<p>Well, these are the basics of using the debugger. It is a very useful and easy tool to use. Of course like all things, you have to get used to it. So the next time you have problems with your code, force yourself to use the debugger instead of using prints and you will see that in no time you will be automatically using it all the time!</p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://march-08.github.io/digital-cv/">CV</a></p>
+<p>This article was published on <a href="https://medium.com/data-science/stop-using-print-and-start-debugging-3cd11524c92a">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

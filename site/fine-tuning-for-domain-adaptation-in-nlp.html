@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Fine-Tuning for Domain Adaptation in NLP — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Fine-Tuning for Domain Adaptation in NLP</h1>
+    <p class="subtitle">Create your custom model and upload it on Hugging Face.</p>
+    <p class="postdate">October 15, 2024 · Fine-tuning, NLP</p>
+<figure>
+  <img class="wide" src="images/fine-tuning-for-domain-adaptation-in-nlp/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>Often when we want to solve an NLP problem, we use pre-trained language models, obviously being careful to choose the most appropriate model that has been fine-tuned on the language of our interest.</p>
+<p>For example, if I’m working on a project that is based on the Italian language I will use models such as <a href="https://huggingface.co/dbmdz/bert-base-italian-xxl-cased"><em>dbmdz/bert-base-italian-xxl-cased</em></a><em> </em>or <a href="https://huggingface.co/dbmdz/bert-base-italian-xxl-uncased"><em>dbmdz/bert-base-italian-xxl-uncased</em></a>.</p>
+<p><strong>These language modelsusually work very well on generic text, but often do not fit well when we use them in a specific domain</strong>, for example, if we use them in a medical or scientific domain which has its <strong>peculiar language</strong>. For this purpose, we need to apply <strong>domain adaptation</strong>!</p>
+<p>Domain adaptation, it’s when we fine-tune a pre-trained model on a new dataset, and it gives predictions that are more adapted to that dataset.</p>
+<h2><strong>What does fine-tuning mean?</strong></h2>
+<blockquote><p>Fine-tuning in NLP refers to the procedure of re-training a pre-trained language model using your own custom data. As a result of the fine-tuning procedure, the weights of the original model are updated to account for the characteristics of the domain data and the task you are interested in.</p></blockquote>
+<figure>
+  <img class="wide" src="images/fine-tuning-for-domain-adaptation-in-nlp/img-02.png" alt="Image By Author">
+  <figcaption>Image By Author</figcaption>
+</figure>
+<p>In our case we will fine-tune using a<strong> masked language model task (MLM)</strong>. In other words our dataset will not have prefixed labels, but for each sentence<strong> some words will be hidden </strong>(masked), and<strong> the model will have to guess</strong> which are the hidden words.</p>
+<h2><strong>Dataset</strong></h2>
+<p>The<strong> datase</strong>t we are going to use for this purpose is public and can be found on kaggle at this <a href="https://www.kaggle.com/datasets/mrisdal/fake-news">link</a>. This <strong>dataset contains around 13k news</strong>. We are only interested about the content of the review, so you only need to use the <em>text </em>column. In this article I will not describe the procedure to download the dataset from kaggle and extract the csv file, in case you have problems you can read the other articles I posted on TDS.</p>
+<h2><strong>Hands-On</strong></h2>
+<p>Let’s import all the libraries that we will need first.</p>
+<pre><code class="language-python">!pip install -q transformers
+!pip install -q datasets
+
+import multiprocessing
+import pandas as pd
+import numpy as np
+import torch
+import matplotlib.pyplot as plt
+import transformers
+
+from sklearn.model_selection import train_test_split
+from datasets import Dataset
+from transformers import AutoModelForMaskedLM
+from transformers import AutoTokenizer, AutoConfig
+from transformers import BertForMaskedLM, DistilBertForMaskedLM
+from transformers import BertTokenizer, DistilBertTokenizer
+from transformers import RobertaTokenizer, RobertaForMaskedLM
+from transformers import Trainer, TrainingArguments
+from transformers import DataCollatorForLanguageModeling
+from tokenizers import BertWordPieceTokenizer</code></pre>
+<p>Let’s define the hyperparameters needed for the model training. (Feel free to play with them if you have enough computational power!)</p>
+<pre><code class="language-python"># HYPERPARAMS
+SEED_SPLIT = 0
+SEED_TRAIN = 0
+
+MAX_SEQ_LEN = 128
+TRAIN_BATCH_SIZE = 16
+EVAL_BATCH_SIZE = 16
+LEARNING_RATE = 2e-5 
+LR_WARMUP_STEPS = 100
+WEIGHT_DECAY = 0.01</code></pre>
+<p>Let’s start with data preparation. Load your csv file, split it and transform it to a Dataset object.</p>
+<pre><code class="language-python"># load data
+dtf_mlm = pd.read_csv('news-adaptive-tuning_dataset.csv')
+#dtf_mlm = dtf_mlm.rename(columns={"review_content": "text"})
+
+# Train/Valid Split
+df_train, df_valid = train_test_split(
+    dtf_mlm, test_size=0.15, random_state=SEED_SPLIT
+)
+
+len(df_train), len(df_valid)
+
+# Convert to Dataset object
+train_dataset = Dataset.from_pandas(df_train[['text']].dropna())
+valid_dataset = Dataset.from_pandas(df_valid[['text']].dropna())</code></pre>
+<p>Now you have to choose your strating model and tokenizer. I like to use distilbert because it’s light and faster to train.</p>
+<pre><code class="language-python">'''
+bert-base-uncased  # 12-layer, 768-hidden, 12-heads, 109M parameters
+distilbert-base-uncased  # 6-layer, 768-hidden, 12-heads, 65M parameters
+'''
+
+MODEL = 'bert'
+bert_type = 'bert-base-cased'
+
+if MODEL == 'distilbert':
+    TokenizerClass = DistilBertTokenizer 
+    ModelClass = DistilBertForMaskedLM 
+elif MODEL == 'bert':
+    TokenizerClass = BertTokenizer
+    ModelClass = BertForMaskedLM 
+elif MODEL == 'roberta':
+    TokenizerClass = RobertaTokenizer
+    ModelClass = RobertaForMaskedLM
+elif MODEL == 'scibert':
+    TokenizerClass = AutoTokenizer
+    ModelClass = AutoModelForMaskedLM
+
+
+tokenizer = TokenizerClass.from_pretrained(
+            bert_type, use_fast=True, do_lower_case=False, max_len=MAX_SEQ_LEN
+            )
+model = ModelClass.from_pretrained(bert_type)</code></pre>
+<p>In order to feed the model, we need to tokenize our dataset.</p>
+<pre><code class="language-python">def tokenize_function(row):
+    return tokenizer(
+        row['text'],
+        padding='max_length',
+        truncation=True,
+        max_length=MAX_SEQ_LEN,
+        return_special_tokens_mask=True)
+  
+column_names = train_dataset.column_names
+
+train_dataset = train_dataset.map(
+    tokenize_function,
+    batched=True,
+    num_proc=multiprocessing.cpu_count(),
+    remove_columns=column_names,
+)
+
+valid_dataset = valid_dataset.map(
+    tokenize_function,
+    batched=True,
+    num_proc=multiprocessing.cpu_count(),
+    remove_columns=column_names,
+)</code></pre>
+<p>Now we can actually train our model. The <em>DataCollatorForLanguageModeling </em>is a function that allows us to train the model on masked language task very easily.</p>
+<pre><code class="language-python">data_collator = DataCollatorForLanguageModeling(
+    tokenizer=tokenizer, mlm=True, mlm_probability=0.15
+)
+
+
+steps_per_epoch = int(len(train_dataset) / TRAIN_BATCH_SIZE)
+
+training_args = TrainingArguments(
+    output_dir='./bert-news',
+    logging_dir='./LMlogs',             
+    num_train_epochs=2,
+    do_train=True,
+    do_eval=True,
+    per_device_train_batch_size=TRAIN_BATCH_SIZE,
+    per_device_eval_batch_size=EVAL_BATCH_SIZE,
+    warmup_steps=LR_WARMUP_STEPS,
+    save_steps=steps_per_epoch,
+    save_total_limit=3,
+    weight_decay=WEIGHT_DECAY,
+    learning_rate=LEARNING_RATE, 
+    evaluation_strategy='epoch',
+    save_strategy='epoch',
+    load_best_model_at_end=True,
+    metric_for_best_model='loss', 
+    greater_is_better=False,
+    seed=SEED_TRAIN
+)
+
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    data_collator=data_collator,
+    train_dataset=train_dataset,
+    eval_dataset=valid_dataset,
+    tokenizer=tokenizer,
+)
+
+trainer.train()
+trainer.save_model("your_path/model") #save your custom model</code></pre>
+<h2><strong>Perplexity Evaluation</strong></h2>
+<p>Is the custom model you created really better than the source model? To understand if there have been improvements we can calculate the perplexity of the model! If you are interested in this metric read this <a href="https://towardsdatascience.com/perplexity-in-language-models-87a196019a94">article</a>.</p>
+<pre><code class="language-python">tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased', use_fast = False, do_lower_case=True)
+model = AutoModelForMaskedLM.from_pretrained('bert-base-uncased')
+
+trainer = Trainer(
+  model=model,
+  data_collator=data_collator,a
+  #train_dataset=tokenized_dataset_2['train'],
+  eval_dataset=valid_dataset,
+  tokenizer=tokenizer,
+  )
+
+eval_results = trainer.evaluate()
+
+print('Evaluation results: ', eval_results)
+print(f"Perplexity: {math.exp(eval_results['eval_loss']):.3f}")
+print('----------------\
+')</code></pre>
+<pre><code class="language-python">
+import glob
+import math
+
+path = "your_path/model"
+
+for modelpath in glob.iglob(path):
+  print('Model: ', modelpath)
+  tokenizer = AutoTokenizer.from_pretrained(modelpath, use_fast = False, do_lower_case=True)
+  model = AutoModelForMaskedLM.from_pretrained(modelpath)
+
+  trainer = Trainer(
+    model=model,
+    data_collator=data_collator,
+    #train_dataset=tokenized_dataset_2['train'],
+    eval_dataset=valid_dataset,
+    tokenizer=tokenizer,
+    )
+  
+  eval_results = trainer.evaluate()
+
+  print('Evaluation results: ', eval_results)
+  print(f"Perplexity: {math.exp(eval_results['eval_loss']):.3f}")
+  print('----------------\
+')
+  </code></pre>
+<p>Hopefully you noticed an improvement in the model perplexity!</p>
+<h2><strong>Publish your custom model on Hugging Face!</strong></h2>
+<p>If you trained your model on a personal dataset, or a particular dataset you created yourself, your model could probably be useful to someone else. Upload it to your Hugging Face account with just a few lines of code!</p>
+<p>First of all create a personal account on Hugging Face, and then run the following commands.</p>
+<pre><code class="language-python">!pip install huggingface_hub
+
+#login hugging face
+from huggingface_hub import notebook_login
+notebook_login()
+
+
+#push your model
+model = DistilBertForMaskedLM.from_pretrained("your_path/model")
+tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path = "your_path/model")
+
+model.push_to_hub("cool-name-of-your-model")
+tokenizer.push_to_hub("cool-name-of-your-model")</code></pre>
+<p>Done! Now your model is on Hugging Face and anyone can download and use it! Thank you for your contribution!</p>
+<h2><strong>Conclusion</strong></h2>
+<p>If you also enjoyed creating your own custom language model and posting it on Hugging Face, please continue to create new ones and make them available to the community.</p>
+<p>If you want to have a look to my model trained on space articles (remote sensors, satellites,…) here it is:</p>
+<a class="linkcard" href="https://huggingface.co/Chramer/remote-sensing-distilbert-cased?source=post_page-----c47def356fd6---------------------------------------"><img class="lc-icon" src="images/favicons/huggingface.co.png" alt=""><span class="lc-body"><span class="lc-title">Chramer/remote-sensing-distilbert-cased · Hugging FaceThe field of earth observation is increasingly growing. More and more data scientists are interested about this domain…huggingface.co</span><span class="lc-domain">huggingface.co</span></span></a>
+<h2><strong>The End</strong></h2>
+<p>Author : <em>Marcello Politi</em></p>
+<a class="linkcard" href="https://www.linkedin.com/in/marcello-politi/"><img class="lc-icon" src="images/favicons/linkedin.com.png" alt=""><span class="lc-body"><span class="lc-title">Linkedin, Twitter</span><span class="lc-domain">linkedin.com</span></span></a>
+<p>This was published on <a href="https://medium.com/data-science/fine-tuning-for-domain-adaptation-in-nlp-c47def356fd6">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

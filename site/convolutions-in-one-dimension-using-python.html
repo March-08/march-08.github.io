@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Convolutions in One Dimension using Python — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>Convolutions in One Dimension using Python</h1>
+    <p class="subtitle">Learn the building blocks of CNNs and stop getting size mismatch errors.</p>
+    <p class="postdate">November 20, 2024 · CNN, Python, Convolution</p>
+<figure>
+  <img class="wide" src="images/convolutions-in-one-dimension-using-python/img-01.webp" alt="">
+</figure>
+<p>I often see people who want to learn how to develop deep learning applications very quickly, they learn the basics of some library like PyTorch or Tensorflow but then they haven’t really understood what’s behind those magical functions that they use so superficially. It so happens, not infrequently, that when something doesn’t work or you need to customize some function nobody knows where to start.</p>
+<p>When one is interested in computer vision one often starts to study Convolution Neural Networks, and from high levels, they are very understandable. But sometimes when my friends or colleagues are not dealing with images in two dimensions but have to use convolutions in one dimension (because they have to process a signal for example) they get very confused because they can’t imagine what is going on. This is because they have not fully understood CNNs building blocks. Hence the name of this article.</p>
+<h2><strong>Introduction 📚</strong></h2>
+<p>In 1959 David H. Hubel and Torsten Wiesel discovered a peculiar functioning of the human visual cortex. Neurons were activated differently depending on the image a person was looking at. Specifically, there were levels in the visual cortex. The first level was activated when looking at images with edges, the second level when adding details to the image, and so on…</p>
+<p>Convolution Neural Networks are inspired by this very functioning. As you may know, they are divided into layers where each layer tries to extract features from the initial image being processed.</p>
+<p>The first CNN was developed in the 1990s by <strong>Yann LeCun </strong>and is described in the famous paper <a href="https://papers.nips.cc/paper/1989/file/53c3bce66e43be4f209556518c2fcb54-Paper.pdf"><em>Handwritten Digit Recognition with a Back-Propagation Network</em></a>.</p>
+<h2><strong>A bit of Background 👨🏼‍🎓</strong></h2>
+<p>When developing a Machine Learning algorithm one of the most important things if not the most important thing is to extract the most relevant features, which is done in the feature engineering part of the project. In CNNs this process is done automatically by the network. Particularly in the early layers the network tries to extract the most important features of the image such as edges and shapes. In the last layers, on the other hand, it will be able to combine the various features to extract more complex features such as an eye or a mouth, which could be useful if, for example, we want to create a classifier of human images.</p>
+<p>Let’s think of an image of a dog. We want to find an ear in this image to make sure there is a dog. We can create a <strong>filter </strong>or <strong>kernel </strong>that will run over the whole image a piece at a time to see if it can find an ear at various points in the image.</p>
+<figure>
+  <img class="wide" src="images/convolutions-in-one-dimension-using-python/img-02.png" alt="">
+
+  <figcaption>Feature Map (Image By Author)</figcaption>
+</figure>
+<p>In the image, we have a set of weights (kernel) in purple that when multiplied by the pixel value of the input image tell us whether an ear is present or a chin is. How did we create these weight parameters? Well …at random! It will be the training of the network that will slowly learn the right weight parameters.</p>
+<p>The resulting output (in orange) is called a <strong>feature map</strong>.</p>
+<p>Often after a convolution, so after getting a feature map we have pooling layers that go to summarize even more information, then we’ll have another convolution and so on — but we don’t talk about the other layers in this article.</p>
+<h2><strong>Convolutions in One Dimension 💻</strong></h2>
+<p>We have intuitively understood how convolutions work to extract features from images. But convolutions are also often used with other types of data such as text, this is because <strong>convolution is nothing more than a formula</strong> that we need to understand how it works.</p>
+<p><strong>Convolution in one dimension is defined between two vectors and not between matrices as is often the case in images</strong>.</p>
+<p>So we will have a <em>vector x</em> which will be our input, and a <em>kernel w </em>which will be a second vector.</p>
+<figure>
+  <img class="wide" src="images/convolutions-in-one-dimension-using-python/img-03.png" alt="">
+
+  <figcaption>Convolution Formula (Image by Author)</figcaption>
+</figure>
+<p>The symbol <strong></strong><em> denotes the convolution (it is not multiplication). </em>Y[i]<em> is the entry </em>i<em> of the resultant vector </em>y*.</p>
+<p>First, if you notice the extremes of the summation go from<em> -inf </em>to <em>+inf</em>, but this in Machine Learning does not make much sense. We usually prefix a certain size. Let’s say the input vector must have a size of 12. But what happens if the vector is smaller than the prefixed size? Well, we can add <strong>zeros at the beginning and end of the vector </strong>to make it the right size, this technique is called <strong>padding</strong>.</p>
+<figure>
+  <img class="wide" src="images/convolutions-in-one-dimension-using-python/img-04.png" alt="">
+
+  <figcaption>Padding (Image By Author)</figcaption>
+</figure>
+<p>Then we assume that the original input <em>x</em> and the filter <em>w </em>had sizes <em>n </em>and <em>m</em> respectively, with <em>n ≤ m</em>. Then the input with padding will have size <em>n + 2p</em>. And the original formula will become as follows.</p>
+<figure>
+  <img class="wide" src="images/convolutions-in-one-dimension-using-python/img-05.png" alt="">
+
+  <figcaption>Convolution Formula (Image By Author)</figcaption>
+</figure>
+<p>From the above formula, we can notice one thing. What we do is scroll the cells of the <em>x_p</em> vector and the <em>w </em>vector. Though, the vector <em>x_p </em>is scrolled from right to left and w from left to right. But then we can simply invert the vector <em>w </em>and perform the vector product between <em>x_p </em>and <em>w_rotated</em>.</p>
+<p>Let’s visually see what happens. First, we rotate the filter.</p>
+<figure>
+  <img class="wide" src="images/convolutions-in-one-dimension-using-python/img-06.png" alt="">
+
+  <figcaption>Filter rotation (Image By Author)</figcaption>
+</figure>
+<p>What the initial formula tells us to do is to make the vector product between the two vectors, considering only a portion of the initial vector. This portion is called the <strong>local receptive field</strong>. We then slide the vector <em>w_r </em>by two positions each time, in which case we will say we are using a <strong>stride = 2</strong>. The latter is also a hyperparameter of the network that we will need to optimize.</p>
+<figure>
+  <img class="med" src="images/convolutions-in-one-dimension-using-python/img-07.png" alt="">
+
+  <figcaption>Convolution in 1D with stride =2 (Image By Author)</figcaption>
+</figure>
+<h2><strong>Padding ️⃣</strong></h2>
+<p>You should note that according to the padding mode we use we give more or less emphasis to some of the input cells. In the previous case, the cell <em>x[0]</em> was considered only once when we computed the output <em>y[0]</em>. Instead, the <em>x[2]</em> cell was considered in both the computation of <em>y[1]</em> and <em>y[2]</em>, so it had more importance. We can also handle this importance for cells at the boundaries of the vector by using padding.</p>
+<p>There are 3 different types of padding:</p>
+<p>1. <strong>Full mode</strong>: padding parameter <em>p</em> is set to <em>p = m-1</em>, where <em>m</em> is the kernel size. This padding causes the output to be larger than the input and is therefore rarely used.</p>
+<p>2. <strong>Same mode</strong>: is used to make sure that the output has the same size as the input. For example, in Computer Vision the output image will be the same size as the input image and is therefore often the most commonly used.</p>
+<p>3. <strong>Valid mode</strong>: when p =0, so we do not use padding.</p>
+<p><strong>How to determine the convolution output size?</strong></p>
+<p>Many people often get confused about the input and output sizes of the various layers of a CNN, and fight against mismatch errors! Actually figuring out how much will be the output size from a convolutional layer is quite simple.</p>
+<p>Suppose we have an input <em>x,</em> a kernel <em>w</em> and want to compute the convolution <em>y = x</em>w*.</p>
+<p>The parameters to be considered will be the size <em>n</em> of <em>x</em>, the size <em>m</em> of <em>w</em> the <em>padding p</em> and the <em>stride s</em>. The size <em>o</em> of the output will then be given by the following formula:</p>
+<figure>
+  <img class="wide" src="images/convolutions-in-one-dimension-using-python/img-08.png" alt="">
+
+  <figcaption>Convolution output dimension (Image by Author)</figcaption>
+</figure>
+<p>The symbols ⌊⌋ indicate the floor operation. For example ⌊2.4⌋ = 2.</p>
+<p>Let’s see how to apply the formula with examples:</p>
+<figure>
+  <img class="wide" src="images/convolutions-in-one-dimension-using-python/img-09.png" alt="">
+
+  <figcaption>Example 1 (Image By Author)</figcaption>
+</figure>
+<p>In this first example, we see that the output size is the same as the input size, so we infer that we used the same mode padding.</p>
+<p>We see another example where we change the kernel size and stride.</p>
+<figure>
+  <img class="wide" src="images/convolutions-in-one-dimension-using-python/img-10.png" alt="">
+
+  <figcaption>Example 2 (Image By Author)</figcaption>
+</figure>
+<h2><strong>Let’s code! ⌨️</strong></h2>
+<p>If you are still a little confused so far, no problem. Let’s start getting our hands dirty with the code and things will be much clearer.</p>
+<pre><code class="language-python">import numpy as np
+
+
+def conv1D(x,w, p=0 , s=1): 
+  '''
+  x : input vector
+  w : filter
+  p : padding size
+  s : stride
+  '''
+  assert len(w) &lt;= len(x), "x should be bigger than w"
+  assert p &gt;= 0, "padding cannot be negative"
+
+  w_r = np.array(w[::-1]) #rotation of w 
+  x_padded = np.array(x)
+
+  if p &gt; 0 :
+    zeros = np.zeros(shape = p)
+    x_padded = np.concatenate([zeros, x_padded, zeros]) #add zeros around original vector
+
+  out = []
+  #iterate through the original array s cells per step
+  for i in range(0, int((len(x_padded) - len(w_r))) + 1 , s):
+    out.append(np.sum(x_padded[i:i + w_r.shape[0]] * w_r)) #formula we have seen before
+  return np.array(out)</code></pre>
+<p>Let’s try running this function on some real data and see the results. Let’s compare the result with NumPy's built-in function that calculates the convolution result automatically.</p>
+<pre><code class="language-python">x = [3,6,8,2,1,4,7,9]
+w = [4 ,0, 6, 3, 2]
+
+conv1D(x,w,2,1)
+
+'''
+&gt;&gt;&gt; array([50., 53., 76., 64., 56., 67., 56., 83.])
+'''
+
+np.convolve(x , w, mode = 'same')
+
+'''
+&gt;&gt;&gt; array([50., 53., 76., 64., 56., 67., 56., 83.])
+'''</code></pre>
+<h2><strong>Final Thoughts 🤔</strong></h2>
+<p>As you have seen, the result of the function we developed and that of NumPy's convolve method are the same. Convolution is an essential element of convolution neural networks and thus of modern computer vision. We often immediately start implementing sophisticated algorithms without understanding the building blocks of which it is composed. In my opinion, in the beginning, losing a little time to see in more detail the things that may seem more useless and boring can save us a lot of time in the future since we will know how to solve instantly the various errors we will find on our way. In the next article, I aim to generalize when done for the case in 2 dimensions! 👋🏽</p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://march-08.github.io/digital-cv/">CV</a></p>
+<p>This article was published on <a href="https://medium.com/data-science/convolutions-in-one-dimension-using-python-54d743f18063">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

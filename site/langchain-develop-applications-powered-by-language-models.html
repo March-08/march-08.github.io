@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>LangChain: Develop Applications Powered by Language Models — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>LangChain: Develop Applications Powered by Language Models</h1>
+    <p class="subtitle">Get started using LangChain with Python to leverage LLMs.</p>
+    <p class="postdate">July 26, 2024 · LangChain, LLM</p>
+<figure>
+  <img class="med" src="images/langchain-develop-applications-powered-by-language-models/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p><strong>LangChain is a framework that enables quick and easy development of applications that make use of Large Language Models</strong>, for example, GPT-3.</p>
+<p>The framework, however, introduces additional possibilities, for example, the one of easily using external data sources, such as Wikipedia, to amplify the capabilities provided by the model. I am sure that you have all probably tried to use Chat-GPT and find that it fails to answer about events that occurred beyond a certain date. In this case, a search on Wikipedia could help GPT to answer more questions.</p>
+<h2><strong>LangChain Structure</strong></h2>
+<p>The framework is organized into six modules each module allows you to manage a different aspect of the interaction with the LLM. Let’s see what the modules are.</p>
+<ul>
+  <li><a href="https://python.langchain.com/en/latest/modules/models.html"><strong>Models</strong></a>: Allows you to instantiate and use different models.</li>
+  <li><a href="https://python.langchain.com/en/latest/modules/prompts.html"><strong>Prompts</strong></a>: The prompt is how we interact with the model to try to obtain an output from it. By now knowing how to write an effective prompt is of critical importance. This framework module allows us to better manage prompts. For example, by creating templates that we can reuse.</li>
+  <li><a href="https://python.langchain.com/en/latest/modules/indexes.html"><strong>Indexes</strong></a>: The best models are often those that are combined with some of your textual data, in order to add context or explain something to the model. This module helps us do just that.</li>
+  <li><a href="https://python.langchain.com/en/latest/modules/chains.html"><strong>Chains</strong></a>: Many times to solve tasks a single API call to an LLM is not enough. This module allows other tools to be integrated. For example, one call can be a composed chain with the purpose of getting information from Wikipedia and then giving this information as input to the model. This module allows multiple tools to be concatenated in order to solve complex tasks.</li>
+  <li><a href="https://python.langchain.com/en/latest/modules/memory.html"><strong>Memory</strong></a>: This module allows us to create a persisting state between calls of a model. Being able to use a model that remembers what has been said in the past will surely improve our application.</li>
+  <li><a href="https://python.langchain.com/en/latest/modules/agents.html"><strong>Agents</strong></a>: An agent is an LLM that makes a decision, takes an action, makes an observation about what it has done, and continues in this manner until it can complete its task. This module provides a set of agents that can be used.</li>
+</ul>
+<p>Now let’s go into a little more detail and see how to implement code by taking advantage of the different modules.</p>
+<h2><strong>Models</strong></h2>
+<p><em>Models </em>allows the use of three different types of language-models, which are:</p>
+<ul>
+  <li><strong>Large Language Models (LLMs):</strong> these foundational machine learning models that are able to understand natural language. These accept strings in input and generate strings in output.</li>
+  <li><strong>Chat Models: </strong>models powered by LLM but are specialized to chat with the user. You can read more <a href="https://medium.com/aiguys/reinforcement-learning-from-human-feedback-instructgpt-and-chatgpt-693d00cb9c58">here</a>.</li>
+  <li><strong>Text Embedding Models: </strong>these models are used to project textual data into a geometric space. These models take text as input and return a list of numbers, the embedding of the text.</li>
+</ul>
+<figure>
+  <img class="wide" src="images/langchain-develop-applications-powered-by-language-models/img-02.png" alt="">
+
+  <figcaption>Open AI API Key</figcaption>
+</figure>
+<p>Let’s start using this module. First, we install and import the libraries. To use this library you will need an API KEY from the open AI site.</p>
+<pre><code>!pip install langchain &gt;&gt; null
+!pip install openai &gt;&gt; null</code></pre>
+<pre><code class="language-python">from langchain.llms import OpenAI</code></pre>
+<pre><code class="language-python">#past you api key here
+
+import os
+os.environ['OPENAI_API_KEY'] = "yuor-openai-key"</code></pre>
+<p>Now we are ready to instantiate a LLM model.</p>
+<pre><code class="language-python">llm = OpenAI(model_name="text-ada-001", n=2, best_of=2)</code></pre>
+<pre><code class="language-python">llm("tell me a story please.")</code></pre>
+<p><strong><em>My Output</strong>:</em> <em>A young woman went to a rave she had never heard of. She was the only person there with a light in the dark, and the only one who could see the good in people. She drank and danced and did anything to make it so. After hour after hour of dancing and drinkin', she got to know one of the people in the party. He was a bit of a looking man, with a moustache and a goatee. She said, "Hi, I'm the only person there with a light in the dark." He said, "Hi, I'm the only person there with a light in the dark.</em></p>
+<p>With the generate() method you can also feed a list of input and receive multiple answers, let’s see how.</p>
+<pre><code class="language-python">llm_result = llm.generate(["Tell me a short story", "whath is your favourite colour?", "Is the earth flat?"])</code></pre>
+<figure>
+  <img class="wide" src="images/langchain-develop-applications-powered-by-language-models/img-03.png" alt="">
+
+  <figcaption>llm.generate output</figcaption>
+</figure>
+<p>You can also extract some additional information about the results of the large language model.</p>
+<pre><code class="language-python">llm_result.llm_output</code></pre>
+<p><strong><em>My Output:</strong> {‘token_usage’: {‘completion_tokens’: 527, ‘total_tokens’: 544, ‘prompt_tokens’: 17}, ‘model_name’: ‘text-ada-001’}</em></p>
+<p>LLMs are not able to understand input texts that are too long. In particular, text that contains too many tokens (think about the syllables of words if you don’t know what tokens are). Before passing the string into the model you can estimate the number of tokens with a simple method.</p>
+<p>In order to do this you need to install the <a href="https://github.com/openai/tiktoken">tiktoken</a> library.</p>
+<pre><code class="language-python">!pip install tiktoken &gt;&gt; None
+import tiktoken</code></pre>
+<pre><code class="language-python">llm.get_num_tokens("How many old are you?")
+
+#OUTPUT : 6</code></pre>
+<h2><strong>Prompts</strong></h2>
+<p>Prompting is the new way of programming NLP models. Creating a good prompt though is not trivial. Asking the same thing in a different way can lead to a different result that is more or less accurate. The prompt can also change depending on the use case you are facing. Let’s see how this module can help us create a good prompt.</p>
+<h2><strong>Prompt Template</strong></h2>
+<p>As the name implies, the prompt template allows us to create templates that we can reuse to ask things of our model. The template will contain variables that will be the only thing that the user will change from time to time to adapt the prompt to its particular use case.</p>
+<p>Let us now see how they can be used.</p>
+<pre><code class="language-python">from langchain import PromptTemplate
+
+template = """
+I want you to act as businessman.
+
+You have few passions in your life which are:
+
+- Money
+- Data
+- Basketball
+
+I want to write a Medium Blog post about {product}.
+What is a good for a title of such post?
+"""
+
+prompt = PromptTemplate(
+    input_variables=["product"],
+    template=template,
+)</code></pre>
+<p>Now we can replace the variable ‘product’ within the prompt with whatever string we want. This way we can customize the prompt any way we like.</p>
+<pre><code class="language-python">prompt.format(product = "how to make a bunch of money")</code></pre>
+<p><strong><em>My Outupt: </strong>I want you to act as businessman. You have few passions in your life which are:- Money- Data- Basketball. I want to write a Medium Blog post about how to make a bucnh of money. What is a good for a title of such post?</em></p>
+<p>There are templates that have already been written and you can simply import them. To find out what they are you can look at the documentation. Let’s try to import one now.</p>
+<pre><code class="language-python">from langchain.prompts import load_prompt
+
+prompt = load_prompt("lc://prompts/conversation/prompt.json")
+prompt</code></pre>
+<p><strong>*My Outupt: </strong>PromptTemplate(input_variables=[‘history’, ‘input’], output_parser=None, partial_variables={}, template=’The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.</p>
+<p></p>
+<p>Current conversation:</p>
+<p>{history}</p>
+<p>Human: {input}</p>
+<p>AI:’, template_format=’f-string’, validate_template=True)*</p>
+<p>In this template, we have multiple variables that we can fill in. One of them is <em>history</em>. We need the history to tell the template about something that happened previously so that it has more context. If we want to request the output of the model from this template, it is very simple.</p>
+<pre><code class="language-python">llm(prompt.format(history="", input="What is 3 - 3?"))</code></pre>
+<h2><strong>Few shot examples</strong></h2>
+<p>Sometimes it happens that we want to question the Machine Learning model about things that are particularly tricky. One way to get a more accurate answer, in this case, is to show the model similar examples of the correct answer and then ask it our question. LangChain provides a method for saving templates that are designed specifically to save these examples. Let’s see how to do this.</p>
+<p>First of all, let’s create examples. In case I want to create the superlatives of the words: tall -&gt; tallest.</p>
+<pre><code class="language-python">from langchain import PromptTemplate, FewShotPromptTemplate
+
+
+# First, create the list of few shot examples.
+examples = [
+    {"word": "cool", "superlative": "coolest"},
+    {"word": "tall", "superlative": "tallest"},
+]</code></pre>
+<p>Now we create the template as done before by including two variables, one for the base word and one for the superlative.</p>
+<pre><code class="language-python"># Next, we specify the template to format the examples we have provided.
+# We use the `PromptTemplate` class for this.
+example_formatter_template = """
+Word: {word}
+Superlative: {superlative}\
+
+"""
+example_prompt = PromptTemplate(
+    input_variables=["word", "superlative"],
+    template=example_formatter_template,
+)</code></pre>
+<p>Now we combine everything with the FewShotPromptTemplate class that takes as input the examples, the template, the prefix which is usually some instruction we want to give to the template, and a suffix which is the form of the template output.</p>
+<pre><code class="language-python"># Finally, we create the `FewShotPromptTemplate` object.
+few_shot_prompt = FewShotPromptTemplate(
+    examples=examples,
+    example_prompt=example_prompt,
+
+    prefix="Give the superlative of every input",
+
+    suffix="Word: {input}\
+Superlative:",
+
+    input_variables=["input"],
+    example_separator="\
+\
+",
+)</code></pre>
+<pre><code class="language-python">print(few_shot_prompt.format(input="big"))</code></pre>
+<p><strong><em>My Output: </strong>Give the superlative of every input Word: cool Superlative: coolest Word: tall Superlative: tallest Word: big Superlative:</em></p>
+<p>Now you can feed the model and receive the actual output.</p>
+<pre><code class="language-python">llm(few_shot_prompt.format(input="large"))</code></pre>
+<h2><strong>Indexes</strong></h2>
+<p>This module is the one that allows us to interact with external documents that we want to feed to the model. This module is based on the concept of Retriever. In fact, the most common thing we want to do with this module is to go and fetch the document that most answers our query. Thus an information retrieval system. Let’s see what the Retriever interface looks like to understand it better. ( For those who don’t already know, an interface is a class that cannot be instantiated, if you want to learn more you can read my articles on <a href="https://medium.com/towards-data-science/design-patterns-with-python-for-machine-learning-engineers-observer-23cde7ecb2ed">design patterns</a>).</p>
+<pre><code class="language-python">from abc import ABC, abstractmethod
+from typing import List
+from langchain.schema import Document
+
+class BaseRetriever(ABC):
+    @abstractmethod
+    def get_relevant_documents(self, query: str) -&gt; List[Document]:
+        """Get texts relevant for a query.
+
+        Args:
+            query: string to find relevant texts for
+
+        Returns:
+            List of relevant documents
+        """</code></pre>
+<p>The <em>get_relevant_documents</em> method is very simple, you just need to know how to read English to understand what it does. The string can be changed to your liking, so if you want to modify or implement a custom Retriever it is nothing too complicated.</p>
+<p>Let’s look at a practical example now. We want to create a question-answering application about a specific document. That is, the model needs to be able to answer questions of mine about a specific document.</p>
+<p>We first need to install<em> Chroma</em> which allows us to work with <em>Vectorstores</em>, we’ll see later what it is for.</p>
+<pre><code class="language-python">!pip install chromadb &gt;&gt; null</code></pre>
+<p>Let’s import some classes we will need.</p>
+<pre><code class="language-python">from langchain.chains import RetrievalQA
+from langchain.llms import OpenAI</code></pre>
+<p>Now let’s download a txt document from the web.</p>
+<pre><code class="language-python">#download data
+import requests
+
+url = "https://raw.githubusercontent.com/hwchase17/langchain/master/docs/modules/state_of_the_union.txt"
+response = requests.get(url)
+data = response.text
+with open("state_of_the_union.txt", "w") as text_file:
+    text_file.write(data)</code></pre>
+<p>Let’s load the document with the TextLoader.</p>
+<pre><code class="language-python">from langchain.document_loaders import TextLoader
+loader = TextLoader('state_of_the_union.txt', encoding='utf8')</code></pre>
+<p>The <em>Retriever</em> always relies on what is called <em>Vectorstore</em> retriever. So we can instantiate one <em>Vectorstore retriever</em> and pass to it our text loader.</p>
+<pre><code class="language-python">index = VectorstoreIndexCreator().from_loaders([loader])</code></pre>
+<p>Now that we finally have an index, we can ask questions about the data.</p>
+<pre><code class="language-python">query = "What did Ohio Senator Sherrod Brown say?"
+index.query(query)</code></pre>
+<p><strong><em>My Output:</strong> Ohio Senator Sherrod Brown said, “It’s time to bury the label ‘Rust Belt.’”</em></p>
+<h2><strong>Chains</strong></h2>
+<p>Chains allow us to create more complicated applications. <strong>Often simply using an LLM is not enough</strong>, we want to do more. For example, we want to first create a template and then give the compiled template as input to the LLM, this can be done simply with a chain. It’s easy for me to think of chains as the Pipeline that you use in scikit-learn, for example.</p>
+<p>The LLMChain is a chain that does just that, takes an input, formats it within a template, and then passes it as input to a template.</p>
+<p>First, let’s create a simple template.</p>
+<pre><code class="language-python">from langchain.prompts import PromptTemplate
+from langchain.llms import OpenAI
+
+llm = OpenAI(temperature=0.9)
+prompt = PromptTemplate(
+    input_variables=["product"],
+    template="What is a good name for a website that sells {product}?",
+)</code></pre>
+<p>Now we create a chain by specifying the template and model to be used.</p>
+<pre><code class="language-python">from langchain.chains import LLMChain
+chain = LLMChain(llm=llm, prompt=prompt)
+
+#run the chain with the input needed for the prompt
+print(chain.run("paints"))</code></pre>
+<p>You can also create a custom chain but I’ll write a more detailed article about it.</p>
+<h2><strong>Memory</strong></h2>
+<p>Every time we interact with a model, it will give us an answer that won’t depend on the context because it doesn’t remember past events. It’s kind of like every time we are talking to a new model. <strong>In applications we usually want the model to have some kind of memory so that it learns to reply to us by improving as it goes along depending on what we said before</strong> especially if we are developing chatbots. That’s what this module is for.</p>
+<p>Memory can be implemented in a variety of ways. For example, we can take the previous N messages, and feed them to the model as a single string or as a string sequence for instance. Now let’s look at the simplest type of memory we can implement called a buffer.</p>
+<p>We can use a ChatMessageHistory class that allows us to easily save all the messages sent to the model.</p>
+<pre><code class="language-python">from langchain.memory import ChatMessageHistory</code></pre>
+<pre><code class="language-python">history = ChatMessageHistory()history.add_user_message("hello friend!")history.add_ai_message("how are you?")</code></pre>
+<p>Now we can retrieve the messages easily.</p>
+<pre><code class="language-python">history.messages</code></pre>
+<p>Now that we understand the concept, we can use a wrapper of the class we just used called ConversationBufferMemory that allows us to actually use the message history.</p>
+<pre><code class="language-python">from langchain.memory import ConversationBufferMemory</code></pre>
+<pre><code class="language-python">memory = ConversationBufferMemory()
+memory.chat_memory.add_user_message("hello friend!")
+memory.chat_memory.add_ai_message("how are you?")</code></pre>
+<pre><code class="language-python">memory.load_memory_variables({})</code></pre>
+<p>Let’s see finally how to use this feature in a chain for a chat.</p>
+<p>So let’s start by having a conversation with the model.</p>
+<pre><code class="language-python">from langchain.llms import OpenAI
+from langchain.chains import ConversationChain
+
+
+llm = OpenAI(temperature=0)
+conversation = ConversationChain(
+    llm=llm,
+    verbose=True,
+    memory=ConversationBufferMemory()
+)</code></pre>
+<pre><code class="language-python">conversation.predict(input="Hello friend!")</code></pre>
+<figure>
+  <img class="wide" src="images/langchain-develop-applications-powered-by-language-models/img-04.png" alt="">
+</figure>
+<pre><code class="language-python">conversation.predict(input="I would like to discuss about the universe")</code></pre>
+<figure>
+  <img class="wide" src="images/langchain-develop-applications-powered-by-language-models/img-05.png" alt="">
+</figure>
+<pre><code class="language-python">conversation.predict(input="Whats your favourite planet?")</code></pre>
+<figure>
+  <img class="wide" src="images/langchain-develop-applications-powered-by-language-models/img-06.png" alt="">
+</figure>
+<p>You can retrieve the old messages by accessing the memory.</p>
+<pre><code class="language-python">conversation.memory</code></pre>
+<p>Now you can save your messages to load them again and feed the model when you want to start a conversation from a certain point.</p>
+<h2><strong>Agents</strong></h2>
+<p>The kind of chains we have seen, follow predetermined steps like a pipeline. But we often don’t know what steps the model has to take to answer a given question, because it also depends on what the user answers it from time to time.</p>
+<p>We can have a model use various tools, to improve its answers. A common example is to first go and read some information on Wikipedia and then answer a particular question.</p>
+<pre><code class="language-python">from langchain.agents import load_tools
+from langchain.agents import initialize_agent
+from langchain.agents import AgentType
+from langchain.llms import OpenAI</code></pre>
+<p>We are going to use two tools in particular SERPAPI which allows the model to do browser searches and take information, llm-math to improve its math skills.</p>
+<p>To install SERPAPI you must register on the site and copy the API Token.</p>
+<p>This is the website: <a href="https://serpapi.com/">https://serpapi.com/</a></p>
+<p>Once done we install the library and set the token as an environment variable.</p>
+<pre><code class="language-python">!pip install google-search-results &gt;&gt; null
+os.environ['SERPAPI_API_KEY'] = "your token here"</code></pre>
+<p>Now we are ready to instantiate our agent with the tools it will need to use.</p>
+<p>We, therefore, need 3 things:</p>
+<ul>
+  <li>LLM: the large language model we want to use</li>
+  <li>Tools: we want to use to improve the basic LLM</li>
+  <li>Agent: handles the interaction between the LLM and Tools</li>
+</ul>
+<pre><code class="language-python">llm = OpenAI(model_name="text-ada-001")</code></pre>
+<pre><code class="language-python">tools = load_tools(["serpapi", "llm-math"], llm=llm)</code></pre>
+<pre><code class="language-python">agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)</code></pre>
+<p>Now we can ask our model a question, relying on the fact that it is going to use the various tools available to it to answer us.</p>
+<pre><code class="language-python">agent.run("How old isJoe Biden? What is his current age raised to the 0.56 power?")</code></pre>
+<h2><strong>Final Thoughts</strong></h2>
+<p>In this article, we introduced LangChain with its various modules. Each module is useful for improving the capabilities of large language models and is essential for developing applications based on these models. Be careful because the model I used in this article is not among the best so the answers may not be optimal, plus the answers you get may be very different from mine. The purpose though was just to get familiar with this library. I am curious to see all the applications that will be developed in the future based on the new Large Language Models. Follow me to read my upcoming in-depth articles on these topics! <a href="https://emojipedia.org/it/apple/ios-15.4/faccina-che-fa-l-occhiolino/">😉</a></p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://marcello-politi.super.site/">Website</a></p>
+<p>This article was published by <a href="https://medium.com/data-science/develop-applications-powered-by-language-models-with-langchain-d2f7a1d1ad1a">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

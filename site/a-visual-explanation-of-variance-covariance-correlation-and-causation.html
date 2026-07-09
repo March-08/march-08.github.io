@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>A Visual Explanation of Variance, Covariance, Correlation and Causation — Marcello Politi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="custom.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,400italic" rel="stylesheet">
+<link rel="stylesheet" href="hljs.css">
+<link rel="icon" href="images/avatar.png">
+</head>
+<body class="layout-post">
+  <header>
+    <nav class="group">
+      <a href="index.html">Home</a>
+      <a href="#">About me</a>
+      <a href="#">Notebooks</a>
+      <a href="#">Lectures</a>
+    </nav>
+  </header>
+  <article>
+    <h1>A Visual Explanation of Variance, Covariance, Correlation and Causation</h1>
+    <p class="subtitle">Improve your data analysis skills by understanding basic statistical concepts.</p>
+    <p class="postdate">September 18, 2024 · Statistics</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-01.webp" alt="">
+</figure>
+<h2><strong>Introduction</strong></h2>
+<p>In Machine Learning we are often interested in knowing the relationships that exist between our data. Imagine you have a structured dataset, represented as a table in a DataFrame. You want to know if any columns are related to others, perhaps to know if there is any redundant information. It would also be useful to know if one of the variables is the cause of another. Let’s see how to do that in this article!</p>
+<h2><strong>Variance</strong></h2>
+<p>Let’s now imagine that we have a dataset (a set of points) in one dimension. The first thing we want to do is to calculate the variance of these points.</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-02.png" alt="">
+
+  <figcaption>One-Dimensional Data Points (Image By Author)</figcaption>
+</figure>
+<p>The variance intuitively tells us how far our points are from the mean. For example, if I eat one ice cream and you also eat one, on average we ate the same number of ice creams that is one. But even if I eat two ice creams and you eat zero, on average we always ate one ice cream each. It’s the variance that changes!</p>
+<p>In our dataset, the mean is: <em>m = 1</em></p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-03.png" alt="">
+
+  <figcaption>Mean (Image By Author)</figcaption>
+</figure>
+<p>To compute the variance, we first calculate how far each point is from the mean.</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-04.png" alt="">
+
+  <figcaption>Distance from the Mean (Image By Author)</figcaption>
+</figure>
+<p>Now we need to construct a square for each dashed line we have. I will only display the square for the first line, but you will have to do it for all of them.</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-05.png" alt="">
+
+  <figcaption>Squares for each distance (Image By Author)</figcaption>
+</figure>
+<p>Now we simply need to <strong>sum up the area of all the squares and divide by the number of squares-1</strong>. Let’s say that the final variance is equal to <em>138</em>.</p>
+<p>The formula we just applied visually is the variance formula.</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-06.png" alt="">
+
+  <figcaption>Variance Formula (Image By Author)</figcaption>
+</figure>
+<h2><strong>Two Dimensions Dataset</strong></h2>
+<p>Let us continue by complicating things a bit but not too much. Let’s now imagine having a two-dimensional dataset. Then <strong>each point is defined by a pair (x,y)</strong>.</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-07.png" alt="">
+
+  <figcaption>Bi-dimensional Dataset (Image By Author)</figcaption>
+</figure>
+<p>We already know that the variance of the point with respect to the x-axis is <em>138</em>. But now <strong>we can also compute the variance of the y-axis</strong>. It’s simple we can <strong>project all the points on the y-axis and compute the variance in the same way as before</strong>.</p>
+<figure>
+  <img class="med" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-08.png" alt="">
+
+  <figcaption>Projection on the y-axis (Image By Author)</figcaption>
+</figure>
+<p>Then, we found out that the variance with respect to the y-axis is (let’s say) <em>21</em>.</p>
+<p>Now <strong>we have both var(x) and var(y)</strong>. But <strong>these 2 values alone don’t say too much about the distribution of the data in the 2 dimensions</strong>.</p>
+<p>By looking at the graph we can intuitively infer that there is a trend, while x increases, y also increases.</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-09.png" alt="">
+
+  <figcaption>Trend (Image By Author)</figcaption>
+</figure>
+<p>But <strong>it is not possible to infer this trend just by looking at the values var(x) and var(y)</strong>.</p>
+<p>In fact, <strong>if we mirror the points</strong>, (we multiply the x coordinate of each point by -1), <strong>var(x) and var(y) will not change, but the trend will be the opposite</strong>!</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-10.png" alt="">
+
+  <figcaption>Opposite trend same variances (Image By Author)</figcaption>
+</figure>
+<h2><strong>Covariance</strong></h2>
+<p>Here comes the covariance between x and y. In order to compute the covariance, we have to <strong>calculate the mean of the x coordinates and the y coordinates</strong>. Let's say these means are 1 and 3. We can <strong>plot 2 straight passing through these values</strong>.</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-11.png" alt="">
+
+  <figcaption>Straights passing through the mean of x and y (Image By Author)</figcaption>
+</figure>
+<p>Now we <strong>calculate the area of the rectangles that these straight lines form with our points</strong>. I will demonstrate this with a single point for simplicity.</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-12.png" alt="">
+
+  <figcaption>Compute rectangles areas (Image By Author)</figcaption>
+</figure>
+<p>To calculate the area of these rectangles simply compute the difference between the point coordinates and the averages, and then multiply these differences between them.</p>
+<p><strong>Once you have calculated the area of all the rectangles simply add them up, and divide by the number of rectangles-1</strong>.</p>
+<p>In this way, we will have applied the covariance formula.</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-13.png" alt="">
+
+  <figcaption>Covariance Formula (Image By Author)</figcaption>
+</figure>
+<p>Now that we know how to calculate the covariance, you can see that if the covariance is positive it means we have a positive trend, otherwise a negative trend.</p>
+<p>So <strong>covariance tells us how two variables are correlated, it does not, however, tell us how strong this correlation is</strong>. In fact, the range of the covariance value is <strong>[-inf, +inf]</strong>, so it is not possible to define a <em>strength </em>of the relationship between the two variables.</p>
+<h2><strong>Correlation</strong></h2>
+<p>Correlation, on the other hand, is that value that lets us know <strong>how strong the relationship between two variables is, it has a range of values in [-1, +1]</strong>.</p>
+<p>The formula for its calculation is as follows.</p>
+<figure>
+  <img class="wide" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-14.png" alt="">
+
+  <figcaption>Correlation Formula (Image By Author)</figcaption>
+</figure>
+<p>So if the values on the <strong>x-axis grow and those in y also grow</strong>, we would have a <strong>correlation close to 1</strong>.</p>
+<p>On the other hand, if <strong>x increases and y decreases</strong>, we would have a <strong>correlation close to -1</strong>.</p>
+<p>If the <strong>correlation is zero, it means there is no correlation </strong>between the two variables.</p>
+<h2><strong>The Causation Error</strong></h2>
+<p>It is often thought that in the case where there is a strong correlation, there is also a causal relationship. Sometimes this is true, in fact, we might have that variable x indicates how rich we are and variable y which indicates the size of our house. And we might infer that there is causation, i.e., the more money a person makes, the bigger his house is.</p>
+<p>But often this is not the case. For example, suppose variable x indicates how many snow gloves we have, and variable y indicates how many soups we eat each week. Obviously, there is no causality between the two, though we notice in the data that the more snow gloves a person has, the more hot soups he or she eats each week.</p>
+<p>But often what happens is that there is a<strong> third variable that affects the two variables that we are not aware of</strong>.</p>
+<p>In this case, the third variable might be, how cold it is outside. So<strong> the colder it gets the more snow gloves we have, and the more soups we eat. But gloves and soup do not have a causal relationship</strong>!</p>
+<figure>
+  <img class="med" src="images/a-visual-explanation-of-variance-covariance-correlation-and-causation/img-15.png" alt="">
+
+  <figcaption>Correlation is not Causation (Image By Author)</figcaption>
+</figure>
+<h2><strong>Final Thoughts</strong></h2>
+<p>I hope this article has helped you to understand a little better these basic statistical concepts, which are very important in data science, though. I believe that visualizing formulas through geometric images is much easier! If you ‘liked the article follow me here on Medium!😁</p>
+<h2><strong>The End</strong></h2>
+<p><em>Marcello Politi</em></p>
+<p><a href="https://www.linkedin.com/in/marcello-politi/">Linkedin</a>, <a href="https://twitter.com/_March08_">Twitter</a>, <a href="https://march-08.github.io/digital-cv/">CV</a></p>
+<p>This article was published on <a href="https://medium.com/data-science/a-visual-explanation-of-variance-covariance-correlation-and-causation-dcf762801029">Towards Data Science</a></p>
+  </article>
+<script src="highlight.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>
