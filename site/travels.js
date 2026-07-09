@@ -64,6 +64,23 @@
   panel.querySelector(".close").addEventListener("click", closePanel);
   document.addEventListener("keydown", e => { if (e.key === "Escape") closePanel(); });
 
+  // --- drag the left edge to resize the panel (content reflows automatically) ---
+  const resizer = panel.querySelector(".resizer");
+  let resizing = false;
+  const setWidth = clientX => {
+    let w = window.innerWidth - clientX;                 // panel is anchored to the right edge
+    w = Math.max(300, Math.min(window.innerWidth * 0.95, w));
+    panel.style.width = w + "px";
+  };
+  const startResize = () => { resizing = true; panel.classList.add("resizing"); document.body.classList.add("resizing"); };
+  const endResize = () => { resizing = false; panel.classList.remove("resizing"); document.body.classList.remove("resizing"); };
+  resizer.addEventListener("mousedown", e => { startResize(); e.preventDefault(); });
+  window.addEventListener("mousemove", e => { if (resizing) setWidth(e.clientX); });
+  window.addEventListener("mouseup", endResize);
+  resizer.addEventListener("touchstart", e => { startResize(); }, { passive: true });
+  window.addEventListener("touchmove", e => { if (resizing && e.touches[0]) setWidth(e.touches[0].clientX); }, { passive: true });
+  window.addEventListener("touchend", endResize);
+
   function draw() {
     const w = container.clientWidth, h = container.clientHeight;
     svg.attr("viewBox", `0 0 ${w} ${h}`).attr("preserveAspectRatio", "xMidYMid slice");

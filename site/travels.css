@@ -22,6 +22,18 @@ body { overflow-x: hidden; }                 /* contain the full-width map break
   padding: 2.4rem 1.9rem;
 }
 #panel.open { transform: translateX(0); }
+#panel.resizing { transition: none; }            /* no lag while dragging */
+
+/* left-edge drag handle to resize the panel */
+#panel .resizer {
+  position: absolute; top: 0; left: 0; width: 10px; height: 100%; z-index: 3; cursor: ew-resize;
+}
+#panel .resizer::before {
+  content: ""; position: absolute; left: 3px; top: 0; width: 2px; height: 100%;
+  background: transparent; transition: background .15s;
+}
+#panel .resizer:hover::before { background: #c9c5ba; }
+body.resizing { cursor: ew-resize; user-select: none; }
 #panel .close {
   position: absolute; top: .8rem; right: 1.1rem; width: 2rem; height: 2rem;
   font-size: 1.7rem; line-height: 1; color: #8a877e; background: none; border: none; cursor: pointer;
