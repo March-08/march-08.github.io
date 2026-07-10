@@ -1,0 +1,84 @@
+/* About / timeline — layered on top of tufte.css + custom.css.
+   A big centred vertical timeline that reveals itself on scroll. */
+
+body { overflow-x: hidden; }
+
+/* break the timeline out of Tufte's narrow column and centre it in the viewport */
+.about-bleed { position: relative; left: 50%; margin-left: -50vw; width: 100vw; }
+.about-inner { max-width: 880px; margin: 0 auto; padding: 0 1.2rem; }
+.about-inner h1 { margin-bottom: .2rem; }
+.about-inner .subtitle { margin-top: 0; }
+
+/* the timeline + its central spine */
+.timeline { position: relative; margin: 2.6rem 0 5rem; }
+.spine {
+  position: absolute; left: 50%; top: 0; bottom: 0; width: 2px;
+  transform: translateX(-50%); background: #e4e4de; border-radius: 2px;
+}
+.spine-fill {                                   /* coloured progress fill (height set by JS) */
+  position: absolute; top: 0; left: 0; width: 100%; height: 0;
+  background: linear-gradient(#0099FF, #2f8fd8); border-radius: 2px;
+}
+
+/* one entry = half width, sitting on one side of the spine */
+.tl-item { position: relative; width: 50%; box-sizing: border-box; padding: 0 3rem; margin: 0 0 2.6rem; }
+.tl-item.right { margin-left: 50%; }
+
+/* logo badge, centred on the spine */
+.tl-badge {
+  position: absolute; top: 2px; width: 56px; height: 56px; z-index: 2;
+  background: #fff; border: 1px solid #e0ded6; border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .4s, box-shadow .4s, transform .4s;
+}
+.tl-badge img { width: 72%; height: 72%; object-fit: contain; display: block; }
+.tl-item.right .tl-badge { left: -28px; }
+.tl-item.left  .tl-badge { right: -28px; }
+.tl-item.in .tl-badge { border-color: #bfe3ff; box-shadow: 0 3px 12px rgba(0,153,255,.18); }
+.tl-item[data-kind="edu"].in .tl-badge { border-color: #cfe8df; box-shadow: 0 3px 12px rgba(47,143,107,.16); }
+
+/* the text card */
+.tl-card {
+  background: #fbfaf7; border: 1px solid #e8e6df; border-radius: 7px;
+  padding: 1rem 1.25rem 1.1rem; box-shadow: 0 1px 4px rgba(0,0,0,.045);
+}
+.tl-tag {
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+  color: #0099FF; display: inline-block; margin-bottom: .35rem;
+}
+.tl-item[data-kind="edu"] .tl-tag { color: #2f8f6b; }
+.tl-role {
+  font-family: "et-book", Palatino, Georgia, serif; font-weight: 600;
+  font-size: 1.5rem; line-height: 1.15; margin: 0 0 .1rem;
+}
+.tl-org {
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-size: 1.02rem; color: #3b3b3b; margin-bottom: .15rem;
+}
+.tl-meta {
+  font-family: "Gill Sans", "Gill Sans MT", "Lato", Calibri, sans-serif;
+  font-size: .9rem; color: #9a978e; margin-bottom: .65rem;
+}
+.tl-text { width: auto; margin: 0; font-size: 1.22rem; line-height: 1.5; color: rgb(59,59,59); }
+
+/* scroll-reveal animation */
+.reveal { opacity: 0; transition: opacity .6s ease, transform .6s cubic-bezier(.22,.61,.36,1); }
+.tl-item.right.reveal { transform: translate(34px, 14px); }
+.tl-item.left.reveal  { transform: translate(-34px, 14px); }
+.reveal.in { opacity: 1; transform: translate(0, 0); }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; transition: none; }
+}
+
+/* ---- mobile: single left-aligned rail ---- */
+@media (max-width: 720px) {
+  .spine { left: 27px; }
+  .tl-item, .tl-item.right, .tl-item.left {
+    width: 100%; margin-left: 0; padding: 0 0 0 68px; text-align: left;
+  }
+  .tl-item.right .tl-badge, .tl-item.left .tl-badge { left: 0; right: auto; }
+  .tl-badge { width: 48px; height: 48px; }
+  .tl-item.right.reveal, .tl-item.left.reveal { transform: translate(0, 18px); }
+}

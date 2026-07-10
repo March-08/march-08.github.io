@@ -29,7 +29,7 @@ page = f'''<!doctype html>
   <header>
     <nav class="group">
       <a href="index.html">Home</a>
-      <a href="#">About me</a>
+      <a href="about.html">About me</a>
       <a href="notebooks.html">Notebooks</a>
       <a href="lectures.html">Lectures</a>
       <a href="travels.html">Travels</a>
