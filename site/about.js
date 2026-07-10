@@ -36,28 +36,14 @@
   }
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
 
-  if (extra && A.skills && A.skills.length) {
-    var sk = A.skills.map(function (g) {
-      return '<div class="skillgroup"><h4>' + esc(g.group) + '</h4><div class="chips">' +
-        g.items.map(function (it) { return '<span class="chip">' + esc(it) + '</span>'; }).join("") +
-        '</div></div>';
-    }).join("");
-    block("Skills", '<div class="skillgroups">' + sk + '</div>');
-  }
   if (extra && A.languages && A.languages.length) {
     var lg = A.languages.map(function (l) {
-      return '<div class="lang"><span class="lang-name">' + esc(l.name) + '</span>' +
-        '<span class="lang-level">' + esc(l.level) + '</span></div>';
+      return '<div class="lang">' +
+        '<span class="lang-flag">' + (l.flag || "") + '</span>' +
+        '<span class="lang-text"><span class="lang-name">' + esc(l.name) + '</span>' +
+        '<span class="lang-note">' + esc(l.note || "") + '</span></span></div>';
     }).join("");
-    block("Languages", '<div class="langs">' + lg + '</div>');
-  }
-  if (extra && A.honors && A.honors.length) {
-    var hn = A.honors.map(function (h) {
-      return '<div class="honor"><span class="honor-year">' + esc(h.year) + '</span>' +
-        '<span class="honor-body"><span class="honor-title">' + esc(h.title) + '</span>' +
-        '<span class="honor-org">' + esc(h.org) + '</span></span></div>';
-    }).join("");
-    block("Honors &amp; Certifications", '<div class="honors">' + hn + '</div>');
+    block("Languages I speak", '<div class="langs">' + lg + '</div>');
   }
 
   var spineFill = document.getElementById("spineFill");
@@ -87,8 +73,12 @@
   // anchor jumps) that an IntersectionObserver can skip over.
   function revealPass() {
     var trigger = window.innerHeight * 0.9;
+    // If we've reached the bottom of the page, reveal whatever is left — the last
+    // element can otherwise never cross the observer threshold (nothing to scroll into).
+    var atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 4;
     items.forEach(function (it) {
-      if (!it.classList.contains("in") && it.getBoundingClientRect().top < trigger) it.classList.add("in");
+      if (it.classList.contains("in")) return;
+      if (atBottom || it.getBoundingClientRect().top < trigger) it.classList.add("in");
     });
   }
   var ticking = false;
@@ -97,4 +87,5 @@
   }, { passive: true });
   window.addEventListener("resize", updateSpine);
   updateSpine();
+  revealPass();   // handle pages short enough to already show the bottom on load
 })();

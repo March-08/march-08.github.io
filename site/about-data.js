@@ -146,28 +146,11 @@ window.TIMELINE = [
    ---------------------------------------------------------------------------- */
 window.ABOUT = {
 
-  skills: [
-    { group: "Programming & ML",
-      items: ["Python", "JavaScript", "PyTorch", "TensorFlow", "Hugging Face", "LangChain",
-              "Axolotl", "Unsloth", "MLflow", "Weights & Biases", "SQL / NoSQL", "VectorDB",
-              "AI Agents", "MCP", "A2A", "Git"] },
-    { group: "Project Management",
-      items: ["Agile & Scrum", "Asana", "Notion", "Gantt", "Risk management",
-              "Financial management", "Microsoft 365", "Google Workspace"] },
-    { group: "Soft skills",
-      items: ["Team work", "Adaptability", "Fast learner", "Social intelligence",
-              "Storytelling", "Presentation"] }
-  ],
-
+  // Languages I speak — flag, name, and a friendly note (edit freely).
   languages: [
-    { name: "Italian",   level: "Native" },
-    { name: "English",   level: "Proficient · C1" },
-    { name: "Hungarian", level: "Proficient · B2" }
-  ],
-
-  honors: [
-    { title: "ML DevOps Engineer — Nanodegree", org: "Udacity", year: "2024" },
-    { title: "Hackathon Winner", org: "ConfCooperative · health-cooperation app", year: "2019" }
+    { flag: "🇮🇹", name: "Italian",   note: "mother tongue" },
+    { flag: "🇬🇧", name: "English",   note: "fluent — I work in it every day" },
+    { flag: "🇭🇺", name: "Hungarian", note: "conversational" }
   ]
 
 };
