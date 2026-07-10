@@ -30,7 +30,7 @@ window.TIMELINE = [
 
   {
     kind: "work",
-    logo: "images/about/brianknows.svg",
+    logo: "images/about/brianknows.png",
     role: "Co-Founder",
     org:  "Brianknows",
     meta: "Jun 2023 – Feb 2025 · Remote",
