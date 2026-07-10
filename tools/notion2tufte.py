@@ -18,7 +18,9 @@ IMGREL  = f'images/{SLUG}'
 os.makedirs(IMGDIR, exist_ok=True)
 ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
 
-raw = open(FETCH, encoding='utf-8').read().replace('\\n','\n').replace('\\t','\t').replace('\\"','"')
+raw = open(FETCH, encoding='utf-8').read()
+if '<content>' in raw or '"Name":' in raw:      # Notion export: undo JSON string escapes.
+    raw = raw.replace('\\n','\n').replace('\\t','\t').replace('\\"','"')   # (skipped for raw Studio markdown so code blocks keep literal \n)
 m = re.search(r'<content>(.*?)</content>', raw, re.S); content = m.group(1) if m else raw
 tm = re.search(r'"Tags":\[([^\]]*)\]', raw); tags = re.findall(r'"([^"]+)"', tm.group(1)) if tm else []
 
@@ -113,7 +115,7 @@ def flush_quote():
     quotebuf=[]
 def flush(): flush_list(); flush_quote()
 
-IMG=re.compile(r'^!\[(.*)\]\((https?://[^)\s]+|file://.*?%7D%7D)\)\s*$', re.S)
+IMG=re.compile(r'^!\[(.*)\]\((https?://[^)\s]+|file://.*?%7D%7D|[^)\s]+\.(?:png|jpe?g|webp|gif|svg))\)\s*$', re.S|re.I)
 CAPRE=re.compile(r'^\s*(Image by|Photo by|Image from|Image source|Img|src\s*[:.]|Source|Figure|Credit|Fig\.)', re.I)
 def emit_img(caption_raw, fn):
     cap=inline(caption_raw.strip()) if caption_raw.strip() else ''
@@ -202,11 +204,13 @@ while i<N:
             ext=(os.path.splitext(fname)[1] or '.jpg').lower().replace('.jpeg','.jpg')
             fn=f'img-{imgn:02d}{ext}'
             fn=fn if dl(f'https://commons.wikimedia.org/wiki/Special:FilePath/{urllib.parse.quote(fname)}', fn) else None
-        else:
+        elif url.startswith('http'):
             em=re.search(r'\.(png|jpe?g|webp|gif|svg)(?:[?#]|$)', url, re.I)
             ext='.'+em.group(1).lower().replace('jpeg','jpg') if em else '.jpg'
             fn=f'img-{imgn:02d}{ext}'
             fn=fn if dl(url, fn) else None
+        else:
+            fn=os.path.basename(url)      # local file already under images/<slug>/ (Studio upload)
         if not alt.strip():
             j=i+1
             while j<N and lines[j].strip() in ('','<empty-block/>'): j+=1

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio — Marcello Politi</title>
+<link rel="stylesheet" href="/static/studio.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">✦ Studio</div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="articles">Articles</button>
+      <button class="tab" data-tab="travels">Travels</button>
+    </nav>
+    <div class="spacer"></div>
+    <button id="publishBtn" class="btn btn-primary">Publish…</button>
+  </header>
+
+  <!-- ============ ARTICLES ============ -->
+  <main id="articles" class="view active">
+    <aside class="sidebar">
+      <button id="newArticle" class="btn btn-ghost full">＋ New article</button>
+      <div id="articleList" class="list"></div>
+    </aside>
+
+    <section class="editor">
+      <div class="meta">
+        <input id="aTitle" class="title-input" placeholder="Article title">
+        <div class="meta-row">
+          <input id="aDate" type="date" class="date-input" title="Publish date">
+          <input id="aSubtitle" class="subtitle-input" placeholder="Subtitle (optional)">
+          <span id="aSlug" class="slug"></span>
+        </div>
+        <div class="toolbar" id="toolbar">
+          <button data-cmd="bold" title="Bold"><b>B</b></button>
+          <button data-cmd="italic" title="Italic"><i>I</i></button>
+          <button data-cmd="h2" title="Heading">H2</button>
+          <button data-cmd="h3" title="Subheading">H3</button>
+          <button data-cmd="link" title="Link">🔗</button>
+          <button data-cmd="sidenote" title="Sidenote (margin note)">◦ note</button>
+          <span class="sep"></span>
+          <button data-cmd="image" title="Image / GIF">🖼 Image</button>
+          <button data-cmd="video" title="YouTube video">▶ Video</button>
+          <button data-cmd="embed" title="Embed a site / Google Slides">⧉ Embed</button>
+          <span class="sep"></span>
+          <button data-cmd="quote" title="Quote">❝</button>
+          <button data-cmd="code" title="Code block">{ }</button>
+          <button data-cmd="mathi" title="Inline math">$x$</button>
+          <button data-cmd="mathb" title="Block math">∑</button>
+          <button data-cmd="callout" title="Callout box">💡</button>
+          <button data-cmd="toc" title="Table of contents">☰ TOC</button>
+        </div>
+      </div>
+      <div class="split">
+        <textarea id="aBody" class="body" spellcheck="true"
+          placeholder="Write your article in Markdown. Use the toolbar for images, videos, embeds and sidenotes. The preview on the right is exactly how it will look on your site."></textarea>
+        <iframe id="preview" class="preview" title="Live preview"></iframe>
+      </div>
+      <div class="actionbar">
+        <span id="aStatus" class="status"></span>
+        <div class="spacer"></div>
+        <button id="saveArticle" class="btn btn-primary">Save</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ TRAVELS ============ -->
+  <main id="travels" class="view">
+    <aside class="sidebar">
+      <button id="addCountry" class="btn btn-ghost full">＋ Add country</button>
+      <div id="countryList" class="list"></div>
+    </aside>
+    <section class="editor travel-editor">
+      <div id="travelEmpty" class="empty">Select a country on the left, or add one.</div>
+      <div id="travelForm" class="travel-form" hidden>
+        <h2 id="tName" class="travel-name"></h2>
+        <label class="fld"><span>Year / label</span>
+          <input id="tYear" placeholder="e.g. 2023, Summer 2022, Home"></label>
+        <label class="fld"><span>Notes</span>
+          <textarea id="tText" rows="5" placeholder="Your write-up (basic HTML allowed)"></textarea></label>
+        <div class="fld"><span>Photos <small>(drag the arrows to reorder)</small></span>
+          <div id="tPhotos" class="photos"></div>
+          <button id="addPhotos" class="btn btn-ghost">＋ Add photos</button>
+        </div>
+        <div class="actionbar">
+          <span id="tStatus" class="status"></span>
+          <div class="spacer"></div>
+          <button id="removeCountry" class="btn btn-danger">Remove country</button>
+          <button id="saveTravels" class="btn btn-primary">Save travels</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- hidden file inputs -->
+  <input id="fileArticle" type="file" accept="image/*" hidden>
+  <input id="fileTravel" type="file" accept="image/*" multiple hidden>
+
+  <!-- publish modal -->
+  <div id="publishModal" class="modal" hidden>
+    <div class="modal-box">
+      <h3>Publish to GitHub</h3>
+      <p class="muted">These files changed since the last publish:</p>
+      <pre id="changeList" class="changes"></pre>
+      <input id="commitMsg" placeholder="Describe what changed (optional)">
+      <div class="modal-actions">
+        <button id="cancelPublish" class="btn btn-ghost">Cancel</button>
+        <button id="doPublish" class="btn btn-primary">Commit &amp; push</button>
+      </div>
+      <pre id="publishLog" class="log" hidden></pre>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+<script src="/static/studio.js"></script>
+</body>
+</html>
