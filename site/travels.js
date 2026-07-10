@@ -71,15 +71,27 @@
     // vertical position is pinned so the bottom edge sits near lat -58 → Argentina is always in view.
     const s = w / (2 * Math.PI) * 0.94;
     const ty = h - s * 1.25;                     // bottom edge ≈ lat -58°
-    const proj = d3.geoMercator().scale(s).translate([w / 2, ty]);
+    const shift = w * 0.03;                       // nudge the whole map slightly to the left
+    const proj = d3.geoMercator().scale(s).translate([w / 2 - shift, ty]);
     const path = d3.geoPath(proj);
-    const sel = svg.selectAll("path").data(feats);
+
+    // Clip to just inside the ±180° meridians. A country that wraps the date line
+    // otherwise paints a full-height vertical seam at -180°; this trims it off.
+    const xL = proj([-180, 0])[0], xR = proj([180, 0])[0];
+    const defs = svg.selectAll("defs").data([0]).join("defs");
+    defs.selectAll("clipPath").data([0]).join("clipPath").attr("id", "map-clip")
+      .selectAll("rect").data([0]).join("rect")
+      .attr("x", xL + 1.2).attr("y", 0).attr("width", (xR - xL) - 2.4).attr("height", h);
+    const g = svg.selectAll("g.lands").data([0]).join("g")
+      .attr("class", "lands").attr("clip-path", "url(#map-clip)");
+
+    const sel = g.selectAll("path").data(feats);
     sel.join("path")
       .attr("d", path)
       .attr("class", d => "country" + (VISITS[d.properties.name] ? " visited" : ""))
       .on("click", function (e, d) { if (VISITS[d.properties.name]) openPanel(d.properties.name, this); });
     // raise visited countries above their neighbours so nothing overlaps their click target
-    svg.selectAll(".visited").raise();
+    g.selectAll(".visited").raise();
   }
 
   draw();
