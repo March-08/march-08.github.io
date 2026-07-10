@@ -8,17 +8,25 @@ serve it; just host the `site/` folder.
 ## Layout
 
 ```
-site/          the deployable static site
-  index.html   home (bio + reverse-chron writing list)
-  <slug>.html  one file per article (49)
-  images/<slug>/   per-article images (+ images/favicons/ for link cards)
-  tufte.css    base theme (from nicola.io)
-  custom.css   all site-specific styling (cards, captions, code, footnotes, math, layout)
+site/            the deployable static site
+  index.html     home (bio + reverse-chron writing list)
+  <slug>.html    one file per article (49)
+  about.html     "About me" — scroll-revealed career/education timeline
+  travels.html   interactive world map; click a country for a photo/text panel
+  notebooks.html, lectures.html   Colab notebooks + courses taught
+  about-data.js      timeline + languages data (edit via Studio)
+  travels-data.js    map data — generated from editor/content/travels.json
+  images/<slug>/     per-article images (+ images/about/, images/travels/, images/favicons/)
+  tufte.css      base theme (from nicola.io)
+  custom.css, about.css, travels.css   site-specific styling
   hljs.css, highlight.min.js   code syntax highlighting (highlight.js, GitHub light)
-  site.js      click-to-play video facade + hljs init
-  fonts/       ET Book / ETBembo + icomoon
-sources/       the Notion source (enhanced-markdown) for each article — the build input
-tools/         the migration/build pipeline (see below)
+  site.js        click-to-play video facade + hljs init
+  fonts/         ET Book / ETBembo + icomoon
+  vendor/        d3 + world geo data for the travels map
+editor/          Studio — the local editor (see "Editing the site" below)
+sources/         the Notion source (enhanced-markdown) for each article
+tools/           the migration/build pipeline (see "Rebuilding")
+docs/            design specs
 ```
 
 ## Viewing locally
@@ -29,9 +37,28 @@ cd site && python3 -m http.server 8765
 ```
 (Everything renders over `file://` too, except inline YouTube playback, which needs an http origin.)
 
-## Rebuilding
+## Editing the site (the easy way — Studio)
 
-The pipeline (all in `tools/`):
+**Studio** is a small local editor for writing articles and editing the Travels map,
+without touching files by hand. Run:
+
+```
+python3 editor/studio.py      # opens http://localhost:8787
+```
+
+- **Articles** — a Markdown editor with a toolbar (sidenotes, image/GIF upload,
+  YouTube video, embeds, code, math, callouts, TOC) and a live preview in the real
+  site style. Save writes the article page and adds it to the home list.
+- **Travels** — add/edit countries with a year, notes and photos.
+- **Publish** — shows what changed, then commits + pushes to GitHub.
+
+Studio only touches its own managed files (new articles, their images, the Travels
+data, and a marked block in `index.html`); it never edits the 49 imported articles.
+Full details in [`editor/README.md`](editor/README.md).
+
+## Rebuilding (the original migration pipeline)
+
+For the 49 articles imported from Notion. The pipeline (all in `tools/`):
 
 1. `notion2tufte.py <source> <site_dir> <slug> "<title>" "<date>"` — converts one
    Notion source into `site/<slug>.html` + downloads/reuses `site/images/<slug>/`.
@@ -58,4 +85,6 @@ source file, then run the same steps.
 
 ## Hosting
 
-Static — deploy the `site/` folder to GitHub Pages, Netlify, Vercel, etc.
+The repo lives (private) on GitHub at `March-08/personal-website`. It's a **static**
+site — deploy the `site/` folder to GitHub Pages, Netlify, Vercel, etc. (not yet
+deployed). Studio's **Publish** button pushes changes to GitHub for you.
