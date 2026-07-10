@@ -15,7 +15,7 @@
     "Albania": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Cyprus": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Namibia": { year: "", photos: [], text: "Notes and photos coming soon." },
-    "United States of America": { year: "", photos: [], text: "Notes and photos coming soon." },
+    "United States of America": { year: "23 August 2025", photos: ["images/travels/united-states-of-america-IMG_9278.jpeg", "images/travels/united-states-of-america-IMG_8894.jpeg"], text: "1) Dumbo, New York\n2) Golden Bridge, San Francisco, California" },
     "Egypt": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Turkey": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Vietnam": { year: "", photos: [], text: "Notes and photos coming soon." },
