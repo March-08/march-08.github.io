@@ -85,6 +85,7 @@ source file, then run the same steps.
 
 ## Hosting
 
-The repo lives (private) on GitHub at `March-08/personal-website`. It's a **static**
-site — deploy the `site/` folder to GitHub Pages, Netlify, Vercel, etc. (not yet
-deployed). Studio's **Publish** button pushes changes to GitHub for you.
+**Live at https://march-08.github.io/** — the repo (`March-08/march-08.github.io`,
+public) auto-deploys the `site/` folder to GitHub Pages on every push to `main` (see
+`.github/workflows/pages.yml`). Studio's **Publish** button pushes for you, so edits
+go live in about a minute.
