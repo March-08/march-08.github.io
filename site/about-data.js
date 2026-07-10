@@ -25,16 +25,16 @@ window.TIMELINE = [
     role: "Research Engineer",
     org:  "Ethereum Foundation",
     meta: "Oct 2025 – Present · Rome, Italy · Hybrid",
-    text: "Working within the dAI team to design and advance core primitives for decentralized AI on Ethereum — the ERC-8004 agent standard, multi-agent systems, defensive AI, and verifiable inference."
+    text: "Working within the dAI team on decentralized AI for Ethereum — the ERC-8004 agent standard, multi-agent systems, AI safety, and verifiable inference. Currently researching LLM jailbreaking in strategic economic games."
   },
 
   {
     kind: "work",
     logo: "images/about/brianknows.png",
-    role: "Co-Founder",
+    role: "Co-Founder & Head of AI",
     org:  "Brianknows",
     meta: "Jun 2023 – Feb 2025 · Remote",
-    text: "Led data engineering and fine-tuning for the first domain-specific AI model for Web3. The project raised over $250K in funding, including a $150K pre-seed round from Gagra Ventures."
+    text: "Built <em>Brian</em>, an AI-powered Web3 agent that grew to 10k daily active users. Led the data engineering and fine-tuning of the first domain-specific AI model for Web3, secured a $150K pre-seed round, and won awards at EthPrague and AugmentHack."
   },
 
   {
@@ -43,7 +43,7 @@ window.TIMELINE = [
     role: "Deep Learning Scientist",
     org:  "Pi School · Freelance",
     meta: "Feb 2023 – Nov 2025 · Rome, Italy · Remote",
-    text: "Pi School (part of Pi Campus, an AI VC firm) is a private AI lab in Rome focused on language applications. I delivered LLM and NLP projects for a range of industry clients."
+    text: "Private AI lab in Rome (part of Pi Campus). Project lead for <strong>ESA-SatcomLLM</strong> (€400K, 9 months) and LLM engineer on <strong>ESA-Eve</strong> in collaboration with Mistral AI; contributed to research proposals totalling over €46M."
   },
 
   {
@@ -70,7 +70,7 @@ window.TIMELINE = [
     role: "Software Engineer (YGT)",
     org:  "European Space Agency — ESA",
     meta: "Sep 2021 – Sep 2022 · Frascati, Italy",
-    text: "Young Graduate Trainee building software and data systems in support of Earth-observation projects. <em>(add your own notes here)</em>"
+    text: "Young Graduate Trainee: optimised data-access flows in ESA's Earth-Observation Common Services, and contributed to meta-systems and green-computing research."
   },
 
   {
@@ -79,16 +79,16 @@ window.TIMELINE = [
     role: "Deep Learning Researcher",
     org:  "Inria · Internship",
     meta: "Mar 2021 – Jul 2021 · Sophia-Antipolis (Nice), France",
-    text: "Research internship on compressing artificial neural networks via iterative pruning — reviewing state-of-the-art methods, devising variants, and validating them extensively. Implemented in Julia."
+    text: "Research internship on compressing artificial neural networks via iterative pruning — reviewing state-of-the-art methods, devising variants, and validating them extensively. Implemented in Julia with Flux."
   },
 
   {
     kind: "work",
     logo: "images/about/esa.png",
-    role: "Data Analyst · Internship",
+    role: "Web Analytics & Outreach · Internship",
     org:  "European Space Agency — ESA",
     meta: "Sep 2020 – Feb 2021 · ESRIN, Italy",
-    text: "Intern in the Common Services Section (EOP-GES): analysed web traffic and user behaviour, built statistical reports and dashboards, and advised on SEO and web-development guidelines for ESA Earth-Observation sites."
+    text: "Intern in the EO Common Services Section: integrated web-analytics tooling (Matomo), built statistical reports and dashboards, and applied semantic-web technologies (DBpedia, Schema.org)."
   },
 
   {
@@ -128,3 +128,36 @@ window.TIMELINE = [
   }
 
 ];
+
+/* ----------------------------------------------------------------------------
+   EXTRA SECTIONS shown below the timeline (skills / languages / honors).
+   Edit freely — set any group to [] (or delete it) to hide that section.
+   ---------------------------------------------------------------------------- */
+window.ABOUT = {
+
+  skills: [
+    { group: "Programming & ML",
+      items: ["Python", "JavaScript", "PyTorch", "TensorFlow", "Hugging Face", "LangChain",
+              "Axolotl", "Unsloth", "MLflow", "Weights & Biases", "SQL / NoSQL", "VectorDB",
+              "AI Agents", "MCP", "A2A", "Git"] },
+    { group: "Project Management",
+      items: ["Agile & Scrum", "Asana", "Notion", "Gantt", "Risk management",
+              "Financial management", "Microsoft 365", "Google Workspace"] },
+    { group: "Soft skills",
+      items: ["Team work", "Adaptability", "Fast learner", "Social intelligence",
+              "Storytelling", "Presentation"] }
+  ],
+
+  languages: [
+    { name: "Italian",   level: "Native" },
+    { name: "English",   level: "Proficient · C1" },
+    { name: "Hungarian", level: "Proficient · B2" }
+  ],
+
+  honors: [
+    { title: "ML DevOps Engineer — Nanodegree", org: "Udacity", year: "2024" },
+    { title: "Best System Award", org: "EVALITA 2020 · BERT stance detector for Italian tweets", year: "2020" },
+    { title: "Hackathon Winner", org: "ConfCooperative · health-cooperation app", year: "2019" }
+  ]
+
+};

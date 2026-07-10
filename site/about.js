@@ -24,8 +24,45 @@
     timeline.appendChild(item);
   });
 
-  var items = [].slice.call(timeline.querySelectorAll(".tl-item"));
+  // --- extra sections below the timeline (skills / languages / honors) ---
+  var A = window.ABOUT || {};
+  var extra = document.getElementById("aboutExtra");
+
+  function block(title, bodyHTML) {
+    var b = document.createElement("section");
+    b.className = "about-block reveal";
+    b.innerHTML = '<h2 class="about-h">' + title + '</h2>' + bodyHTML;
+    extra.appendChild(b);
+  }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+
+  if (extra && A.skills && A.skills.length) {
+    var sk = A.skills.map(function (g) {
+      return '<div class="skillgroup"><h4>' + esc(g.group) + '</h4><div class="chips">' +
+        g.items.map(function (it) { return '<span class="chip">' + esc(it) + '</span>'; }).join("") +
+        '</div></div>';
+    }).join("");
+    block("Skills", '<div class="skillgroups">' + sk + '</div>');
+  }
+  if (extra && A.languages && A.languages.length) {
+    var lg = A.languages.map(function (l) {
+      return '<div class="lang"><span class="lang-name">' + esc(l.name) + '</span>' +
+        '<span class="lang-level">' + esc(l.level) + '</span></div>';
+    }).join("");
+    block("Languages", '<div class="langs">' + lg + '</div>');
+  }
+  if (extra && A.honors && A.honors.length) {
+    var hn = A.honors.map(function (h) {
+      return '<div class="honor"><span class="honor-year">' + esc(h.year) + '</span>' +
+        '<span class="honor-body"><span class="honor-title">' + esc(h.title) + '</span>' +
+        '<span class="honor-org">' + esc(h.org) + '</span></span></div>';
+    }).join("");
+    block("Honors &amp; Certifications", '<div class="honors">' + hn + '</div>');
+  }
+
   var spineFill = document.getElementById("spineFill");
+  // everything that animates in on scroll: timeline entries + the extra blocks
+  var items = [].slice.call(document.querySelectorAll(".tl-item, .about-block"));
 
   // --- reveal each entry as it scrolls into view ---
   if ("IntersectionObserver" in window) {
@@ -33,7 +70,7 @@
       entries.forEach(function (e) {
         if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
       });
-    }, { threshold: 0.25, rootMargin: "0px 0px -8% 0px" });
+    }, { threshold: 0.2, rootMargin: "0px 0px -8% 0px" });
     items.forEach(function (it) { io.observe(it); });
   } else {
     items.forEach(function (it) { it.classList.add("in"); });   // no-JS-observer fallback
