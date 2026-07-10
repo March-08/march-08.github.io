@@ -4,7 +4,7 @@
   var timeline = document.getElementById("timeline");
   if (!timeline) return;
 
-  var TAG = { work: "Experience", edu: "Education" };
+  var TAG = { work: "Experience", edu: "Education", award: "Award" };
 
   // --- build the DOM from the data ---
   DATA.forEach(function (d, i) {

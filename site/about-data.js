@@ -92,6 +92,17 @@ window.TIMELINE = [
   },
 
   {
+    kind: "award",
+    logo: "images/about/evalita.png",
+    role: "Best System Award",
+    org:  "EVALITA 2020 · SardiStance (Stance Detection)",
+    meta: "Dec 2020 · Rome, Italy",
+    text: "Our system <em>UNITOR@SardiStance</em> won EVALITA 2020's Best System Award — a transformer-based stance detector for Italian tweets, boosted with transfer learning and data augmentation. With S. Giorgioni, S. Salman, R. Basili and D. Croce. " +
+          "<a href=\"https://ceur-ws.org/Vol-2765/paper99.pdf\" target=\"_blank\" rel=\"noopener\">Paper</a> · " +
+          "<a href=\"https://drive.google.com/file/d/1XqF_auRWFIoWMyXrKQfvMOypxEnwsvwA/view\" target=\"_blank\" rel=\"noopener\">Video presentation</a>."
+  },
+
+  {
     kind: "edu",
     logo: "images/about/torvergata.png",
     role: "M.Sc. Computer Science",
@@ -156,7 +167,6 @@ window.ABOUT = {
 
   honors: [
     { title: "ML DevOps Engineer — Nanodegree", org: "Udacity", year: "2024" },
-    { title: "Best System Award", org: "EVALITA 2020 · BERT stance detector for Italian tweets", year: "2020" },
     { title: "Hackathon Winner", org: "ConfCooperative · health-cooperation app", year: "2019" }
   ]
 

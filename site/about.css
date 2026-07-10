@@ -41,6 +41,7 @@ body { overflow-x: hidden; }
 .tl-item.left  .tl-badge { right: -28px; }
 .tl-item.in .tl-badge { border-color: #bfe3ff; box-shadow: 0 4px 16px rgba(0,153,255,.22); }
 .tl-item[data-kind="edu"].in .tl-badge { border-color: #cfe8df; box-shadow: 0 4px 16px rgba(47,143,107,.18); }
+.tl-item[data-kind="award"].in .tl-badge { border-color: #ecdcb0; box-shadow: 0 4px 16px rgba(192,138,46,.22); }
 
 /* the text card */
 .tl-card {
@@ -53,6 +54,7 @@ body { overflow-x: hidden; }
   color: #0099FF; display: inline-block; margin-bottom: .35rem;
 }
 .tl-item[data-kind="edu"] .tl-tag { color: #2f8f6b; }
+.tl-item[data-kind="award"] .tl-tag { color: #c08a2e; }
 .tl-role {
   font-family: "et-book", Palatino, Georgia, serif; font-weight: 600;
   font-size: 1.5rem; line-height: 1.15; margin: 0 0 .1rem;
