@@ -1,9 +1,9 @@
 # Marcello Politi — personal website
 
-A writing-first personal site (essays + technical articles), styled after
-[nicola.io](https://nicola.io) using **Tufte CSS + ET Book**. Content is migrated
-from a Notion workspace. The output is a **static site** — no build step needed to
-serve it; just host the `site/` folder.
+A writing-first personal site (essays + technical articles), styled with
+**Tufte CSS** and the **ET Book** font. Content is migrated from a Notion workspace.
+The output is a **static site** — no build step needed to serve it; just host the
+`site/` folder.
 
 ## Layout
 
@@ -17,7 +17,7 @@ site/            the deployable static site
   about-data.js      timeline + languages data (edit via Studio)
   travels-data.js    map data — generated from editor/content/travels.json
   images/<slug>/     per-article images (+ images/about/, images/travels/, images/favicons/)
-  tufte.css      base theme (from nicola.io)
+  tufte.css      base Tufte CSS theme
   custom.css, about.css, travels.css   site-specific styling
   hljs.css, highlight.min.js   code syntax highlighting (highlight.js, GitHub light)
   site.js        click-to-play video facade + hljs init

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Notion enhanced-markdown -> Tufte/nicola-style HTML page. Migration renderer.
+"""Notion enhanced-markdown -> Tufte-style HTML page. Migration renderer.
 
 Usage:
   python3 notion2tufte.py <fetchfile> <site_dir> <slug> "<title>" "<date>"

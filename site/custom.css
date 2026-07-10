@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------
-   custom.css — loaded AFTER nicola's tufte.css.
+   custom.css — loaded AFTER tufte.css.
    Only adds blocks Tufte lacks; every element reuses ET Book / ETBembo
-   / Gill Sans so the typography is identical to his everywhere.
+   / Gill Sans so the typography stays identical everywhere.
    ------------------------------------------------------------------ */
 
 /* author's intro note */
