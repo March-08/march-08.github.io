@@ -7,7 +7,7 @@
 
     "Italy": { year: "Home", photos: ["images/photo.jpeg"], text: "Where it all starts. Example single-photo entry \u2014 replace with a real note." },
     "Japan": { year: "2023", photos: [], text: "Notes and photos coming soon." },
-    "Argentina": { year: "", photos: [], text: "Notes and photos coming soon." },
+    "Argentina": { year: "Devconnect 2025", photos: ["images/travels/argentina-IMG_20251128_153041.jpg", "images/travels/argentina-IMG_20251121_164219.jpg", "images/travels/argentina-IMG_20251126_121535_1.jpg"], text: "1) El Chalt\u00e9n, Santa Cruz Province, Argentina\n\n2) Trustless Agents Day, Deconnect\n\n3) Argentino Lake" },
     "Hungary": { year: "", photos: [], text: "Notes and photos coming soon." },
     "United Kingdom": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Spain": { year: "", photos: [], text: "Notes and photos coming soon." },

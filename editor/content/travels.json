@@ -12,9 +12,13 @@
     "text": "Notes and photos coming soon."
   },
   "Argentina": {
-    "year": "",
-    "photos": [],
-    "text": "Notes and photos coming soon."
+    "year": "Devconnect 2025",
+    "photos": [
+      "images/travels/argentina-IMG_20251128_153041.jpg",
+      "images/travels/argentina-IMG_20251121_164219.jpg",
+      "images/travels/argentina-IMG_20251126_121535_1.jpg"
+    ],
+    "text": "1) El Chaltén, Santa Cruz Province, Argentina\n\n2) Trustless Agents Day, Deconnect\n\n3) Argentino Lake"
   },
   "Hungary": {
     "year": "",
