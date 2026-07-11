@@ -13,7 +13,7 @@
     "Spain": { year: "", photos: [], text: "Notes and photos coming soon." },
     "France": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Albania": { year: "", photos: [], text: "Notes and photos coming soon." },
-    "Cyprus": { year: "2026 AAMAS Conference", photos: ["images/travels/cyprus-WhatsApp-Image-2026-05-27-at-22.38.40.jpeg"], text: "1) US  vs European researchers soccer match" },
+    "Cyprus": { year: "2026 AAMAS Conference", photos: ["images/travels/cyprus-WhatsApp-Image-2026-05-27-at-22.38.40.jpeg", "images/travels/cyprus-WhatsApp-Image-2026-05-27-at-10.47.15.jpeg"], text: "1) US  vs European researchers soccer match\n2) Blue Bay " },
     "Namibia": { year: "", photos: [], text: "Notes and photos coming soon." },
     "United States of America": { year: "23 August 2025", photos: ["images/travels/united-states-of-america-IMG_9278.jpeg", "images/travels/united-states-of-america-IMG_8894.jpeg"], text: "1) Dumbo, New York\n2) Golden Bridge, San Francisco, California" },
     "Egypt": { year: "Egypt 2024", photos: ["images/travels/egypt-IMG_20240505_095309.jpg", "images/travels/egypt-IMG_20240505_113430.jpg"], text: "1) Giza Pyramids breakfast\n2) Giza Pyramids " },
