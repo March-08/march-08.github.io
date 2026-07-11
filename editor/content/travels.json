@@ -116,9 +116,13 @@
     "text": "Notes and photos coming soon."
   },
   "China": {
-    "year": "",
-    "photos": [],
-    "text": "Notes and photos coming soon."
+    "year": "China 2024",
+    "photos": [
+      "images/travels/china-2026-07-11-14.27.04.jpg",
+      "images/travels/china-WhatsApp-Image-2026-05-17-at-14.30.31.jpeg",
+      "images/travels/china-1779262768281.jpeg"
+    ],
+    "text": "1) Shanghai\n2) Hong Kong \n3) MuShanghai\n3) Eth HK Hub"
   },
   "Belgium": {
     "year": "",
