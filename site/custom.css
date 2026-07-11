@@ -226,5 +226,23 @@ blockquote footer, blockquote cite {
 .postdate { font-size: 1.1rem; color: #7a7a7a; margin-top: 0; }
 
 @media screen and (max-width: 760px) {
-  .note, .deepdive, figure, .postlist, .more-note, pre, .mathblock, .tablewrap, .toc, .linkcard, .callout-note { width: auto; }
+  html, body { overflow-x: hidden; }                 /* never scroll sideways on a phone */
+
+  /* full-width blocks instead of the desktop 55%/90% */
+  .note, .deepdive, figure, .postlist, .more-note, pre, .mathblock, .tablewrap,
+  .toc, .linkcard, .callout-note { width: auto; box-sizing: border-box; }
+
+  /* images must fit the screen (the desktop 380px/240px caps overflowed) */
+  figure { margin: 1.5rem 0; }
+  figure img, figure img.med, figure img.portrait, figure img.wide { max-width: 100%; height: auto; }
+
+  /* code: full width + a smaller mono size so it fits / scrolls less */
+  pre { overflow-x: auto; }
+  pre code, pre code.hljs, body.layout-post pre code { font-size: .8rem; }
+
+  /* nav: let the wrapped links set the header height (the fixed 4.5rem made them
+     collide with the bio/title below) */
+  header > nav.group { height: auto; }
+  header > nav a { float: none; display: inline-block; margin-left: 0;
+    padding: .35rem 1.1rem .35rem 0; padding-top: .35rem; font-size: 1.05rem; }
 }

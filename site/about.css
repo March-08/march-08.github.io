@@ -78,7 +78,10 @@ body { overflow-x: hidden; }
 }
 .tl-item.right.reveal .tl-card { transform: translate(48px, 12px); }
 .tl-item.left.reveal  .tl-card { transform: translate(-48px, 12px); }
-.tl-item.in .tl-card { opacity: 1; transform: translate(0, 0); }
+/* same specificity as the .reveal rules above (and declared later) so the settled
+   state actually wins — otherwise revealed cards stay shifted +48px and overflow. */
+.tl-item.right.in .tl-card,
+.tl-item.left.in  .tl-card { opacity: 1; transform: translate(0, 0); }
 
 /* badge: springs in (scale + fade), slightly after the card starts moving */
 .tl-item.reveal .tl-badge {
@@ -135,5 +138,6 @@ body { overflow-x: hidden; }
   }
   .tl-item.right .tl-badge, .tl-item.left .tl-badge { left: 0; right: auto; }
   .tl-badge { width: 48px; height: 48px; }
-  .tl-item.right.reveal, .tl-item.left.reveal { transform: translate(0, 18px); }
+  /* no horizontal slide on phones (would overflow); fade up only */
+  .tl-item.right.reveal .tl-card, .tl-item.left.reveal .tl-card { transform: translateY(18px); }
 }
