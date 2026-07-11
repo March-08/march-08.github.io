@@ -84,9 +84,13 @@ def inline(t):
     t=re.sub(r'&lt;span[^&]*&gt;', '', t); t=t.replace('&lt;/span&gt;','')
     # restore math
     t=re.sub(r'\x01(\d+)\x02', lambda mm: demath(maths[int(mm.group(1))]), t)
-    t=re.sub(r'\[([^\]]+)\]\((https?://[^)]+)\)', lambda mm:f'<a href="{html.escape(mm.group(2),quote=True)}">{mm.group(1)}</a>', t)
+    t=re.sub(r'\[([^\]]+)\]\(([^)\s]+)\)', lambda mm:f'<a href="{html.escape(mm.group(2),quote=True)}">{mm.group(1)}</a>', t)
+    t=re.sub(r'&lt;(https?://[^&\s]+?)&gt;', lambda mm:f'<a href="{mm.group(1)}">{mm.group(1)}</a>', t)   # autolink <url>
     t=re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', t)
     t=re.sub(r'(?<!\*)\*(?!\*)([^*]+?)\*(?!\*)', r'<em>\1</em>', t)
+    # underscore emphasis, only at word boundaries (so snake_case / my_var are untouched)
+    t=re.sub(r'(^|[\s(])__(\S(?:.*?\S)?)__(?=[\s).,;:!?]|$)', r'\1<strong>\2</strong>', t)
+    t=re.sub(r'(^|[\s(])_(\S(?:.*?\S)?)_(?=[\s).,;:!?]|$)', r'\1<em>\2</em>', t)
     t=re.sub(r'`([^`]+)`', r'<code>\1</code>', t)
     return t
 def yt_id(u):
@@ -125,26 +129,33 @@ def emit_img(caption_raw, fn):
     img=f'<img class="{size_class(fn)}" src="{IMGREL}/{fn}" alt="{html.escape(re.sub(chr(60)+".*?"+chr(62),"",cap),quote=True)}">'
     out.append('<figure>\n  '+img+('\n  <figcaption>'+cap+'</figcaption>' if cap else '')+'\n</figure>')
 
-# --- subtitle = the first heading/italic/bold "tagline" line before the body;
-#     skip leading ---, hero image, photo caption, and a heading that duplicates the title ---
-_nm=re.search(r'"Name":"([^"]*)"', raw)
-_title=TITLE or (_nm.group(1) if _nm else '')
-_tnorm=re.sub(r'[^a-z0-9]', '', re.sub(r'[*`]', '', _title).lower())
-consumed=set(); _scan=0
-while _scan < min(N, 16):
-    _ss=lines[_scan].strip()
-    if not _ss or _ss in ('<empty-block/>', '---') or _ss.startswith('!['): _scan+=1; continue
-    if CAPRE.match(_ss): _scan+=1; continue
-    _hm=re.match(r'^#{1,6}\s+(.*\S)\s*$', _ss)
-    if _hm: _c=_hm.group(1)
-    elif _ss.startswith('**') and _ss.endswith('**') and len(_ss) > 4: _c=_ss[2:-2]
-    elif _ss.startswith('*') and _ss.endswith('*') and not _ss.startswith('**') and len(_ss) > 2: _c=_ss[1:-1]
-    else: break                                   # hit body text -> no subtitle
-    _ctxt=_c.strip().strip('*').strip()
-    consumed.add(_scan)
-    if re.sub(r'[^a-z0-9]', '', _ctxt.lower()) == _tnorm and _tnorm:
-        _scan+=1; continue                        # this heading just repeats the title
-    subtitle=inline(_ctxt); break
+# --- subtitle: explicit (Studio passes it as argv[6]) OR auto-detected from a
+#     leading tagline (Notion imports). In EXPLICIT mode we do NOT scan/consume any
+#     body line, so a hand-written leading "# Heading" renders as a heading. ---
+SUBTITLE_ARG = sys.argv[6] if len(sys.argv) > 6 else None
+EXPLICIT = SUBTITLE_ARG is not None
+consumed=set()
+if EXPLICIT:
+    subtitle = inline(SUBTITLE_ARG.strip()) if SUBTITLE_ARG.strip() else None
+else:
+    _nm=re.search(r'"Name":"([^"]*)"', raw)
+    _title=TITLE or (_nm.group(1) if _nm else '')
+    _tnorm=re.sub(r'[^a-z0-9]', '', re.sub(r'[*`]', '', _title).lower())
+    _scan=0
+    while _scan < min(N, 16):
+        _ss=lines[_scan].strip()
+        if not _ss or _ss in ('<empty-block/>', '---') or _ss.startswith('!['): _scan+=1; continue
+        if CAPRE.match(_ss): _scan+=1; continue
+        _hm=re.match(r'^#{1,6}\s+(.*\S)\s*$', _ss)
+        if _hm: _c=_hm.group(1)
+        elif _ss.startswith('**') and _ss.endswith('**') and len(_ss) > 4: _c=_ss[2:-2]
+        elif _ss.startswith('*') and _ss.endswith('*') and not _ss.startswith('**') and len(_ss) > 2: _c=_ss[1:-1]
+        else: break                               # hit body text -> no subtitle
+        _ctxt=_c.strip().strip('*').strip()
+        consumed.add(_scan)
+        if re.sub(r'[^a-z0-9]', '', _ctxt.lower()) == _tnorm and _tnorm:
+            _scan+=1; continue                    # this heading just repeats the title
+        subtitle=inline(_ctxt); break
 
 while i<N:
     ln=lines[i]; s=ln.strip()
@@ -268,8 +279,19 @@ while i<N:
             else:
                 out.append('<div class="tablewrap"><table class="ntable"><tbody>'+''.join(hrows)+'</tbody></table></div>')
         continue
-    if s.startswith('### '): flush(); out.append(f'<h3>{inline(re.sub(chr(94)+"[*]{2}|[*]{2}$","",s[4:]).strip())}</h3>'); i+=1; continue
-    if s.startswith('## '):  flush(); out.append(f'<h2>{inline(s[3:].strip())}</h2>'); i+=1; continue
+    # markdown pipe table: a row with |, followed by a |---|:--- separator line
+    if EXPLICIT and '|' in s and i+1 < N and lines[i+1].strip() and set(lines[i+1].strip()) <= set('-:| ') and '-' in lines[i+1]:
+        flush()
+        cell=lambda r: [c.strip() for c in r.strip().strip('|').split('|')]
+        head=cell(s); i+=2; rows=[]
+        while i < N and '|' in lines[i] and lines[i].strip(): rows.append(cell(lines[i])); i+=1
+        th='<tr>'+''.join(f'<th>{inline(c)}</th>' for c in head)+'</tr>'
+        tb=''.join('<tr>'+''.join(f'<td>{inline(c)}</td>' for c in r)+'</tr>' for r in rows)
+        out.append(f'<div class="tablewrap"><table class="ntable"><thead>{th}</thead><tbody>{tb}</tbody></table></div>')
+        continue
+    if s.startswith('#### '): flush(); out.append(f'<h4>{inline(s[5:].strip())}</h4>'); i+=1; continue
+    if s.startswith('### '): flush(); t=('h4' if EXPLICIT else 'h3'); out.append(f'<{t}>{inline(re.sub(chr(94)+"[*]{2}|[*]{2}$","",s[4:]).strip())}</{t}>'); i+=1; continue
+    if s.startswith('## '):  flush(); t=('h3' if EXPLICIT else 'h2'); out.append(f'<{t}>{inline(s[3:].strip())}</{t}>'); i+=1; continue
     if s.startswith('# '):   flush(); out.append(f'<h2>{inline(s[2:].strip())}</h2>'); i+=1; continue
     if s.startswith('> '):
         flush_list(); quotebuf.append(s[2:]); j=i+1
@@ -279,12 +301,17 @@ while i<N:
     _om=re.match(r'^\d+[.)]\s+(.*)', s)
     if re.match(r'^[-*] ', s) or _om:
         flush_quote()
+        if listbuf and listord != bool(_om): flush_list()          # list type changed (ul<->ol) -> new list
         if not listbuf: listord=bool(_om)                          # list type set by its first item
         item=_om.group(1) if _om else s[2:]; j=i+1
         while j<N and lines[j][:1] in ('\t',' ') and lines[j].strip() and not (re.match(r'^[-*>#]', lines[j].strip()) or re.match(r'^\d+[.)]\s', lines[j].strip())):
             item+=' '+lines[j].strip(); j+=1                       # absorb tab-indented continuation into the item
         item=re.sub(r'\s+([,.;:!?])', r'\1', item)
         listbuf.append(item); i=j; continue
+    if re.fullmatch(r'-{3,}|\*{3,}|_{3,}', s):                     # horizontal rule
+        flush()
+        if EXPLICIT: out.append('<hr>')
+        i+=1; continue
     if re.fullmatch(r'-{2,}', s): i+=1; continue
     _pg=re.match(r'^<page url="([^"]+)">(.*?)</page>\s*$', s)
     if _pg:

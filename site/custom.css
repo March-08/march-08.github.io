@@ -225,6 +225,13 @@ blockquote footer, blockquote cite {
 .more-note { width: 55%; color: #a4a29a; font-style: italic; }
 .postdate { font-size: 1.1rem; color: #7a7a7a; margin-top: 0; }
 
+/* h4 (Tufte styles only h1–h3; markdown ### / #### can produce h4) */
+body.layout-post h4 {
+  font-family: "et-book", Palatino, Georgia, serif; font-style: italic; font-weight: 400;
+  font-size: 1.5rem; line-height: 1.2; margin: 1.8rem 0 .4rem;
+}
+hr { border: none; border-top: 1px solid #e0ded6; width: 55%; margin: 2.2rem 0; }
+
 .navtoggle { display: none; }                        /* hamburger: hidden on desktop, shown on phones */
 .navlinks { display: contents; }                     /* wrapper is transparent to layout on desktop */
 
@@ -233,7 +240,7 @@ blockquote footer, blockquote cite {
 
   /* full-width blocks instead of the desktop 55%/90% */
   .note, .deepdive, figure, .postlist, .more-note, pre, .mathblock, .tablewrap,
-  .toc, .linkcard, .callout-note { width: auto; box-sizing: border-box; }
+  .toc, .linkcard, .callout-note, hr { width: auto; box-sizing: border-box; }
 
   /* images must fit the screen (the desktop 380px/240px caps overflowed) */
   figure { margin: 1.5rem 0; }

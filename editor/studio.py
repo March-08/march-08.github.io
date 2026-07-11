@@ -57,14 +57,11 @@ def dump_md(meta, body):
     fm = '\n'.join(f'{k}: {v}' for k, v in meta.items())
     return f'---\n{fm}\n---\n{body}'
 
-def run_converter(fetch_path, sitedir, slug, title, date):
-    return subprocess.run([sys.executable, CONVERTER, fetch_path, sitedir, slug, title, date],
+def run_converter(fetch_path, sitedir, slug, title, date, subtitle=''):
+    # subtitle is passed explicitly (argv[6]) so the converter renders body markdown
+    # verbatim (no leading heading is swallowed as a subtitle).
+    return subprocess.run([sys.executable, CONVERTER, fetch_path, sitedir, slug, title, date, subtitle or ''],
                           capture_output=True, text=True, timeout=180)
-
-def build_fetch(subtitle, body):
-    """Prepend the subtitle as the leading italic tagline the converter picks up."""
-    head = f'*{subtitle.strip()}*\n\n' if (subtitle or '').strip() else ''
-    return head + (body or '')
 
 # ----------------------------------------------------------------------------- articles
 def article_list():
@@ -109,9 +106,9 @@ def save_article(slug, title, date, subtitle, markdown):
     open(os.path.join(CONTENT, slug + '.md'), 'w', encoding='utf-8').write(
         dump_md({'title': title, 'date': date, 'subtitle': subtitle}, markdown))
     fetch = tempfile.NamedTemporaryFile('w', suffix='.md', delete=False, encoding='utf-8')
-    fetch.write(build_fetch(subtitle, markdown)); fetch.close()
+    fetch.write(markdown or ''); fetch.close()
     try:
-        r = run_converter(fetch.name, SITE, slug, title, date)
+        r = run_converter(fetch.name, SITE, slug, title, date, subtitle)
     finally:
         os.unlink(fetch.name)
     if r.returncode != 0:
@@ -130,9 +127,9 @@ def preview_article(slug, title, date, subtitle, markdown):
     except Exception:
         pass
     fetch = tempfile.NamedTemporaryFile('w', suffix='.md', delete=False, encoding='utf-8')
-    fetch.write(build_fetch(subtitle, markdown)); fetch.close()
+    fetch.write(markdown or ''); fetch.close()
     try:
-        r = run_converter(fetch.name, tmp, slug, title or 'Untitled', date)
+        r = run_converter(fetch.name, tmp, slug, title or 'Untitled', date, subtitle)
         hp = os.path.join(tmp, slug + '.html')
         out = open(hp, encoding='utf-8').read() if os.path.exists(hp) else ''
     finally:
