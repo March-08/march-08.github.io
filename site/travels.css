@@ -6,7 +6,7 @@ body { overflow-x: hidden; }                 /* contain the full-width map break
 /* full-viewport-width map, sitting below the standard navbar + title */
 #map {
   position: relative; left: 50%; margin-left: -50vw; width: 100vw;
-  height: 72vh; margin-top: 4.5rem; background: transparent; overflow: hidden;   /* blends into the page like a PNG */
+  height: auto; margin-top: 6rem; background: transparent; overflow: hidden;   /* height is set by travels.js to fit the visited latitude band */
 }
 #map svg { width: 100%; height: 100%; display: block; }
 /* land: outline only. pointer-events:none is CRUCIAL — a transparent fill still

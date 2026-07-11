@@ -65,15 +65,21 @@
   window.addEventListener("touchend", endResize);
 
   function draw() {
-    const w = container.clientWidth, h = container.clientHeight;
-    svg.attr("viewBox", `0 0 ${w} ${h}`).attr("preserveAspectRatio", "xMidYMid slice");
-    // Big full-bleed Mercator (fills the width; slight overscale crops the ±180° seam), and the
-    // vertical position is pinned so the bottom edge sits near lat -58 → Argentina is always in view.
+    const w = container.clientWidth;
+    // Full-width Mercator, but the HEIGHT is sized to the latitude band I've actually
+    // visited (≈ lat 74°N Alaska/Finland down to 58°S below Argentina) plus a margin, so
+    // nothing is ever cropped at the top or bottom.
     const s = w / (2 * Math.PI) * 0.94;
-    const ty = h - s * 1.25;                     // bottom edge ≈ lat -58°
-    const shift = w * 0.03;                       // nudge the whole map slightly to the left
-    const proj = d3.geoMercator().scale(s).translate([w / 2 - shift, ty]);
+    const shift = w * 0.03;                        // nudge the whole map slightly to the left
+    const latN = 74, latS = -58, pad = 22;         // band to show + top/bottom ocean margin
+    const base = d3.geoMercator().scale(s).translate([w / 2 - shift, 0]);
+    const yN = base([0, latN])[1], yS = base([0, latS])[1];
+    const h = Math.round(yS - yN + pad * 2);
+    const proj = d3.geoMercator().scale(s).translate([w / 2 - shift, pad - yN]);
     const path = d3.geoPath(proj);
+
+    container.style.height = h + "px";
+    svg.attr("viewBox", `0 0 ${w} ${h}`).attr("preserveAspectRatio", "xMidYMid meet");
 
     // Clip to just inside the ±180° meridians. A country that wraps the date line
     // otherwise paints a full-height vertical seam at -180°; this trims it off.
