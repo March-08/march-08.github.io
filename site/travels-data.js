@@ -25,7 +25,8 @@
     "Germany": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Portugal": { year: "", photos: [], text: "Notes and photos coming soon." },
     "China": { year: "", photos: [], text: "Notes and photos coming soon." },
-    "Belgium": { year: "", photos: ["images/travels/belgium-IMG_20240710_211416.jpg", "images/travels/belgium-IMG_20240710_214346.jpg"], text: "1,2) Bruxelles" }
+    "Belgium": { year: "", photos: ["images/travels/belgium-IMG_20240710_211416.jpg", "images/travels/belgium-IMG_20240710_214346.jpg"], text: "1,2) Bruxelles" },
+    "Czech Republic": { year: "", photos: ["images/travels/czech-republic-7789.jpg"], text: "1) Pilsner Urquell " }
 
   };
 })();
