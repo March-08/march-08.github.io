@@ -121,6 +121,10 @@ def flush(): flush_list(); flush_quote()
 
 IMG=re.compile(r'^!\[(.*)\]\((https?://[^)\s]+|file://.*?%7D%7D|[^)\s]+\.(?:png|jpe?g|webp|gif|svg))\)\s*$', re.S|re.I)
 CAPRE=re.compile(r'^\s*(Image by|Photo by|Image from|Image source|Img|src\s*[:.]|Source|Figure|Credit|Fig\.)', re.I)
+TWEET=re.compile(r'^https?://(?:www\.)?(?:twitter\.com|x\.com)/[^/\s]+/status/\d+')
+def tweet_fig(url):
+    return ('<figure class="tweet"><blockquote class="twitter-tweet" data-dnt="true">'
+            f'<a href="{html.escape(url, quote=True)}"></a></blockquote></figure>')
 def emit_img(caption_raw, fn):
     cap=inline(caption_raw.strip()) if caption_raw.strip() else ''
     if not fn:
@@ -199,6 +203,8 @@ while i<N:
     em=re.match(r'<embed src="([^"]+)">(.*?)</embed>', s, re.S)
     if em:
         flush(); cap=inline(em.group(2).strip()); esrc=em.group(1)
+        if TWEET.match(esrc):
+            out.append(tweet_fig(esrc)); i+=1; continue      # embed an X / Twitter post
         # normalize Google Slides / Docs share links to their embeddable form
         esrc=re.sub(r'(docs\.google\.com/presentation/d/[\w-]+)/(?:edit|pub|view)[^"]*', r'\1/embed?start=false&loop=false', esrc)
         out.append(f'<figure>\n  <div class="embed"><iframe src="{esrc}" loading="lazy" allowfullscreen></iframe></div>'
@@ -325,6 +331,8 @@ while i<N:
         if out and out[-1].endswith('</p>'): out[-1]=out[-1][:-4]+' '+sn+'</p>'
         else: out.append(f'<p>{sn}</p>')
         i+=1; continue
+    if EXPLICIT and TWEET.match(s) and ' ' not in s.strip():   # a pasted X/Twitter post link on its own line
+        flush(); out.append(tweet_fig(s.strip())); i+=1; continue
     flush()
     if not lead and s.startswith('Right now, your phone'):
         out.append(f'<p><span class="newthought">Right now, your phone</span>{inline(s[len("Right now, your phone"):])}</p>'); lead=True

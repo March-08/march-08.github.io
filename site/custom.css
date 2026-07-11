@@ -232,6 +232,10 @@ body.layout-post h4 {
 }
 hr { border: none; border-top: 1px solid #e0ded6; width: 55%; margin: 2.2rem 0; }
 
+/* embedded X / Twitter posts */
+figure.tweet { width: auto; margin: 1.8rem 0; display: flex; justify-content: center; }
+figure.tweet .twitter-tweet { margin: 0 auto !important; }
+
 .navtoggle { display: none; }                        /* hamburger: hidden on desktop, shown on phones */
 .navlinks { display: contents; }                     /* wrapper is transparent to layout on desktop */
 

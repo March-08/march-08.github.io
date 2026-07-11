@@ -17,3 +17,11 @@ document.addEventListener('click', function (e) {
 
 // Syntax-highlight all code blocks (IDE-style colors) via highlight.js.
 if (window.hljs) { try { hljs.highlightAll(); } catch (e) {} }
+
+// Embedded X / Twitter posts: load the widget script only if a tweet is on the page.
+// (Requires an http(s) origin — works on the hosted site and the local Studio server.)
+if (document.querySelector('.twitter-tweet')) {
+  var tw = document.createElement('script');
+  tw.async = true; tw.charset = 'utf-8'; tw.src = 'https://platform.twitter.com/widgets.js';
+  document.body.appendChild(tw);
+}
