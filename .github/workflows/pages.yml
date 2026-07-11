@@ -24,6 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Inject SEO meta + generate sitemap/robots
+        run: python3 tools/seo.py site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site          # only the static site is published

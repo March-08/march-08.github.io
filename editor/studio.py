@@ -166,6 +166,15 @@ def gen_travels_js(data):
 def save_travels(data):
     json.dump(data, open(TRAVELS_JSON, 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
     open(os.path.join(SITE, 'travels-data.js'), 'w', encoding='utf-8').write(gen_travels_js(data))
+    # cache-bust the data file on the live site so edits show up immediately (not a stale CDN copy)
+    hp = os.path.join(SITE, 'travels.html')
+    if os.path.exists(hp):
+        h = open(hp, encoding='utf-8').read()
+        if 'travels-data.js?v=' in h:
+            h = re.sub(r'travels-data\.js\?v=(\d+)', lambda m: f'travels-data.js?v={int(m.group(1)) + 1}', h)
+        else:
+            h = h.replace('travels-data.js', 'travels-data.js?v=1')
+        open(hp, 'w', encoding='utf-8').write(h)
 
 def country_names():
     p = os.path.join(TOOLS, 'country-names.txt')
