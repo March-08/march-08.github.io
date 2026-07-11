@@ -5,7 +5,7 @@
 (function () {
   window.TRIPS = {
 
-    "Italy": { year: "Home", photos: ["images/photo.jpeg"], text: "Where it all starts. Example single-photo entry \u2014 replace with a real note." },
+    "Italy": { year: "Home", photos: ["images/photo.jpeg"], text: "Where it all starts." },
     "Japan": { year: "Japan 2023", photos: ["images/travels/japan-IMG_20230911_201253.jpg", "images/travels/japan-IMG_20230912_170722.jpg", "images/travels/japan-1000001284.jpg"], text: "1) Toshima, Tokyo\n2) Minato, Tokyo\n3) Fuji mountin" },
     "Argentina": { year: "Devconnect 2025", photos: ["images/travels/argentina-IMG_20251128_153041.jpg", "images/travels/argentina-IMG_20251121_164219.jpg", "images/travels/argentina-IMG_20251126_121535_1.jpg"], text: "1) El Chalt\u00e9n, Santa Cruz Province, Argentina\n\n2) Trustless Agents Day, Deconnect\n\n3) Argentino Lake" },
     "Hungary": { year: "", photos: [], text: "Notes and photos coming soon." },
@@ -18,7 +18,7 @@
     "United States of America": { year: "23 August 2025", photos: ["images/travels/united-states-of-america-IMG_9278.jpeg", "images/travels/united-states-of-america-IMG_8894.jpeg"], text: "1) Dumbo, New York\n2) Golden Bridge, San Francisco, California" },
     "Egypt": { year: "Egypt 2024", photos: ["images/travels/egypt-IMG_20240505_095309.jpg", "images/travels/egypt-IMG_20240505_113430.jpg"], text: "1) Giza Pyramids breakfast\n2) Giza Pyramids " },
     "Turkey": { year: "", photos: [], text: "Notes and photos coming soon." },
-    "Vietnam": { year: "Winter 2025", photos: ["images/travels/vietnam-WhatsApp-Image-2025-12-30-at-14.40.47.jpeg", "images/travels/vietnam-WhatsApp-Image-2026-01-01-at-11.09.00.jpeg", "images/travels/vietnam-WhatsApp-Image-2026-01-01-at-11.17.31.jpeg", "images/travels/vietnam-WhatsApp-Image-2026-01-02-at-08.56.24--1-.jpeg"], text: "Notes and photos coming soon." },
+    "Vietnam": { year: "Winter 2025", photos: ["images/travels/vietnam-WhatsApp-Image-2025-12-30-at-14.40.47.jpeg", "images/travels/vietnam-WhatsApp-Image-2026-01-01-at-11.09.00.jpeg", "images/travels/vietnam-WhatsApp-Image-2026-01-01-at-11.17.31.jpeg", "images/travels/vietnam-WhatsApp-Image-2026-01-02-at-08.56.24--1-.jpeg"], text: "Somewhere in Vietnam" },
     "Thailand": { year: "", photos: ["images/travels/thailand-IMG_20241110_031233.jpg", "images/travels/thailand-IMG_20241113_144631.jpg"], text: "1) Bangkok, Thailandia\n2) Devcon, Bangkok, Thailandia" },
     "Switzerland": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Finland": { year: "", photos: [], text: "Notes and photos coming soon." },
