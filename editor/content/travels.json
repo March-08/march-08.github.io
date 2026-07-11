@@ -46,9 +46,11 @@
     "text": "Notes and photos coming soon."
   },
   "Cyprus": {
-    "year": "",
-    "photos": [],
-    "text": "Notes and photos coming soon."
+    "year": "2026 AAMAS Conference",
+    "photos": [
+      "images/travels/cyprus-WhatsApp-Image-2026-05-27-at-22.38.40.jpeg"
+    ],
+    "text": "1) US  vs European researchers soccer match"
   },
   "Namibia": {
     "year": "",
@@ -64,9 +66,12 @@
     "text": "1) Dumbo, New York\n2) Golden Bridge, San Francisco, California"
   },
   "Egypt": {
-    "year": "",
-    "photos": [],
-    "text": "Notes and photos coming soon."
+    "year": "Egypt 2024",
+    "photos": [
+      "images/travels/egypt-IMG_20240505_095309.jpg",
+      "images/travels/egypt-IMG_20240505_113430.jpg"
+    ],
+    "text": "1) Giza Pyramids breakfast\n2) Giza Pyramids "
   },
   "Turkey": {
     "year": "",
