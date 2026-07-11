@@ -53,7 +53,8 @@ def block(url, title, desc, is_home):
          '<meta name="twitter:card" content="summary_large_image">',
          f'<meta name="twitter:title" content="{t}">',
          f'<meta name="twitter:description" content="{d}">',
-         f'<meta name="twitter:image" content="{OGIMG}">']
+         f'<meta name="twitter:image" content="{OGIMG}">',
+         '<script src="nav.js" defer></script>']   # mobile hamburger menu, on every page
     if is_home:
         person = {"@context": "https://schema.org", "@type": "Person", "name": AUTHOR,
                   "url": BASE + "/", "image": OGIMG, "jobTitle": "Research Scientist",

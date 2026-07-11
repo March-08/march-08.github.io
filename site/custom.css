@@ -225,6 +225,8 @@ blockquote footer, blockquote cite {
 .more-note { width: 55%; color: #a4a29a; font-style: italic; }
 .postdate { font-size: 1.1rem; color: #7a7a7a; margin-top: 0; }
 
+.navtoggle { display: none; }                        /* hamburger: hidden on desktop, shown on phones */
+
 @media screen and (max-width: 760px) {
   html, body { overflow-x: hidden; }                 /* never scroll sideways on a phone */
 
@@ -240,9 +242,20 @@ blockquote footer, blockquote cite {
   pre { overflow-x: auto; }
   pre code, pre code.hljs, body.layout-post pre code { font-size: .8rem; }
 
-  /* nav: let the wrapped links set the header height (the fixed 4.5rem made them
-     collide with the bio/title below) */
-  header > nav.group { height: auto; }
-  header > nav a { float: none; display: inline-block; margin-left: 0;
-    padding: .35rem 1.1rem .35rem 0; padding-top: .35rem; font-size: 1.05rem; }
+  /* nav becomes a hamburger menu */
+  header > nav.group { height: auto; min-height: 2.8rem; position: relative; padding-top: 2.9rem; }
+  .navtoggle {
+    display: flex; flex-direction: column; justify-content: center; gap: 5px;
+    position: absolute; top: .45rem; left: -.15rem; width: 42px; height: 40px;
+    padding: 9px 8px; background: none; border: none; cursor: pointer;
+  }
+  .navtoggle span { display: block; width: 100%; height: 2px; background: #0099FF;
+    border-radius: 2px; transition: transform .22s ease, opacity .2s ease; }
+  header > nav.group a { float: none; display: none; margin: 0;
+    padding: .55rem 0; padding-top: .55rem; font-size: 1.2rem; }
+  header > nav.group.open a { display: block; }
+  /* morph the bars into an X while open */
+  header > nav.group.open .navtoggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  header > nav.group.open .navtoggle span:nth-child(2) { opacity: 0; }
+  header > nav.group.open .navtoggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 }
