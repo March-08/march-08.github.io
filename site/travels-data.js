@@ -6,7 +6,7 @@
   window.TRIPS = {
 
     "Italy": { year: "Home", photos: ["images/photo.jpeg"], text: "Where it all starts. Example single-photo entry \u2014 replace with a real note." },
-    "Japan": { year: "2023", photos: [], text: "Notes and photos coming soon." },
+    "Japan": { year: "Japan 2023", photos: ["images/travels/japan-IMG_20230911_201253.jpg", "images/travels/japan-IMG_20230912_170722.jpg", "images/travels/japan-1000001284.jpg"], text: "1) Toshima, Tokyo\n2) Minato, Tokyo\n3) Fuji mountin" },
     "Argentina": { year: "Devconnect 2025", photos: ["images/travels/argentina-IMG_20251128_153041.jpg", "images/travels/argentina-IMG_20251121_164219.jpg", "images/travels/argentina-IMG_20251126_121535_1.jpg"], text: "1) El Chalt\u00e9n, Santa Cruz Province, Argentina\n\n2) Trustless Agents Day, Deconnect\n\n3) Argentino Lake" },
     "Hungary": { year: "", photos: [], text: "Notes and photos coming soon." },
     "United Kingdom": { year: "", photos: [], text: "Notes and photos coming soon." },
@@ -24,7 +24,8 @@
     "Finland": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Germany": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Portugal": { year: "", photos: [], text: "Notes and photos coming soon." },
-    "China": { year: "", photos: [], text: "Notes and photos coming soon." }
+    "China": { year: "", photos: [], text: "Notes and photos coming soon." },
+    "Belgium": { year: "", photos: ["images/travels/belgium-IMG_20240710_211416.jpg", "images/travels/belgium-IMG_20240710_214346.jpg"], text: "1,2) Bruxelles" }
 
   };
 })();
