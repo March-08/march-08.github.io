@@ -19,7 +19,7 @@
     "Egypt": { year: "Egypt 2024", photos: ["images/travels/egypt-IMG_20240505_095309.jpg", "images/travels/egypt-IMG_20240505_113430.jpg"], text: "1) Giza Pyramids breakfast\n2) Giza Pyramids " },
     "Turkey": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Vietnam": { year: "", photos: [], text: "Notes and photos coming soon." },
-    "Thailand": { year: "", photos: [], text: "Notes and photos coming soon." },
+    "Thailand": { year: "", photos: ["images/travels/thailand-IMG_20241110_031233.jpg", "images/travels/thailand-IMG_20241113_144631.jpg"], text: "1) Bangkok, Thailandia\n2) Devcon, Bangkok, Thailandia" },
     "Switzerland": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Finland": { year: "", photos: [], text: "Notes and photos coming soon." },
     "Germany": { year: "", photos: [], text: "Notes and photos coming soon." },

@@ -89,8 +89,11 @@
   },
   "Thailand": {
     "year": "",
-    "photos": [],
-    "text": "Notes and photos coming soon."
+    "photos": [
+      "images/travels/thailand-IMG_20241110_031233.jpg",
+      "images/travels/thailand-IMG_20241113_144631.jpg"
+    ],
+    "text": "1) Bangkok, Thailandia\n2) Devcon, Bangkok, Thailandia"
   },
   "Switzerland": {
     "year": "",
