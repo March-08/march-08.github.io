@@ -53,10 +53,15 @@ body{margin:0;font-family:var(--font);color:var(--ink);background:var(--bg);disp
 .toolbar button:hover{background:#eef6ff;border-color:#cae5ff}
 .toolbar .sep{width:1px;background:var(--line);margin:.1rem .3rem}
 
-/* split editor / preview */
-.split{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr}
-.body{border:none;border-right:1px solid var(--line);resize:none;padding:1.1rem 1.3rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;line-height:1.6;outline:none;background:#fcfbf9}
-.preview{border:none;width:100%;height:100%;background:#fff}
+/* split editor / preview — draggable divider sets the proportion */
+.split{flex:1;min-height:0;display:flex}
+.body{flex:0 0 50%;min-width:0;border:none;resize:none;padding:1.1rem 1.3rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;line-height:1.6;outline:none;background:#fcfbf9}
+.split-resizer{flex:0 0 6px;cursor:col-resize;background:var(--line);position:relative;transition:background .15s}
+.split-resizer::before{content:"";position:absolute;inset:0 -4px}   /* fatter hit area */
+.split-resizer:hover,.split.resizing .split-resizer{background:var(--accent)}
+.preview{flex:1 1 0;min-width:0;border:none;height:100%;background:#fff}
+.split.resizing{user-select:none}
+.split.resizing .preview{pointer-events:none}   /* keep tracking the drag over the iframe */
 
 /* action bar */
 .actionbar{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;border-top:1px solid var(--line);background:var(--panel)}

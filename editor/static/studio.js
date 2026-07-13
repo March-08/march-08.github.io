@@ -220,5 +220,26 @@ $("#doPublish").onclick = async () => {
   else toast(/nothing/i.test(res.log || "") ? "Nothing to publish" : "Publish failed", true);
 };
 
+/* ---------------- draggable editor/preview divider ---------------- */
+(function () {
+  var split = document.querySelector(".split"), resizer = $("#splitResizer");
+  if (!split || !resizer) return;
+  var saved = parseFloat(localStorage.getItem("studioSplit"));
+  if (saved >= 15 && saved <= 85) aBody.style.flexBasis = saved + "%";
+  var dragging = false;
+  resizer.addEventListener("mousedown", function (e) { dragging = true; split.classList.add("resizing"); e.preventDefault(); });
+  window.addEventListener("mousemove", function (e) {
+    if (!dragging) return;
+    var r = split.getBoundingClientRect();
+    var pct = Math.max(15, Math.min(85, ((e.clientX - r.left) / r.width) * 100));
+    aBody.style.flexBasis = pct + "%";
+  });
+  window.addEventListener("mouseup", function () {
+    if (!dragging) return;
+    dragging = false; split.classList.remove("resizing");
+    localStorage.setItem("studioSplit", parseFloat(aBody.style.flexBasis) || 50);
+  });
+})();
+
 /* ---------------- init ---------------- */
 newArticle();
