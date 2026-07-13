@@ -59,9 +59,12 @@ body{margin:0;font-family:var(--font);color:var(--ink);background:var(--bg);disp
 .split-resizer{flex:0 0 6px;cursor:col-resize;background:var(--line);position:relative;transition:background .15s}
 .split-resizer::before{content:"";position:absolute;inset:0 -4px}   /* fatter hit area */
 .split-resizer:hover,.split.resizing .split-resizer{background:var(--accent)}
-.preview{flex:1 1 0;min-width:0;border:none;height:100%;background:#fff}
+/* the preview iframe auto-sizes to its content; this wrapper does the scrolling
+   (a normal element scrolls reliably with the mouse wheel, unlike an iframe) */
+.preview-wrap{flex:1 1 0;min-width:0;height:100%;overflow-y:auto;overflow-x:hidden;background:#fff}
+.preview{display:block;width:100%;border:none;min-height:100%}
 .split.resizing{user-select:none}
-.split.resizing .preview{pointer-events:none}   /* keep tracking the drag over the iframe */
+.split.resizing .preview-wrap{pointer-events:none}   /* keep tracking the drag over the preview */
 
 /* action bar */
 .actionbar{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;border-top:1px solid var(--line);background:var(--panel)}

@@ -58,6 +58,23 @@ async function doPreview() {
   const res = await post("/api/preview", {
     slug: curArticleSlug(), title: aTitle.value, date: aDate.value,
     subtitle: aSubtitle.value, markdown: aBody.value });
+  var wrap = $("#previewWrap");
+  var keep = wrap ? wrap.scrollTop : 0;           // preserve scroll position across refreshes
+  function fit() {
+    try {
+      var doc = preview.contentDocument;
+      if (doc) preview.style.height = (doc.documentElement.scrollHeight + 2) + "px";
+      if (wrap) wrap.scrollTop = keep;
+    } catch (e) {}
+  }
+  preview.onload = function () {
+    fit(); setTimeout(fit, 350);                    // re-fit once images/fonts load
+    try {                                           // forward wheel from inside the iframe to the wrapper
+      preview.contentWindow.addEventListener("wheel", function (e) {
+        if (wrap) wrap.scrollTop += (e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY);
+      }, { passive: true });
+    } catch (e) {}
+  };
   preview.srcdoc = res.html || "";
 }
 [aTitle, aSubtitle, aBody].forEach(el => el.addEventListener("input", schedulePreview));
