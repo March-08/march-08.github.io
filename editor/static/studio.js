@@ -109,7 +109,7 @@ const CMDS = {
   link: () => { const u = prompt("Link URL:", "https://"); if (!u) return;
     const t = aBody, s = t.selectionStart, e = t.selectionEnd, sel = t.value.slice(s, e) || "link text";
     t.setRangeText(`[${sel}](${u})`, s, e, "end"); t.focus(); schedulePreview(); },
-  sidenote: () => insertBlock("(your side note — shows in the margin)"),
+  sidenote: () => surround("^[", "]"),   // inline sidenote at the cursor: text^[note] keeps flowing
   image: () => pickArticleImage(),
   video: () => { const u = prompt("YouTube URL:", "https://youtu.be/"); if (u) insertBlock(`<video src="${u}">caption</video>`); },
   embed: () => { const u = prompt("URL to embed (any site, or a Google Slides link):", "https://"); if (u) insertBlock(`<embed src="${u}">caption</embed>`); },

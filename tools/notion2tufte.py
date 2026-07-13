@@ -92,6 +92,13 @@ def inline(t):
     t=re.sub(r'(^|[\s(])__(\S(?:.*?\S)?)__(?=[\s).,;:!?]|$)', r'\1<strong>\2</strong>', t)
     t=re.sub(r'(^|[\s(])_(\S(?:.*?\S)?)_(?=[\s).,;:!?]|$)', r'\1<em>\2</em>', t)
     t=re.sub(r'`([^`]+)`', r'<code>\1</code>', t)
+    def _sn(m):                                    # inline sidenote: text^[the note] keeps flowing
+        global snid
+        snid += 1
+        return (f'<label for="sn-{snid}" class="margin-toggle sidenote-number"></label>'
+                f'<input type="checkbox" id="sn-{snid}" class="margin-toggle"/>'
+                f'<span class="sidenote">{m.group(1)}</span>')
+    t=re.sub(r'\^\[([^\]]+)\]', _sn, t)
     return t
 def yt_id(u):
     m=re.search(r'(?:v=|youtu\.be/|embed/)([\w-]{6,})', u); return m.group(1) if m else None
