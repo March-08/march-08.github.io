@@ -26,7 +26,10 @@
     "Portugal": { year: "", photos: [], text: "Notes and photos coming soon." },
     "China": { year: "China 2024", photos: ["images/travels/china-2026-07-11-14.27.04.jpg", "images/travels/china-WhatsApp-Image-2026-05-17-at-14.30.31.jpeg", "images/travels/china-1779262768281.jpeg"], text: "1) Shanghai\n2) Hong Kong \n3) MuShanghai\n3) Eth HK Hub" },
     "Belgium": { year: "", photos: ["images/travels/belgium-IMG_20240710_211416.jpg", "images/travels/belgium-IMG_20240710_214346.jpg"], text: "1,2) Bruxelles" },
-    "Czech Republic": { year: "", photos: ["images/travels/czech-republic-7789.jpg"], text: "1) Pilsner Urquell " }
+    "Czech Republic": { year: "", photos: ["images/travels/czech-republic-7789.jpg"], text: "1) Pilsner Urquell " },
+    "Malta": { year: "", photos: [], text: "Notes and photos coming soon." },
+    "Austria": { year: "", photos: [], text: "Notes and photos coming soon." },
+    "Netherlands": { year: "", photos: [], text: "Notes and photos coming soon." }
 
   };
 })();
